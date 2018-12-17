@@ -1,0 +1,32 @@
+type Query @cacheControl(maxAge: 10000) {
+  """
+  Get detailed information about a specific movie.
+  """
+  movie(id: ID): Movie
+  """
+  Get detailed information about a specific TV show.
+  """
+  show(id: ID): Show
+  """
+  Get details information about a specific person
+  """
+  person(id: ID): Person
+}
+
+# Movie stub
+type Movie {
+  title: String
+  id: ID
+}
+
+# Show stub
+type Show {
+  title: String
+  id: ID
+}
+
+# Person stub
+type Person {
+  name: String
+  id: ID
+}

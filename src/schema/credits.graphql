@@ -1,0 +1,38 @@
+"""
+This is the base type for the cast and crew credits of a movie
+tv show.
+"""
+interface Credit @cacheControl(maxAge: 10000) {
+  creditType: CreditType!
+  media: Media!
+  creditId: ID!
+  gender: Int
+  id: ID!
+  name: String!
+  profilePath: String
+}
+
+type CastCredit implements Credit {
+  creditType: CreditType!
+  media: Media!
+  castId: ID!
+  creditId: ID!
+  gender: Int
+  id: ID!
+  name: String!
+  profilePath: String
+  character: String
+  order: Int
+}
+
+type CrewCredit implements Credit {
+  creditType: CreditType!
+  media: Media!
+  creditId: ID!
+  gender: Int!
+  id: ID!
+  name: String!
+  profilePath: String
+  department: String!
+  job: String!
+}

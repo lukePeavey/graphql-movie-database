@@ -18,6 +18,7 @@ interface Media @cacheControl(maxAge: 10000) {
   title: String!
   voteAverage: Float!
   voteCount: Int!
+  credits: Credits!
 }
 
 """
@@ -46,6 +47,7 @@ type Movie implements Media {
   title: String!
   voteAverage: Float!
   voteCount: Int!
+  credits: Credits!
 }
 
 """
@@ -75,6 +77,7 @@ type Show implements Media {
   title: String!
   voteAverage: Float!
   voteCount: Int!
+  credits: Credits!
 }
 
 """
@@ -109,6 +112,12 @@ type Episode {
   stillPath: String
   voteAverage: Float!
   voteCount: Int!
+  crew: [CrewCredit]!
+  guestStars: [CastCredit]!
+}
+type Credits {
+  cast: [CastCredit]!
+  crew: [CrewCredit]!
 }
 
 type Genre @cacheControl(maxAge: 10000) {

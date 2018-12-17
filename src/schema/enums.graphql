@@ -1,0 +1,10 @@
+enum CreditType {
+  CAST
+  CREW
+}
+
+enum MediaType {
+  PERSON
+  TV
+  MOVIE
+}

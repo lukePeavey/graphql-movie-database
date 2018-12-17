@@ -18,4 +18,11 @@ type Person @cacheControl(maxAge: 10000) {
   placeOfBirth: String
   popularity: Float!
   profilePath: String
+  knownFor: [Media]!
+  filmography: Filmography!
+}
+
+type Filmography @cacheControl(maxAge: 10000) {
+  cast: [CastCredit]!
+  crew: [CrewCredit]!
 }

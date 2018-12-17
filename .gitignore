@@ -1,0 +1,32 @@
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# This directory contains files that are not inlcuded in the repo,
+# such as scratch files, etc.
+/private
+
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# production
+/dist
+
+# editor settings
+.vscode
+.chrome
+.idea
+
+# misc
+.DS_Store
+.env
+.env.development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

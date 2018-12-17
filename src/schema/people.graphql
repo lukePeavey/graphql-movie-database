@@ -1,0 +1,21 @@
+"""
+Details a person.
+@todo add the `person.known_as` field
+@todo add the `person.movie_credits` field
+@todo add the `person.tv_credits` field
+"""
+type Person @cacheControl(maxAge: 10000) {
+  alsoKnownAs: [String]
+  biography: String
+  birthday: String!
+  deathday: String
+  gender: Int!
+  homepage: String
+  id: ID!
+  knownForDepartment: String
+  mediaType: String!
+  name: String!
+  placeOfBirth: String
+  popularity: Float!
+  profilePath: String
+}

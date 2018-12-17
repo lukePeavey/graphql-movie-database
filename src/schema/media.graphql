@@ -1,0 +1,134 @@
+"""
+Media is the base type for Movie and Show. It defines the common
+set of fields shared by both TV Shows and Movies.
+"""
+interface Media @cacheControl(maxAge: 10000) {
+  backdropPath: String
+  genres: [Genre]!
+  homepage: String
+  id: ID!
+  mediaType: String!
+  originalLanguage: String!
+  originalTitle: String!
+  overview: String
+  popularity: Float!
+  posterPath: String
+  productionCompanies: [Company]!
+  status: String!
+  title: String!
+  voteAverage: Float!
+  voteCount: Int!
+}
+
+"""
+Information about a movie
+@todo Add the `movie.credits` field
+"""
+type Movie implements Media {
+  backdropPath: String
+  budget: Int!
+  genres: [Genre]!
+  homepage: String
+  id: ID!
+  mediaType: String!
+  originalLanguage: String!
+  originalTitle: String!
+  overview: String
+  popularity: Float!
+  posterPath: String
+  productionCompanies: [Company]!
+  productionCountries: [Country]!
+  releaseDate: String!
+  revenue: Int!
+  runtime: Int
+  status: String!
+  tagline: String
+  title: String!
+  voteAverage: Float!
+  voteCount: Int!
+}
+
+"""
+Information about a TV Show.
+@todo Add the `show.credits` field
+"""
+type Show implements Media {
+  backdropPath: String
+  episodeRunTime: [Int]!
+  genres: [Genre]!
+  homepage: String
+  id: ID!
+  inProduction: Boolean!
+  lastAirDate: String!
+  mediaType: String!
+  numberOfEpisodes: Int!
+  numberOfSeasons: Int!
+  originalLanguage: String!
+  originalTitle: String!
+  originCountry: [String]!
+  overview: String!
+  popularity: Float!
+  posterPath: String!
+  productionCompanies: [Company]!
+  seasons: [Season]!
+  status: String!
+  title: String!
+  voteAverage: Float!
+  voteCount: Int!
+}
+
+"""
+An insividual season of a TV Show.
+"""
+type Season @cacheControl(maxAge: 10000) {
+  airDate: String!
+  episodeCount: Int!
+  id: ID!
+  name: String!
+  overview: String!
+  posterPath: String
+  seasonNumber: Int!
+  episodes: [Episode]!
+}
+
+"""
+An individual episode of a TV show. It includes details that are specfic
+to the episode, such as special guests, crew, description.
+@todo Add the `episode.crew` field
+@todo Add the `episode.guestStars` field
+"""
+type Episode {
+  airDate: String!
+  episodeNumber: Int!
+  id: ID!
+  name: String!
+  overview: String!
+  productionCode: Int
+  seasonNumber: Int!
+  showId: ID!
+  stillPath: String
+  voteAverage: Float!
+  voteCount: Int!
+}
+
+type Genre @cacheControl(maxAge: 10000) {
+  id: Int!
+  name: String!
+}
+
+type Company @cacheControl(maxAge: 10000) {
+  id: ID!
+  logoPath: String
+  name: String!
+  originCountry: String
+}
+
+type Country @cacheControl(maxAge: 10000) {
+  iso_3166_1: String!
+  name: String!
+}
+
+type Language @cacheControl(maxAge: 10000) {
+  iso_639_1: String!
+  name: String!
+}

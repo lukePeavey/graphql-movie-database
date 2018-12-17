@@ -12,21 +12,3 @@ type Query @cacheControl(maxAge: 10000) {
   """
   person(id: ID): Person
 }
-
-# Movie stub
-type Movie {
-  title: String
-  id: ID
-}
-
-# Show stub
-type Show {
-  title: String
-  id: ID
-}
-
-# Person stub
-type Person {
-  name: String
-  id: ID
-}

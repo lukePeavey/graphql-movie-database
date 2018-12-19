@@ -23,7 +23,6 @@ interface Media @cacheControl(maxAge: 10000) {
 
 """
 Information about a movie
-@todo Add the `movie.credits` field
 """
 type Movie implements Media {
   backdropPath: String
@@ -52,7 +51,6 @@ type Movie implements Media {
 
 """
 Information about a TV Show.
-@todo Add the `show.credits` field
 """
 type Show implements Media {
   backdropPath: String
@@ -97,8 +95,6 @@ type Season @cacheControl(maxAge: 10000) {
 """
 An individual episode of a TV show. It includes details that are specfic
 to the episode, such as special guests, crew, description.
-@todo Add the `episode.crew` field
-@todo Add the `episode.guestStars` field
 """
 type Episode {
   airDate: String!

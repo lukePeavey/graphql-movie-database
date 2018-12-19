@@ -1,8 +1,5 @@
 """
 Details a person.
-@todo add the `person.known_as` field
-@todo add the `person.movie_credits` field
-@todo add the `person.tv_credits` field
 """
 type Person @cacheControl(maxAge: 10000) {
   alsoKnownAs: [String]

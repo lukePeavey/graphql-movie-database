@@ -77,8 +77,9 @@ module.exports = {
       return seasons.map(season => ({ showId, ...season }))
     },
     // Get a single season by `seasonNumber.`
-    season: ({ seasons }, { seasonNumber }) => {
-      return seasons[seasonNumber]
+    season: ({ seasons, id }, { seasonNumber }) => {
+      const season = seasons[seasonNumber]
+      return season ? { ...season, showId: id } : null
     }
   },
   Season: {

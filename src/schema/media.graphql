@@ -4,7 +4,8 @@ set of fields shared by both TV Shows and Movies.
 """
 interface Media @cacheControl(maxAge: 10000) {
   backdropPath: String
-  genres: [Genre]!
+  genres: [Genre]
+  genreIds: [Int]!
   homepage: String
   id: ID!
   mediaType: String!
@@ -24,10 +25,11 @@ interface Media @cacheControl(maxAge: 10000) {
 """
 Information about a movie
 """
-type Movie implements Media {
+type Movie implements Media @cacheControl(maxAge: 10000) {
   backdropPath: String
   budget: Int!
-  genres: [Genre]!
+  genres: [Genre]
+  genreIds: [Int]!
   homepage: String
   id: ID!
   mediaType: String!
@@ -52,10 +54,11 @@ type Movie implements Media {
 """
 Information about a TV Show.
 """
-type Show implements Media {
+type Show implements Media @cacheControl(maxAge: 10000) {
   backdropPath: String
   episodeRunTime: [Int]!
-  genres: [Genre]!
+  genres: [Genre]
+  genreIds: [Int]!
   homepage: String
   id: ID!
   inProduction: Boolean!
@@ -70,7 +73,8 @@ type Show implements Media {
   popularity: Float!
   posterPath: String!
   productionCompanies: [Company]!
-  seasons: [Season]!
+  allSeasons: [Season]!
+  season(seasonNumber: Int!): Season
   status: String!
   title: String!
   voteAverage: Float!
@@ -79,13 +83,14 @@ type Show implements Media {
 }
 
 """
-An insividual season of a TV Show.
+An individual season of a TV Show.
 """
 type Season @cacheControl(maxAge: 10000) {
   airDate: String!
   episodeCount: Int!
   id: ID!
-  name: String!
+  showID: ID!
+  title: String!
   overview: String!
   posterPath: String
   seasonNumber: Int!
@@ -93,14 +98,14 @@ type Season @cacheControl(maxAge: 10000) {
 }
 
 """
-An individual episode of a TV show. It includes details that are specfic
+An individual episode of a TV show. It includes details that are specific
 to the episode, such as special guests, crew, description.
 """
-type Episode {
+type Episode @cacheControl(maxAge: 10000) {
   airDate: String!
   episodeNumber: Int!
   id: ID!
-  name: String!
+  title: String!
   overview: String!
   productionCode: Int
   seasonNumber: Int!

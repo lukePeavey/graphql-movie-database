@@ -1,6 +1,5 @@
 """
-This is the base type for the cast and crew credits of a movie
-tv show.
+This is the base type for CastCredit and CrewCredits.
 """
 interface Credit @cacheControl(maxAge: 10000) {
   creditType: CreditType!

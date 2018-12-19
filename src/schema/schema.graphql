@@ -1,14 +1,80 @@
 type Query @cacheControl(maxAge: 10000) {
   """
+  The search query is used to search the database for objecting that match
+  a query string. By default, this will use `/search/multi/`, which searches
+  all database models simultaneously. You can use the `type` argument to
+  limit the search to a specific object type. This type parameter supports
+  any of the `search/${endpoint}` values: 'tv', 'movie', 'person', 'company'
+  """
+  search(query: String!, type: MediaType, page: Int = 1): SearchResponse
+  """
+  Find movies using a variety of filters and sorting options. This query
+  supports all of the filter parameters and sort_by options that are available
+  on the `/discover/movie/` endpoint. NOTE: If you want to _search_ for movies
+  that match a string, you should use the `search` query instead.
+  """
+  movies(
+    sortBy: MediaSortBy = popularity_DESC
+    filter: MediaFilter
+    page: Int = 1
+  ): MovieList
+  """
+  Find TV shows using a variety of filters and sorting options. This query
+  supports all of the filter parameters and sort_by options that are available
+  on the `/discover/tv/` endpoint. If you want to find TV shows using a search
+  string, you should use the search query instead.
+  """
+  shows(
+    query: String
+    sortBy: MediaSortBy = popularity_DESC
+    filter: MediaFilter
+    page: Int = 1
+  ): ShowList
+  """
   Get detailed information about a specific movie.
   """
-  movie(id: ID): Movie
+  Movie(id: ID!): Movie
   """
   Get detailed information about a specific TV show.
   """
-  show(id: ID): Show
+  Show(id: ID!): Show
   """
-  Get details information about a specific person
+  Get details information about a specific person.
   """
-  person(id: ID): Person
+  Person(id: ID!): Person
+  """
+  Get the details about a production company.
+  """
+  Company(id: ID!): Person
 }
+
+"""
+The field containing query meta data.
+@todo need to do some more research on best/practices
+response types. Another pattern i have seen is to have two
+queries, ie allPosts() and _allPostsMeta
+"""
+type QueryMeta @cacheControl(maxAge: 600) {
+  totalPages: Int
+  totalResults: Int
+  page: Int
+}
+
+type MovieList @cacheControl(maxAge: 600) {
+  meta: QueryMeta
+  results: [Movie]
+}
+type ShowList @cacheControl(maxAge: 600) {
+  meta: QueryMeta
+  results: [Show]
+}
+type PersonList @cacheControl(maxAge: 600) {
+  meta: QueryMeta
+  results: [Person]
+}
+type SearchResponse @cacheControl(maxAge: 600) {
+  meta: QueryMeta
+  results: [SearchResult]
+}
+
+union SearchResult = Person | Movie | Show | Company

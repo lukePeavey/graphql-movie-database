@@ -1,28 +1,36 @@
 type Query @cacheControl(maxAge: 10000) {
   """
-  The search query is used to search the database for objecting that match
-  a query string. By default, this will use `/search/multi/`, which searches
-  all database models simultaneously. You can use the `type` argument to
-  limit the search to a specific object type. This type parameter supports
-  any of the `search/${endpoint}` values: 'tv', 'movie', 'person', 'company'
+  This query searches all database models simultaneously, via the
+  `/search/multi` endpoint. The results will be a list of mixed types
+  that can include Movie | Show | Person | Company objects.
+
+  If you want to search for a specific type of object, the multi-item query for
+  that object, ie `movies` | `people`
   """
-  search(query: String!, type: MediaType, page: Int = 1): SearchResponse
+  search(query: String!, page: Int = 1): SearchResponse
   """
-  Find movies using a variety of filters and sorting options. This query
-  supports all of the filter parameters and sort_by options that are available
-  on the `/discover/movie/` endpoint. NOTE: If you want to _search_ for movies
-  that match a string, you should use the `search` query instead.
+  Find movies — using a search query or a variety of filters and sorting
+  options. If the `query` argument is provided, this will use the
+  `/search/movie` endpoint, and the filter and sortBy options will be ignored.
+  If query is not provided, this will use the `/discover/movie` endpoint
+  using the provided filters and sortBy options. It supports all of the filter
+  parameters and sort_by options that are available on the `/discover/movie/`
+  endpoint.
   """
   movies(
+    query: String
     sortBy: MediaSortBy = popularity_DESC
     filter: MediaFilter
     page: Int = 1
   ): MovieList
   """
-  Find TV shows using a variety of filters and sorting options. This query
-  supports all of the filter parameters and sort_by options that are available
-  on the `/discover/tv/` endpoint. If you want to find TV shows using a search
-  string, you should use the search query instead.
+  Find TV shows — using a search query or a variety of filters and sorting
+  options. If the `query` argument is provided, this will use the
+  `/search/tv` endpoint, and the filter and sortBy options will be ignored.
+  If query is not provided, this will use the `/discover/tv` endpoint
+  using the provided filters and sortBy options. It supports all of the filter
+  parameters and sort_by options that are available on the `/discover/tv/`
+  endpoint.
   """
   shows(
     query: String
@@ -30,6 +38,14 @@ type Query @cacheControl(maxAge: 10000) {
     filter: MediaFilter
     page: Int = 1
   ): ShowList
+  """
+  Search the database for people that match a given search query.
+  """
+  people(query: String!, page: Int = 1): PersonList
+  """
+  Search the database for companies that match a given search query.
+  """
+  companies(query: String!, page: Int = 1): CompanyList
   """
   Get detailed information about a specific movie.
   """
@@ -45,7 +61,7 @@ type Query @cacheControl(maxAge: 10000) {
   """
   Get the details about a production company.
   """
-  Company(id: ID!): Person
+  Company(id: ID!): Company
 }
 
 """
@@ -71,6 +87,10 @@ type ShowList @cacheControl(maxAge: 600) {
 type PersonList @cacheControl(maxAge: 600) {
   meta: QueryMeta
   results: [Person]
+}
+type CompanyList @cacheControl(maxAge: 600) {
+  meta: QueryMeta
+  results: [Company]
 }
 type SearchResponse @cacheControl(maxAge: 600) {
   meta: QueryMeta

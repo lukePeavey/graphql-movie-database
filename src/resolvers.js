@@ -4,13 +4,21 @@ const capitalize = require('lodash/capitalize')
 module.exports = {
   Query: {
     search: async (_, args, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.search(args)
+      return dataSources.movieDataBaseAPI.search('multi/', args)
     },
     movies: (_, args, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.discover('/movie', args)
+      const method = args.query ? 'search' : 'discover'
+      return dataSources.movieDataBaseAPI[method]('/movie', args)
     },
     shows: (_, args = {}, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.discover('/tv', args)
+      const method = args.query ? 'search' : 'discover'
+      return dataSources.movieDataBaseAPI[method]('/tv', args)
+    },
+    people: (_, args = {}, { dataSources }) => {
+      return dataSources.movieDataBaseAPI.search('/person', args)
+    },
+    companies: (_, args = {}, { dataSources }) => {
+      return dataSources.movieDataBaseAPI.search('/company', args)
     },
     Movie: (_, { id }, { dataSources }) => {
       return dataSources.movieDataBaseAPI.getMovieById(id)
@@ -108,15 +116,14 @@ module.exports = {
       // for single person. As a workaround, when this field is requested in a
       // `Person` query, make a second API request to the search endpoint
       // using the name and ID obtained from the `/person/{id}` request.
-      const { results } = await dataSources.movieDataBaseAPI.search({
-        type: 'person',
+      const { results } = await dataSources.movieDataBaseAPI.search('/person', {
         query: name
       })
       const match = results.find(person => String(person.id) === String(id))
       return match ? match.knownFor : []
     },
     // The filmography field is the person's `combined_credits`
-    filmography: async ({ combinedCredits }, _, { dataSources }) => {
+    filmography: async ({ combinedCredits, id }, _, { dataSources }) => {
       // If the response doesn't already include the `combined_credits`
       // property, make an API request to `/person/${id}` to fetch it
       if (!combinedCredits) {

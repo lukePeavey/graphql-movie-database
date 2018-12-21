@@ -108,10 +108,10 @@ class MovieDatabaseAPI extends RESTDataSource {
    * @param {String} params.query the query string to search for
    * @param {number} params.page the pagination offset. Must be Int <= 1000
    */
-  async search({ type = 'multi', ...params }) {
-    let { results, meta } = await this.get(`/search/${type}`, params)
-    if (type !== 'multi') {
-      results = results.map(item => ({ mediaType: type, ...item }))
+  async search(endpoint = '/multi', params) {
+    let { results, meta } = await this.get(`/search${endpoint}`, params)
+    if (/multi/.test(endpoint)) {
+      results = results.map(item => ({ mediaType: endpoint.slice(1), ...item }))
     }
     return { results, meta }
   }

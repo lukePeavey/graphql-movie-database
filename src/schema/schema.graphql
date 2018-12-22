@@ -62,6 +62,8 @@ type Query @cacheControl(maxAge: 10000) {
   Get the details about a production company.
   """
   Company(id: ID!): Company
+
+  Configuration: Configuration
 }
 
 """

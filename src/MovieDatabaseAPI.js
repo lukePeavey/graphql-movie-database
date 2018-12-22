@@ -60,6 +60,11 @@ class MovieDatabaseAPI extends RESTDataSource {
     return this.get(`/tv/${showId}/season/${seasonNumber}`)
   }
 
+  /** Get system configuration information */
+  async getConfiguration() {
+    return this.get('/configuration')
+  }
+
   /**
    * Get the list of official genres for a specific media type
    * @param {'movie' | 'tv'} type the type of genres to get

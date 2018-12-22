@@ -28,6 +28,9 @@ module.exports = {
     },
     Person: (_, { id }, { dataSources }) => {
       return dataSources.movieDataBaseAPI.getPersonById(id)
+    },
+    Configuration: (_, args, { dataSources }) => {
+      return dataSources.movieDataBaseAPI.getConfiguration()
     }
   },
   SearchResult: {

@@ -3,6 +3,7 @@ const { ApolloServer } = require('apollo-server')
 const path = require('path')
 const importSchema = require('./utils/importSchema')
 const MovieDataBaseAPI = require('./MovieDatabaseAPI')
+const playground = require('./config/playground')
 const resolvers = require('./resolvers')
 const schema = importSchema(path.join(__dirname, 'schema'))
 
@@ -10,20 +11,13 @@ const schema = importSchema(path.join(__dirname, 'schema'))
 const server = new ApolloServer({
   typeDefs: schema,
   resolvers,
+  playground,
   mocks: false,
-  tracing: false,
+  tracing: true,
   cacheControl: true,
   introspection: true,
-  playground: {
-    endpoint: `${process.env.DOMAIN}${process.env.ENDPOINT}`,
-    settings: {
-      'editor.theme': 'light',
-      'editor.fontSize': '16',
-      'editor.fontFamily': `'Fira Code', 'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace`
-    }
-  },
   engine: { apiKey: process.env.ENGINE_API_KEY },
-  dataSources: () => ({ movieDataBaseAPI: new MovieDataBaseAPI() }),
+  dataSources: () => ({ api: new MovieDataBaseAPI() }),
   formatError: error => {
     /* eslint-disable-next-line no-console */
     console.log(error)

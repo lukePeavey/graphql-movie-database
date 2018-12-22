@@ -4,41 +4,39 @@ const capitalize = require('lodash/capitalize')
 module.exports = {
   Query: {
     search: async (_, args, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.search('multi/', args)
+      return dataSources.api.search('multi/', args)
     },
     movies: (_, args, { dataSources }) => {
       const method = args.query ? 'search' : 'discover'
-      return dataSources.movieDataBaseAPI[method]('/movie', args)
+      return dataSources.api[method]('/movie', args)
     },
     shows: (_, args = {}, { dataSources }) => {
       const method = args.query ? 'search' : 'discover'
-      return dataSources.movieDataBaseAPI[method]('/tv', args)
+      return dataSources.api[method]('/tv', args)
     },
     people: (_, args = {}, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.search('/person', args)
+      return dataSources.api.search('/person', args)
     },
     companies: (_, args = {}, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.search('/company', args)
+      return dataSources.api.search('/company', args)
     },
-    Movie: (_, { id }, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.getMovieById(id)
+    Movie: (_, args, { dataSources }) => {
+      return dataSources.api.getMovie(args.id)
     },
-    Show: (_, { id }, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.getShowById(id)
+    Show: (_, args, { dataSources }) => {
+      return dataSources.api.getShow(args.id)
     },
-    Person: (_, { id }, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.getPersonById(id)
+    Person: (_, args, { dataSources }) => {
+      return dataSources.api.getPerson(args.id)
     },
     Configuration: (_, args, { dataSources }) => {
-      return dataSources.movieDataBaseAPI.getConfiguration()
+      return dataSources.api.getConfiguration()
     }
   },
   SearchResult: {
     __resolveType({ mediaType }) {
       if (/tv/i.test(mediaType)) return 'Show'
-      else if (/movie|person|company|keyword/i.test(mediaType)) {
-        return capitalize(mediaType)
-      }
+      return capitalize(mediaType)
     }
   },
   Movie: {
@@ -63,8 +61,7 @@ module.exports = {
   },
   Show: {
     mediaType: () => 'tv',
-    // make title field consistent with Movie
-    title: ({ name }) => name,
+    title: ({ name }) => name, // make consistent with Movie
     originalTitle: ({ originalName }) => originalName,
     // If the response doesn't already include the `credits` property, make an
     // request to `/tv/${id}` to get the credits.
@@ -77,15 +74,12 @@ module.exports = {
     genres: async ({ genreIds, genres }, _, { dataSources }) => {
       return genres || transforms.getGenres('tv', genreIds, dataSources)
     },
-    // @todo Figure out a better way to handle querying tv seasons & episodes.
-    // Getting the episodes for all seasons at once requires a separate API
-    // request for each season. I added two separate fields, allSeasons and
-    // `season(seasonNumber: Int)` to allow
-    allSeasons: ({ id: showId, seasons }) => {
+    // @todo Figure out a better way to handle querying seasons & episodes
+    allSeasons: ({ id, seasons }) => {
       // Pass down the `showId` prop to the `season` field. This allows it to
       // make an API request to `/tv/${showId}/season/${seasonNumber}` to get
       // episodes when the `episodes` field is present in the query.
-      return seasons.map(season => ({ showId, ...season }))
+      return seasons.map(season => ({ showId: id, ...season }))
     },
     // Get a single season by `seasonNumber.`
     season: ({ seasons, id }, { seasonNumber }) => {
@@ -94,20 +88,14 @@ module.exports = {
     }
   },
   Season: {
-    // make the title field consistent with Movie
-    title: ({ name }) => name,
-    // Get data for the `episodes` field
+    title: ({ name }) => name, // make consistent with Movie
     episodes: async function({ showId, seasonNumber }, _, { dataSources }) {
-      const data = await dataSources.movieDataBaseAPI.getSeason(
-        showId,
-        seasonNumber
-      )
+      const data = await dataSources.api.getSeason(showId, seasonNumber)
       return data.episodes
     }
   },
   Episode: {
-    // make title field consistent with Movie
-    title: ({ name }) => name
+    title: ({ name }) => name // make consistent with Movie
   },
   Person: {
     mediaType: () => 'person',
@@ -119,18 +107,18 @@ module.exports = {
       // for single person. As a workaround, when this field is requested in a
       // `Person` query, make a second API request to the search endpoint
       // using the name and ID obtained from the `/person/{id}` request.
-      const { results } = await dataSources.movieDataBaseAPI.search('/person', {
+      const { results } = await dataSources.api.search('/person', {
         query: name
       })
       const match = results.find(person => String(person.id) === String(id))
       return match ? match.knownFor : []
     },
-    // The filmography field is the person's `combined_credits`
+    // `filmography` is the person's combined movie and tv credits
     filmography: async ({ combinedCredits, id }, _, { dataSources }) => {
-      // If the response doesn't already include the `combined_credits`
-      // property, make an API request to `/person/${id}` to fetch it
+      // If the response doesn't already include `combined_credits`, make an
+      // API request to `/person/${id}` to fetch it
       if (!combinedCredits) {
-        const data = await dataSources.movieDataBaseAPI.getPersonById(id)
+        const data = await dataSources.api.getPerson(id)
         combinedCredits = data.combinedCredits
       }
       return {
@@ -144,7 +132,6 @@ module.exports = {
       return /tv/i.test(mediaType) ? 'Show' : 'Movie'
     }
   },
-
   Credit: {
     __resolveType({ job, department }) {
       return !job || /^act/i.test(job || department) ? 'cast' : 'crew'

@@ -31,20 +31,20 @@ class MovieDatabaseAPI extends RESTDataSource {
   }
 
   /** Get details about a single Movie by ID */
-  async getMovieById(id) {
+  async getMovie(id) {
     const params = { append_to_response: 'credits,images,reviews' }
     return this.get(`/movie/${id}`, params)
   }
 
   /** Get details about a single tv show by ID */
-  async getShowById(id) {
+  async getShow(id) {
     return this.get(`/tv/${id}`, {
       append_to_response: 'credits,images,reviews,seasons'
     })
   }
 
   /** Get details about a single person by ID */
-  async getPersonById(id) {
+  async getPerson(id) {
     return this.get(`/person/${id}`, {
       append_to_response: 'combined_credits,images'
     })

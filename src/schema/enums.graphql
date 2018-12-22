@@ -79,12 +79,12 @@ input MediaFilter {
   Filter and only include movies that have a rating that is greater or equal to
   the specified value.
   """
-  voteCountAverage_GTE: Int
+  voteAverage_GTE: Float
   """
   Filter and only include movies that have a rating that is less than or equal
   to the specified value.
   """
-  voteCountAverage_LTE: Int
+  voteAverage_LTE: Float
   """
   Find movies these people are included in the cast
   """

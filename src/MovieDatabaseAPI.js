@@ -32,14 +32,14 @@ class MovieDatabaseAPI extends RESTDataSource {
 
   /** Get details about a single Movie by ID */
   async getMovie(id) {
-    const params = { append_to_response: 'credits,images,reviews' }
+    const params = { append_to_response: 'credits,images,videos,reviews' }
     return this.get(`/movie/${id}`, params)
   }
 
   /** Get details about a single tv show by ID */
   async getShow(id) {
     return this.get(`/tv/${id}`, {
-      append_to_response: 'credits,images,reviews,seasons'
+      append_to_response: 'credits,images,videos,reviews,seasons'
     })
   }
 
@@ -56,8 +56,10 @@ class MovieDatabaseAPI extends RESTDataSource {
   }
 
   /** Get a single season of a TV show, including all episodes */
-  async getSeason(showId, seasonNumber) {
-    return this.get(`/tv/${showId}/season/${seasonNumber}`)
+  async getSeason({ showId, seasonNumber }) {
+    return this.get(`/tv/${showId}/season/${seasonNumber}`, {
+      append_to_response: 'credits,images,videos'
+    })
   }
 
   /** Get system configuration information */
@@ -66,7 +68,7 @@ class MovieDatabaseAPI extends RESTDataSource {
   }
 
   /**
-   * Get the list of official genres for a specific media type
+   * Get the list of official genres for a specific Media type
    * @param {'movie' | 'tv'} type the type of genres to get
    */
   async getGenreList(type) {

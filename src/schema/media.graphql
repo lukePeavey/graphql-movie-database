@@ -20,6 +20,9 @@ interface Media @cacheControl(maxAge: 10000) {
   voteAverage: Float!
   voteCount: Int!
   credits: Credits!
+  videos: [Video]!
+  images: Images!
+  reviews: ReviewList
 }
 
 """
@@ -49,6 +52,9 @@ type Movie implements Media @cacheControl(maxAge: 10000) {
   voteAverage: Float!
   voteCount: Int!
   credits: Credits!
+  videos: [Video]!
+  images: Images!
+  reviews: ReviewList
 }
 
 """
@@ -80,6 +86,9 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   voteAverage: Float!
   voteCount: Int!
   credits: Credits!
+  videos: [Video]!
+  images: Images!
+  reviews: ReviewList
 }
 
 """
@@ -95,6 +104,9 @@ type Season @cacheControl(maxAge: 10000) {
   posterPath: String
   seasonNumber: Int!
   episodes: [Episode]!
+  videos: [Video]!
+  images: Images!
+  reviews: ReviewList
 }
 
 """
@@ -115,12 +127,19 @@ type Episode @cacheControl(maxAge: 10000) {
   voteCount: Int!
   crew: [CrewCredit]!
   guestStars: [CastCredit]!
+  videos: [Video]
+  images: Images
+  reviews: ReviewList
 }
 type Credits {
   cast: [CastCredit]!
   crew: [CrewCredit]!
 }
 
+type Images {
+  posters: [Image]!
+  backdrops: [Image]!
+}
 type Genre @cacheControl(maxAge: 10000) {
   id: Int!
   name: String!
@@ -141,4 +160,37 @@ type Country @cacheControl(maxAge: 10000) {
 type Language @cacheControl(maxAge: 10000) {
   iso_639_1: String!
   name: String!
+}
+
+type Image {
+  filePath: String
+  aspectRatio: Float
+  width: Int
+  height: Int
+  iso_639_1: String
+  voteAverage: Float
+  voteCount: Int
+}
+
+type Video {
+  id: String
+  language: String
+  country: String
+  key: String
+  name: String
+  site: String
+  size: Int
+  type: String
+}
+
+type Review {
+  id: ID
+  author: String
+  content: String
+  url: String
+}
+
+type ReviewList {
+  meta: QueryMeta!
+  results: [Review]!
 }

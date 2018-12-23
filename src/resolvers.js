@@ -57,6 +57,16 @@ module.exports = {
     // to get the complete list of movie genres.
     genres: async ({ genreIds, genres }, _, { dataSources }) => {
       return genres || transforms.getGenres('movie', genreIds, dataSources)
+    },
+    videos: async ({ videos, id }, _, { dataSources }) => {
+      if (!videos) videos = (await dataSources.api.getMovie(id))['videos']
+      return videos.results
+    },
+    images: async ({ images, id }, { dataSources }) => {
+      return images || (await dataSources.api.getMovie(id))['images']
+    },
+    reviews: async ({ reviews, id }, { dataSources }) => {
+      return reviews || (await dataSources.api.getMovie(id))['reviews']
     }
   },
   Show: {
@@ -74,6 +84,16 @@ module.exports = {
     genres: async ({ genreIds, genres }, _, { dataSources }) => {
       return genres || transforms.getGenres('tv', genreIds, dataSources)
     },
+    videos: async ({ id, ...obj }, _, { dataSources }) => {
+      const videos = obj.videos || (await dataSources.api.getShow(id))['videos']
+      return videos.results
+    },
+    images: async ({ id, images }, { dataSources }) => {
+      return images || (await dataSources.api.getShow(id))['images']
+    },
+    reviews: async ({ reviews, id }, { dataSources }) => {
+      return reviews || (await dataSources.api.getShow(id))['reviews']
+    },
     // @todo Figure out a better way to handle querying seasons & episodes
     allSeasons: ({ id, seasons }) => {
       // Pass down the `showId` prop to the `season` field. This allows it to
@@ -82,16 +102,26 @@ module.exports = {
       return seasons.map(season => ({ showId: id, ...season }))
     },
     // Get a single season by `seasonNumber.`
-    season: ({ seasons, id }, { seasonNumber }) => {
-      const season = seasons[seasonNumber]
+    season: ({ seasons = [], id }, { seasonNumber }) => {
+      const season = seasons.find(el => el.seasonNumber === seasonNumber)
       return season ? { ...season, showId: id } : null
     }
   },
   Season: {
     title: ({ name }) => name, // make consistent with Movie
     episodes: async function({ showId, seasonNumber }, _, { dataSources }) {
-      const data = await dataSources.api.getSeason(showId, seasonNumber)
+      const data = await dataSources.api.getSeason({ showId, seasonNumber })
       return data.episodes
+    },
+    videos: async ({ videos, ...obj }, _, { dataSources }) => {
+      if (!videos) videos = (await dataSources.api.getSeason(obj))['videos']
+      return videos.results
+    },
+    images: async ({ images, ...obj }, _, { dataSources }) => {
+      return images || (await dataSources.api.getSeason(obj))['images']
+    },
+    reviews: async ({ reviews, ...obj }, _, { dataSources }) => {
+      return reviews || (await dataSources.api.getSeason(obj))['reviews']
     }
   },
   Episode: {

@@ -45,7 +45,7 @@ module.exports = {
     // API request to `/movie/${id}` to get the credits.
     credits: async ({ credits, id }, _, { dataSources }) => {
       if (credits) return credits
-      const data = await dataSources.movieDataBaseAPI.getShowById(id)
+      const data = await dataSources.api.getMovie(id)
       return data.credits
     },
     // By default, the `genres` property not included in results from the
@@ -77,7 +77,7 @@ module.exports = {
     // request to `/tv/${id}` to get the credits.
     credits: async function({ credits, id }, _, { dataSources }) {
       if (credits) return credits
-      const data = await dataSources.movieDataBaseAPI.getShowById(id)
+      const data = await dataSources.api.getShow(id)
       return data.credits
     },
     // See comment above `Movie.genres` for more information

@@ -17,6 +17,6 @@ module.exports.filmographyCredit = credit => ({
  */
 module.exports.getGenres = async function(mediaType, genreIds, dataSources) {
   return genreIds.map(async id => {
-    return await dataSources.movieDataBaseAPI.getGenreById(mediaType, id)
+    return await dataSources.movieDataBaseAPI.getGenre(mediaType, id)
   })
 }

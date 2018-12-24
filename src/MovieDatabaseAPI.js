@@ -50,7 +50,7 @@ class MovieDatabaseAPI extends RESTDataSource {
     })
   }
   /** Get a genre by ID */
-  async getGenreById(type, id) {
+  async getGenre(type, id) {
     const { genres } = await this.getGenreList(type)
     return genres.find(item => item.id === id)
   }

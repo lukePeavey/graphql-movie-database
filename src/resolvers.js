@@ -4,7 +4,7 @@ const capitalize = require('lodash/capitalize')
 module.exports = {
   Query: {
     search: async (_, args, { dataSources }) => {
-      return dataSources.api.search('multi/', args)
+      return dataSources.api.search('/multi', args)
     },
     movies: (_, args, { dataSources }) => {
       const method = args.query ? 'search' : 'discover'

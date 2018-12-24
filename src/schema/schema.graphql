@@ -55,6 +55,14 @@ type Query @cacheControl(maxAge: 10000) {
   """
   Show(id: ID!): Show
   """
+  Get the TV season details by id.
+  """
+  Season(showId: ID, seasonNumber: Int): Season
+  """
+  Get the TV episode details by id.
+  """
+  Episode(showId: ID, seasonNumber: Int, episodeNumber: Int): Episode
+  """
   Get details information about a specific person.
   """
   Person(id: ID!): Person

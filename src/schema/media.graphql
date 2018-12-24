@@ -79,8 +79,7 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   popularity: Float!
   posterPath: String!
   productionCompanies: [Company]!
-  allSeasons: [Season]!
-  season(seasonNumber: Int!): Season
+  seasons: [Season]
   status: String!
   title: String!
   voteAverage: Float!
@@ -103,7 +102,8 @@ type Season @cacheControl(maxAge: 10000) {
   overview: String!
   posterPath: String
   seasonNumber: Int!
-  episodes: [Episode]!
+  episodes: [Episode]
+  credits: Credits!
   videos: [Video]!
   images: Images!
   reviews: ReviewList
@@ -125,6 +125,7 @@ type Episode @cacheControl(maxAge: 10000) {
   stillPath: String
   voteAverage: Float!
   voteCount: Int!
+  cast: [CastCredit]
   crew: [CrewCredit]!
   guestStars: [CastCredit]!
   videos: [Video]

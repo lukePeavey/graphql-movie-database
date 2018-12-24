@@ -26,6 +26,12 @@ module.exports = {
     Show: (_, args, { dataSources }) => {
       return dataSources.api.getShow(args.id)
     },
+    Season: async (_, args, { dataSources }) => {
+      return { showId: args.showId, ...(await dataSources.api.getSeason(args)) }
+    },
+    Episode: async (_, args, { dataSources }) => {
+      return { ...args, ...(await dataSources.api.getEpisode(args)) }
+    },
     Person: (_, args, { dataSources }) => {
       return dataSources.api.getPerson(args.id)
     },
@@ -48,16 +54,6 @@ module.exports = {
       const data = await dataSources.api.getMovie(id)
       return data.credits
     },
-    // By default, the `genres` property not included in results from the
-    // `/search` and '/discover' endpoints. It is also not included in
-    // properties that contain a list of references to movies (such as
-    // `peron->movie_credits`). To make 'genres' available on all instances of
-    // the Movie object, we just convert `genreIds` to a list of  genres when
-    // necessary. This only requires one additional API request per query,
-    // to get the complete list of movie genres.
-    genres: async ({ genreIds, genres }, _, { dataSources }) => {
-      return genres || transforms.getGenres('movie', genreIds, dataSources)
-    },
     videos: async ({ videos, id }, _, { dataSources }) => {
       if (!videos) videos = (await dataSources.api.getMovie(id))['videos']
       return videos.results
@@ -67,6 +63,16 @@ module.exports = {
     },
     reviews: async ({ reviews, id }, { dataSources }) => {
       return reviews || (await dataSources.api.getMovie(id))['reviews']
+    },
+    // By default, the `genres` property not included in results from the
+    // `/search` and '/discover' endpoints. It is also not included in
+    // properties that contain a list of references to movies (such as
+    // `peron->movie_credits`). To make 'genres' available on all instances of
+    // the Movie object, we just convert `genreIds` to a list of  genres when
+    // necessary. This only requires one additional API request per query,
+    // to get the complete list of movie genres.
+    genres: async ({ genreIds, genres }, _, { dataSources }) => {
+      return genres || transforms.getGenres('movie', genreIds, dataSources)
     }
   },
   Show: {
@@ -80,10 +86,6 @@ module.exports = {
       const data = await dataSources.api.getShow(id)
       return data.credits
     },
-    // See comment above `Movie.genres` for more information
-    genres: async ({ genreIds, genres }, _, { dataSources }) => {
-      return genres || transforms.getGenres('tv', genreIds, dataSources)
-    },
     videos: async ({ id, ...obj }, _, { dataSources }) => {
       const videos = obj.videos || (await dataSources.api.getShow(id))['videos']
       return videos.results
@@ -94,24 +96,24 @@ module.exports = {
     reviews: async ({ reviews, id }, { dataSources }) => {
       return reviews || (await dataSources.api.getShow(id))['reviews']
     },
+    // See comment above `Movie.genres` for more information
+    genres: async ({ genreIds, genres }, _, { dataSources }) => {
+      return genres || transforms.getGenres('tv', genreIds, dataSources)
+    },
     // @todo Figure out a better way to handle querying seasons & episodes
-    allSeasons: ({ id, seasons }) => {
+    seasons: ({ id, seasons }) => {
       // Pass down the `showId` prop to the `season` field. This allows it to
       // make an API request to `/tv/${showId}/season/${seasonNumber}` to get
       // episodes when the `episodes` field is present in the query.
       return seasons.map(season => ({ showId: id, ...season }))
-    },
-    // Get a single season by `seasonNumber.`
-    season: ({ seasons = [], id }, { seasonNumber }) => {
-      const season = seasons.find(el => el.seasonNumber === seasonNumber)
-      return season ? { ...season, showId: id } : null
     }
   },
   Season: {
     title: ({ name }) => name, // make consistent with Movie
-    episodes: async function({ showId, seasonNumber }, _, { dataSources }) {
-      const data = await dataSources.api.getSeason({ showId, seasonNumber })
-      return data.episodes
+    credits: async ({ credits, ...obj }, _, { dataSources }) => {
+      if (credits) return credits
+      const data = await dataSources.api.getSeason(obj)
+      return data.credits
     },
     videos: async ({ videos, ...obj }, _, { dataSources }) => {
       if (!videos) videos = (await dataSources.api.getSeason(obj))['videos']
@@ -122,10 +124,28 @@ module.exports = {
     },
     reviews: async ({ reviews, ...obj }, _, { dataSources }) => {
       return reviews || (await dataSources.api.getSeason(obj))['reviews']
+    },
+    episodes: async ({ showId, seasonNumber }, _, { dataSources }) => {
+      const data = await dataSources.api.getSeason({ showId, seasonNumber })
+      return data.episodes
     }
   },
   Episode: {
-    title: ({ name }) => name // make consistent with Movie
+    title: ({ name }) => name, // make consistent with Movie
+    images: async ({ images, ...obj }, _, { dataSources }) => {
+      return images || (await dataSources.api.getEpisode(obj))['images']
+    },
+    videos: async ({ videos, ...obj }, _, { dataSources }) => {
+      if (!videos) videos = (await dataSources.api.getEpisode(obj))['videos']
+      return videos.results
+    },
+    cast: async ({ credits, ...obj }, _, { dataSources }) => {
+      credits = credits || (await dataSources.api.getEpisode(obj))['credits']
+      return credits.cast
+    },
+    crew: async ({ crew, ...obj }, _, { dataSources }) => {
+      return crew || (await dataSources.api.getEpisode(obj))['crew']
+    }
   },
   Person: {
     mediaType: () => 'person',

@@ -62,6 +62,14 @@ class MovieDatabaseAPI extends RESTDataSource {
     })
   }
 
+  /** Get a single season of a TV show, including all episodes */
+  async getEpisode({ showId, seasonNumber, episodeNumber }) {
+    const base = `/tv/${showId}/season/${seasonNumber}/episode`
+    return this.get(`${base}/${episodeNumber}`, {
+      append_to_response: 'credits,guest_stars,images,videos'
+    })
+  }
+
   /** Get system configuration information */
   async getConfiguration() {
     return this.get('/configuration')

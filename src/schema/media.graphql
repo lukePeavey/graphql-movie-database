@@ -113,7 +113,6 @@ type Season @cacheControl(maxAge: 10000) {
   crew(departments: [CrewDepartment]): [CrewCredit]!
   videos(type: VideoType): [Video]!
   images: Images!
-  reviews: ReviewList
 }
 
 """
@@ -137,12 +136,11 @@ type Episode @cacheControl(maxAge: 10000) {
   guestStars: [CastCredit]!
   videos: [Video]
   images: Images
-  reviews: ReviewList
 }
 
 type Images {
-  posters: [Image]!
-  backdrops: [Image]!
+  posters: [Image]
+  backdrops: [Image]
 }
 type Genre @cacheControl(maxAge: 10000) {
   id: Int!
@@ -175,5 +173,5 @@ type Review {
 
 type ReviewList {
   meta: QueryMeta!
-  results: [Review]!
+  results: [Review]
 }

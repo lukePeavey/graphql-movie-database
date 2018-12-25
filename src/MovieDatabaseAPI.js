@@ -31,34 +31,48 @@ class MovieDatabaseAPI extends RESTDataSource {
   }
 
   /** Get details about a single Movie by ID */
-  async getMovie(id) {
+  async getMovie({ id }) {
     const params = { append_to_response: 'credits,images,videos,reviews' }
     return this.get(`/movie/${id}`, params)
   }
 
   /** Get details about a single tv show by ID */
-  async getShow(id) {
+  async getShow({ id }) {
     return this.get(`/tv/${id}`, {
       append_to_response: 'credits,images,videos,reviews,seasons'
     })
   }
 
   /** Get details about a single person by ID */
-  async getPerson(id) {
+  async getPerson({ id }) {
     return this.get(`/person/${id}`, {
       append_to_response: 'combined_credits,images'
     })
   }
   /** Get a genre by ID */
-  async getGenre(type, id) {
-    const { genres } = await this.getGenreList(type)
+  async getGenre({ mediaType, id }) {
+    const { genres } = await this.getGenreList(mediaType)
     return genres.find(item => item.id === id)
+  }
+
+  /** Takes a list list of genre IDs and returns a list of genres */
+  async getGenres({ mediaType, ids }) {
+    return ids.map(async id => this.getGenre({ mediaType, id }))
+  }
+
+  /**
+   * Get the list of official genres for a specific Media type
+   * @param {'movie' | 'tv'} type (also accepts "show" as alias for "tv")
+   */
+  async getGenreList(mediaType) {
+    const endpoint = /tv|show/i.test(mediaType) ? 'tv' : 'movie'
+    return this.get(`genre/${endpoint}/list`)
   }
 
   /** Get a single season of a TV show, including all episodes */
   async getSeason({ showId, seasonNumber }) {
     return this.get(`/tv/${showId}/season/${seasonNumber}`, {
-      append_to_response: 'credits,images,videos'
+      append_to_response: 'credits,images,videos,reviews'
     })
   }
 
@@ -66,21 +80,13 @@ class MovieDatabaseAPI extends RESTDataSource {
   async getEpisode({ showId, seasonNumber, episodeNumber }) {
     const base = `/tv/${showId}/season/${seasonNumber}/episode`
     return this.get(`${base}/${episodeNumber}`, {
-      append_to_response: 'credits,guest_stars,images,videos'
+      append_to_response: 'credits,guest_stars,images,videos,reviews'
     })
   }
 
   /** Get system configuration information */
   async getConfiguration() {
     return this.get('/configuration')
-  }
-
-  /**
-   * Get the list of official genres for a specific Media type
-   * @param {'movie' | 'tv'} type the type of genres to get
-   */
-  async getGenreList(type) {
-    return this.get(`genre/${type}/list`)
   }
 
   /**

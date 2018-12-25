@@ -1,3 +1,21 @@
+enum CreditType {
+  cast
+  crew
+}
+
+enum CrewDepartment {
+  directing
+  writing
+  editing
+  production
+  art
+  sound
+  visualEffects
+  camera
+  acting
+  costumeAndMakeUp
+}
+
 """
 This is the base type for CastCredit and CrewCredits.
 """

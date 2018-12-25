@@ -1,8 +1,3 @@
-enum CreditType {
-  cast
-  crew
-}
-
 """
 This is used by TMDB to identify the main types of objects in the database.
 @todo Add additional types: company, keyword, collection

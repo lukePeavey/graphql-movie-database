@@ -2,10 +2,10 @@ type Query @cacheControl(maxAge: 10000) {
   """
   This query searches all database models simultaneously, via the
   `/search/multi` endpoint. The results will be a list of mixed types
-  that can include Movie | Show | Person | Company objects.
+  that can include Movie | Show | Person | Company.
 
-  If you want to search for a specific type of object, the multi-item query for
-  that object, ie `movies` | `people`
+  If you want to search for a specific type of object like movies or shows,
+  use the multi-item query for that object, ie `movies` | `people`
   """
   search(query: String!, page: Int = 1): SearchResponse
   """
@@ -70,7 +70,9 @@ type Query @cacheControl(maxAge: 10000) {
   Get the details about a production company.
   """
   Company(id: ID!): Company
-
+  """
+  Get the system configuration details from TMDB.
+  """
   Configuration: Configuration
 }
 

@@ -8,7 +8,7 @@ async function getDetails(objectType, field, obj, dataSources) {
   return get(await dataSources.api[`get${objectType}`](obj), field)
 }
 
-// Resolvers for common fields that exist on Movie, Show, Season, and Episode
+// Resolvers for `Movie`, `Show`, `Season`, and `Episode` objects
 function mediaResolvers(objectType) {
   const resolvers = {
     cast: async (obj, args, { dataSources }) => {
@@ -32,15 +32,24 @@ function mediaResolvers(objectType) {
       return await getDetails(objectType, 'images', obj, dataSources)
     }
   }
+  // Resolvers for `Movie` and `Show` objects
   if (/Show|Movie/.test(objectType)) {
     resolvers.reviews = async (obj, _, { dataSources }) => {
       return await getDetails(objectType, 'reviews', obj, dataSources)
     }
+    // The `genres` property is only included in single-item endpoints
+    // (`/movie/${id}` and `/tv/${id}`). Movies and Shows returned by other
+    // endpoints (like search and discover) only have the `genre_ids` property.
+    // This resolver converts `genre_ids` to `genres` when necessary so the
+    // `genres` field is available on all instances of `Movie` and `Show`
+    // @NOTE This only requires a single API request to get the complete list
+    // of genres for each media type (movie/tv).
     resolvers.genres = async ({ genreIds, genres }, _, { dataSources }) => {
       if (genres) return genres
-      return dataSources.api.getGenres({ mediaType: 'tv', ids: genreIds })
+      return dataSources.api.getGenres({ mediaType: objectType, ids: genreIds })
     }
   }
+
   return resolvers
 }
 module.exports = {

@@ -80,7 +80,7 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   originCountry: [String]!
   overview: String!
   popularity: Float!
-  posterPath: String!
+  posterPath: String
   productionCompanies: [Company]!
   seasons: [Season]
   season(seasonNumber: Int!): Season

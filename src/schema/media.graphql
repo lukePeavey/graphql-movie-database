@@ -71,7 +71,8 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   homepage: String
   id: ID!
   inProduction: Boolean!
-  lastAirDate: String!
+  lastAirDate: String
+  firstAirDate: String
   mediaType: String!
   numberOfEpisodes: Int!
   numberOfSeasons: Int!

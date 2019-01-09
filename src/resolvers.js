@@ -162,6 +162,10 @@ module.exports = {
       const match = results.find(person => String(person.id) === String(id))
       return match ? match.knownFor : []
     },
+    knownForDepartment: async ({ id, ...obj }, _, { dataSources }) => {
+      if (obj.knownForDepartment) return obj.knownForDepartment
+      return (await dataSources.api.getPerson({ id }))['knownForDepartment']
+    },
     // `filmography` is the person's combined movie and tv credits
     // @todo needs work
     filmography: async ({ combinedCredits, id }, _, { dataSources }) => {

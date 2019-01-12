@@ -19,13 +19,20 @@ class MovieDatabaseAPI extends RESTDataSource {
    * Handles get requests
    * This overrides the `get` method on the parent class to perform some general
    * transformations to the response data that are common to all get methods.
+   * It also sets cache options for all get requests. This enables partial
+   * query caching for all TMDB requests.
    * @see RESTDataSource.prototype.get
+   * @uses RESTDataSource.prototype.get
    */
-  async get(path, params, init) {
+  async get(path, params, cacheOptions = { ttl: 7200 }) {
+    const init = { cacheOptions }
+    // Set the cacheControl options for API responses.
     const response = camelCaseKeys(await super.get(path, params, init))
-    // For single item queries => `Item`
+    // For single item queries, just return the item
     if (!response.results) return response
-    // For search/discover queries => `{ results: [Item], meta: QueryMeta }`
+    // For multi-item endpoints, return an object with two fields:
+    // - results: [Item]
+    // - meta: {totalResults: Int, totalPages: Int, page: Int}
     const { results, ...meta } = response
     return { results, meta }
   }

@@ -1,5 +1,5 @@
 module.exports = {
-  endpoint: `${process.env.DOMAIN}${process.env.ENDPOINT}`,
+  endpoint: `${process.env.ENDPOINT}`,
   settings: {
     'editor.theme': 'light',
     'editor.fontSize': '16',

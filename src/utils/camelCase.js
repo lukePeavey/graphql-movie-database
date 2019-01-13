@@ -1,11 +1,11 @@
-const { RESTDataSource } = require('apollo-datasource-rest')
 const camelCaseKeys = require('camelcase-keys')
 const isPlainObject = require('lodash/isPlainObject')
 const isString = require('lodash/isString')
 const snakeCase = require('lodash/snakeCase')
 
-module.exports.camelCaseKeys = function(input, opts = {}) {
-  return camelCaseKeys(input, { deep: true, ...opts })
+module.exports.camelCaseKeys = function(obj, opts = {}) {
+  if (!obj) return {}
+  else return camelCaseKeys(obj, { deep: true, ...opts })
 }
 
 /**

@@ -56,24 +56,26 @@ class MovieDatabaseAPI extends RESTDataSource {
       append_to_response: 'combined_credits,images'
     })
   }
-  /** Get a genre by ID */
-  async getGenre({ mediaType, id }) {
-    const { genres } = await this.getGenreList(mediaType)
-    return genres.find(item => item.id === id)
-  }
 
   /** Takes a list list of genre IDs and returns a list of genres */
   async getGenres({ mediaType, ids }) {
-    return ids.map(async id => this.getGenre({ mediaType, id }))
+    const genres = await this.getGenreList(mediaType)
+    return ids
+      .map(id => genres.find(genre => genre.id === id))
+      .filter(genre => genre !== null)
   }
 
   /**
    * Get the list of official genres for a specific Media type
-   * @param {'movie' | 'tv'} type (also accepts "show" as alias for "tv")
+   * @param {'Movie' | 'Show'} type (also accepts "show" as alias for "tv")
    */
   async getGenreList(mediaType) {
-    const endpoint = /tv|show/i.test(mediaType) ? 'tv' : 'movie'
-    return this.get(`genre/${endpoint}/list`)
+    if (!/Movie|Show/.test(mediaType)) {
+      console.error(`[getGenreList] mediaType must be "Show" || "Movie"`)
+    }
+    const endpoint = mediaType === 'Show' ? 'tv' : 'movie'
+    const { genres } = await this.get(`genre/${endpoint}/list`)
+    return genres
   }
 
   /** Get a single season of a TV show, including all episodes */

@@ -9,36 +9,6 @@ type Query @cacheControl(maxAge: 10000) {
   """
   search(query: String!, page: Int = 1): SearchResponse
   """
-  Find movies — using a search query or a variety of filters and sorting
-  options. If the `query` argument is provided, this will use the
-  `/search/movie` endpoint, and the filter and sortBy options will be ignored.
-  If query is not provided, this will use the `/discover/movie` endpoint
-  using the provided filters and sortBy options. It supports all of the filter
-  parameters and sort_by options that are available on the `/discover/movie/`
-  endpoint.
-  """
-  movies(
-    query: String
-    sortBy: MediaSortBy = popularity_DESC
-    filter: MediaFilter
-    page: Int = 1
-  ): MovieList
-  """
-  Find TV shows — using a search query or a variety of filters and sorting
-  options. If the `query` argument is provided, this will use the
-  `/search/tv` endpoint, and the filter and sortBy options will be ignored.
-  If query is not provided, this will use the `/discover/tv` endpoint
-  using the provided filters and sortBy options. It supports all of the filter
-  parameters and sort_by options that are available on the `/discover/tv/`
-  endpoint.
-  """
-  shows(
-    query: String
-    sortBy: MediaSortBy = popularity_DESC
-    filter: MediaFilter
-    page: Int = 1
-  ): ShowList
-  """
   Search the database for people that match a given search query.
   """
   people(query: String!, page: Int = 1): PersonList
@@ -82,29 +52,21 @@ The field containing query meta data.
 response types. Another pattern i have seen is to have two
 queries, ie allPosts() and _allPostsMeta
 """
-type QueryMeta @cacheControl(maxAge: 600) {
+type QueryMeta @cacheControl(maxAge: 10000) {
   totalPages: Int
   totalResults: Int
   page: Int
 }
 
-type MovieList @cacheControl(maxAge: 600) {
-  meta: QueryMeta
-  results: [Movie]
-}
-type ShowList @cacheControl(maxAge: 600) {
-  meta: QueryMeta
-  results: [Show]
-}
-type PersonList @cacheControl(maxAge: 600) {
+type PersonList @cacheControl(maxAge: 10000) {
   meta: QueryMeta
   results: [Person]
 }
-type CompanyList @cacheControl(maxAge: 600) {
+type CompanyList @cacheControl(maxAge: 10000) {
   meta: QueryMeta
   results: [Company]
 }
-type SearchResponse @cacheControl(maxAge: 600) {
+type SearchResponse @cacheControl(maxAge: 10000) {
   meta: QueryMeta
   results: [SearchResult]
 }

@@ -57,13 +57,17 @@ module.exports = {
     search: async (_, args, { dataSources }) => {
       return dataSources.api.search('/multi', args)
     },
-    movies: (_, args, { dataSources }) => {
-      const method = args.query ? 'search' : 'discover'
-      return dataSources.api[method]('/movie', args)
+    movies: (_, args = {}, { dataSources }) => {
+      const { query, list, discover, ...rest } = args
+      if (query) return dataSources.api.search('/movie', { query, ...rest })
+      if (list) return dataSources.api.movies(list, rest)
+      return dataSources.api.discover('/movie', { ...discover, ...rest })
     },
     shows: (_, args = {}, { dataSources }) => {
-      const method = args.query ? 'search' : 'discover'
-      return dataSources.api[method]('/tv', args)
+      const { query, list, discover, ...rest } = args
+      if (query) return dataSources.api.search('/tv', { query, ...rest })
+      if (list) return dataSources.api.shows(list, rest)
+      return dataSources.api.discover('/tv', { ...discover, ...rest })
     },
     people: (_, args = {}, { dataSources }) => {
       return dataSources.api.search('/person', args)

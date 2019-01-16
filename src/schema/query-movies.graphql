@@ -1,0 +1,153 @@
+# @TODO rename
+enum MovieFilter {
+  LATEST
+  NOW_PLAYING
+  POPULAR
+  TOP_RATED
+  UPCOMING
+}
+
+"""
+The available sorting options for the `/discover/movie` api.
+@see https://developers.themoviedb.org/3/discover/movie-discover
+"""
+enum MovieSortMethod {
+  popularity_DESC
+  popularity_ASC
+  releaseDate_DESC
+  releaseDate_ASC
+  revenue_DESC
+  revenue_ASC
+  primaryReleaseDate_DESC
+  primaryReleaseDate_ASC
+  originalTitle_DESC
+  originalTitle_ASC
+  voteAverage_DESC
+  voteAverage_ASC
+  voteCount_DESC
+  voteCount_ASC
+  order_DESC
+  order_ASC
+}
+
+"""
+Filtering options for queries that use the `/discover` API.
+Used by the following queries: `movies` and `shows`
+@see https://developers.themoviedb.org/3/discover/movie-discover
+"""
+input MovieDiscoverOptions {
+  sortBy: MovieSortMethod
+  """
+  A filter to limit the results to a specific primary release year.
+  """
+  primaryReleaseYear: String
+  """
+  Filter and only include movies that have a primary release date that is less
+  than or equal to the specified value.
+  """
+  primaryReleaseDate_LTE: String
+  """
+  Filter and only include movies that have a release date (looking at all
+  release dates) that is greater or equal to the specified value.
+  """
+  primaryReleaseDate_GTE: String
+  """
+  Filter and only include movies that have a release date (looking at all
+  release dates) that is greater or equal to the specified value.
+  """
+  releaseDate_GTE: String
+  """
+  Filter and only include movies that have a release date (looking at all
+  release dates) that is less than or equal to the specified value.
+  """
+  releaseDate_LTE: String
+  """
+  Filter and only include movies that have a vote count that is greater or
+  equal to the specified value.
+  """
+  voteCount_GTE: Int
+  """
+  Filter and only include movies that have a vote count that is less than or
+  equal to the specified value.
+  """
+  voteCount_LTE: Int
+  """
+  Filter and only include movies that have a rating that is greater or equal to
+  the specified value.
+  """
+  voteAverage_GTE: Float
+  """
+  Filter and only include movies that have a rating that is less than or equal
+  to the specified value.
+  """
+  voteAverage_LTE: Float
+  """
+  Find movies these people are included in the cast
+  """
+  withCast: String
+  """
+  A comma separated list of person ID's. Only include movies that have one of
+  the ID's added as a crew member.
+  """
+  withCrew: String
+  """
+  A comma separated list of production company ID's. Only include movies that
+  have one of the ID's added as a production company.
+  """
+  withCompanies: String
+  """
+  Comma separated value of genre ids that you want to exclude from the results.
+  """
+  withGenres: String
+  """
+  A comma separated list of keyword ID's. Only include movies that have one of
+  the ID's added as a keyword.
+  """
+  withKeywords: String
+  """
+  A comma separated list of person ID's. Only include movies that have one of
+  the ID's added as a either a actor or a crew member.
+  """
+  withPeople: String
+  """
+  Find movies in a specific language. Language should be in the following
+  format: `[a-z]{2})-([A-Z]{2})`.
+  """
+  language: String
+  """
+  Limit the results to a specific year (looking at all release dates)
+  """
+  year: Int
+  """
+  Specify a ISO 3166-1 code to filter release dates. Must be uppercase.
+  pattern: ^[A-Z]{2}$
+  """
+  region: String
+  """
+  Specify an ISO 639-1 string to filter results by their original language
+  value.
+  """
+  withOriginalLanguage: String
+}
+
+type MovieList @cacheControl(maxAge: 10000) {
+  meta: QueryMeta
+  results: [Movie]
+}
+
+extend type Query {
+  """
+  Find movies — using a search query or a variety of filters and sorting
+  options. If the `query` argument is provided, this will use the
+  `/search/movie` endpoint. if the filter argument is provided, it will
+  use the corresponding `movie/${filter}` endpoint. Otherwise it will use
+  the `/discover/movie` endpoint with the parameters provided via the
+  `discover` argument (optional).
+  """
+  movies(
+    query: String
+    list: MovieFilter
+    discover: MovieDiscoverOptions
+    page: Int = 1
+  ): MovieList
+}

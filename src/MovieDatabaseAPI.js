@@ -1,6 +1,6 @@
 const { RESTDataSource } = require('apollo-datasource-rest')
 const { camelCaseKeys, deCamelCaseArgs } = require('./utils/camelCase')
-
+const snakeCase = require('lodash/snakeCase')
 /**
  * A data source to connect to the TMDB rest API
  */
@@ -121,12 +121,25 @@ class MovieDatabaseAPI extends RESTDataSource {
    * @param {number} params.page Must be an Int <= 1000
    */
   async discover(endpoint, params = {}) {
-    const { filter = {}, ...rest } = params
-    return this.get(`/discover${endpoint}`, {
-      ...deCamelCaseArgs(filter),
-      ...deCamelCaseArgs(rest),
-      cacheControl: { ttl: 1000 }
-    })
+    return this.get(`/discover${endpoint}`, deCamelCaseArgs(params))
+  }
+
+  /**
+   * Gets movies using various `/movie/${endpoint}` methods that return
+   * lists of movies.
+   * @param {'NOW_PLAYING', 'UPCOMING', 'POPULAR', 'LATEST', 'TOP_RATED'} endpoint
+   */
+  async movies(endpoint, { page }) {
+    return this.get(`/movie/${snakeCase(endpoint)}`, { page })
+  }
+
+  /**
+   * Gets tv shows using various `/tv/${endpoint}` methods that return
+   * lists shows.
+   * @param {'ON_AIR', 'AIRING_TODAY', 'POPULAR', 'LATEST', 'TOP_RATED'} endpoint
+   */
+  async shows(endpoint, { page }) {
+    return this.get(`/tv/${snakeCase(endpoint)}`, { page })
   }
 
   /**

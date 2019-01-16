@@ -19,7 +19,6 @@ Here’s an example URL:
 """
 type ImagesConfig {
   baseUrl: String!
-  secureBaseUrl: String!
   backdropSizes: [String!]!
   logoSizes: [String!]!
   posterSizes: [String!]!

@@ -43,7 +43,7 @@ type Query @cacheControl(maxAge: 10000) {
   """
   Get the system configuration details from TMDB.
   """
-  Configuration: Configuration
+  configuration: Configuration
 }
 
 """

@@ -90,7 +90,7 @@ module.exports = {
     Person: (_, args, { dataSources }) => {
       return dataSources.api.getPerson(args)
     },
-    Configuration: (_, args, { dataSources }) => {
+    configuration: (_, args, { dataSources }) => {
       return dataSources.api.getConfiguration()
     }
   },
@@ -99,6 +99,10 @@ module.exports = {
       if (/tv/i.test(mediaType)) return 'Show'
       return capitalize(mediaType)
     }
+  },
+  ImagesConfig: {
+    // Use HTTPS for the default base URL
+    baseUrl: ({ secureBaseUrl }) => secureBaseUrl
   },
   Movie: {
     ...mediaResolvers('Movie'),

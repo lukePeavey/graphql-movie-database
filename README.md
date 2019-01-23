@@ -1,229 +1,225 @@
 # GraphQL API for The Movie Database
 
-A graphQL layer built on top of the TMDB REST API.
+A compete GraphQL API for the Movie Database.
 
-## Queries
+**Table of Contents:**
 
-1. [search](#search)
-2. [movies](#movies)
-3. [shows](#shows)
-4. [people](#people)
-5. [companies](#companies)
-6. [Movie](#Movie)
-7. [Show](#Show)
-8. [Person](#Show)
-9. [configuration](#configuration)
+- [GraphQL API for The Movie Database](#graphql-api-for-the-movie-database)
+  - [API Reference](#api-reference)
+    - [search()](#search)
+    - [movies()](#movies)
+    - [shows()](#shows)
+    - [People()](#people)
+    - [Movie()](#movie)
+    - [Show()](#show)
+    - [Person()](#person)
+    - [configuration()](#configuration)
+
+## API Reference
 
 ### search()
 
-This query searches all database models simultaneously, via the `/search/multi` endpoint. The results will be a list of mixed types that can include Movie | Show | Person | Company objects. If you want to search for a specific type of object, the multi-item query for that object, ie `movies` | `people`
+Search the database for objects matching the query string. This uses the `/search/multi` endpoint by default. Search results will include Movies, Shows, and People.
 
-**Signature:**
+<details>
 
-```graphql
-search(query: String!, page: Int = 1): [SearchResponse]
-```
+<summary>More details</summary>
 
-**Response:**
+<br>
 
 ```graphql
-type SearchResponse {
-  meta: QueryMeta!
-  results: [Result]!
-}
-
-union Result = Movie | Show | Person
+search(query: String!, page: Int = 1): SearchResponse
 ```
+
+</details>
 
 ### movies()
 
-Find movies — using a search query or a variety of filters and sorting options. If the `query` argument is provided, this will use the `/search/movie` endpoint, and the filter and sortBy options will be ignored.
+Find movies using a search query or various filtering and sorting options. This query encompasses multiple api endpoints.
 
-If query is not provided, this will use the `/discover/movie` endpoint using the provided filters and sortBy options. It supports all of the filter parameters and sort_by options that are available on the `/discover/movie/` endpoint.
+<details>
 
-**Signature:**
+<summary>More Details</summary>
+<br>
+
+There are three ways to use the `movies()` query:
+
+1. **Search Movies**
 
 ```graphql
-movies(
-  query: String
-  filter: MediaFilter
-  sortBy: MediaSortBy = popularity_DESC
-  page: Int = 1
-): [MovieList]
+movies(query: String!, page: Int = 1): MovieList
 ```
 
-**Response:**
+This will search the database to find movies matching the given string.
+
+Example:
 
 ```graphql
-type MovieList {
-  meta: QueryMeta!
-  results: [Movie]!
+movies(query: "Last Tango") {
+  results {
+    title
+    id
+  }
 }
 ```
+
+2. **Discover Movies**
+
+```graphql
+movies(discover: DiscoverMovieOptions, page: Int = 1): MovieList
+```
+
+The `discover` argument provides a wide range of filtering and sorting options. It supports all of the options that are available on the TMDB [`discover/movie`][discover/movie] endpoint.
+
+Example:
+
+```graphql
+movies(discover: { sortBy: RELEASE_DATE_DESC, withCast: "8447" }) {
+  results {
+    title
+    id
+  }
+}
+```
+
+1. **Movie Lists**
+
+```graphql
+movies(list: MoviesListName = POPULAR, page: Int = 1): MovieList
+```
+
+The `list` argument provides support for additional `movie` endpoints that return lists of movies.
+
+- [now_playing][movie/now-playing]
+- [upcoming][movie/upcoming]
+- [latest][movie/latest]
+- [popular][movie/popular]
+- [top_rated][movie/top-rated]
+
+Example:
+
+```graphql
+movies(filter: NOW_PLAYING) {
+  results {
+    title
+    id
+    popularity
+  }
+}
+```
+
+</details>
 
 ### shows()
 
-Find TV shows — either using a search query or a variety of filters and sorting options. If the `query` argument is provided, this will use the `/search/tv` endpoint, and the filter and sortBy options will be ignored.
+Find TV shows — either using a search query or a variety of filters and sorting options.
 
-If query is not provided, this will use the `/discover/tv` endpoint using the provided filters and sortBy options. It supports all of the filter parameters and sort_by options that are available on the `/discover/tv/` endpoint. See schema for complete documentation
+<details>
 
-**Signature:**
+<summary>More details</summary>
+<br>
+
+There are three ways to use the `shows` query:
+
+1. **Search Shows**
+
+```graphql
+shows(query: String!, page: Int = 1): ShowList
+```
+
+When a `query` argument is provided, this will use the `search/tv` API to find shows matching the given query string.
+
+2. **Discover shows**
+
+```graphql
+shows(discover: DiscoverTVOptions, page: Int = 1): ShowList
+```
+
+The `discover` argument provides a wide range of filtering and sorting options. It supports all options that are available in the [`discover/tv`][discover/tv] API.
+
+Example
 
 ```graphql
 shows(
-  query: String
-  filter: MediaFilter
-  sortBy: MediaSortBy = popularity_DESC
-  page: Int = 1
-): [ShowList]
-```
-
-**Response:**
-
-```graphql
-type ShowList {
-  meta: QueryMeta!
-  results: [Show]!
+  discover: {
+    sortBy: firstAirDate_DESC
+    voteAverage_GTE: 8.5
+    voteCount_GTE: 25
+  }
+) {
+  results {
+    title
+    firstAirDate
+    voteCount
+    voteAverage
+  }
 }
 ```
 
-### people()
-
-Search the database for people that match a given search query.
-
-**Signature:**
+3. **TV Show Lists**
 
 ```graphql
-people(query: String! page: Int = 1): PersonList
+shows(list: ShowsListName, page: Int = 1): ShowList
 ```
 
-**Response:**
+The `list` argument provides support for the `tv` endpoints that return specific lists of TV shows. The following values are supported:
+
+- [on_air][tv/on-air]
+- [airing_today][tv/airing-today]
+- [popular][tv/popular]
+- [top_rated][tv/top-rated]
+- [latest][tv/latest]
 
 ```graphql
-type PersonList {
-  meta: QueryMeta!
-  results: [Person]!
+shows(list: TOP_RATED) {
+  results {
+    title
+    id
+  }
 }
 ```
+
+</details>
+
+### People()
+
+Search the database for people
+
+TODO: Add documentation
 
 ### Movie()
 
-Get detailed information about a specific movie.
+Get details about a single movie by ID
 
-**Signature:**
-
-```graphql
-Movie(id: ID!): Movie
-```
-
-**Response:**
-
-```graphql
-type Movie implements Media {
-  backdropPath: String
-  budget: Int!
-  genres: [Genre]
-  genreIds: [Int]!
-  homepage: String
-  id: ID!
-  mediaType: String!
-  originalLanguage: String!
-  originalTitle: String!
-  overview: String
-  popularity: Float!
-  posterPath: String
-  productionCompanies: [Company]!
-  productionCountries: [Country]!
-  releaseDate: String!
-  revenue: Int!
-  runtime: Int
-  status: String!
-  tagline: String
-  title: String!
-  voteAverage: Float!
-  voteCount: Int!
-  credits: Credits!
-}
-```
+TODO: Add documentation
 
 ### Show()
 
-Get detailed information about a specific TV show.
+Get details about a single TV Show by ID
 
-You can use this query to get any of the information that can be requested on the `/tv/${id}` endpoint, including seasons, episodes, cast, etc.
-
-Currently, the `Show` object has two fields, `allSeasons` and `season(seasonNumber).` Getting the episodes for all seasons at once requires an API request for each season. So this makes it possible to get episodes for a single season
-
-**Signature:**
-
-```graphql
-Show(id: ID!): Movie
-```
-
-Response :
-
-```graphql
-type Show implements Media @cacheControl(maxAge: 10000) {
-  backdropPath: String
-  episodeRunTime: [Int]!
-  genres: [Genre]
-  genreIds: [Int]!
-  homepage: String
-  id: ID!
-  inProduction: Boolean!
-  lastAirDate: String!
-  mediaType: String!
-  numberOfEpisodes: Int!
-  numberOfSeasons: Int!
-  originalLanguage: String!
-  originalTitle: String!
-  originCountry: [String]!
-  overview: String!
-  popularity: Float!
-  posterPath: String!
-  productionCompanies: [Company]!
-  allSeasons: [Season]!
-  season(seasonNumber: Int!): Season
-  status: String!
-  title: String!
-  voteAverage: Float!
-  voteCount: Int!
-  credits: Credits!
-}
-```
+TODO: Add documentation
 
 ### Person()
 
-Get details information about a specific person.
+Get details about a single person by ID
 
-**Signature:**
+TODO: Add documentation
 
-```graphql
-Person(id: ID!): Person
-```
+### configuration()
 
-**Response:**
+Get TMDB system configuration
 
-```graphql
-type Person {
-  alsoKnownAs: [String]
-  biography: String
-  birthday: String!
-  deathday: String
-  gender: Int!
-  homepage: String
-  id: ID!
-  knownForDepartment: String
-  mediaType: String!
-  name: String!
-  placeOfBirth: String
-  popularity: Float!
-  profilePath: String
-  knownFor: [Media]!
-  filmography: Filmography!
-}
-```
+TODO: Add documentation
 
-### Configuration()
-
-Todo
+[discover/movie]: (https://developers.themoviedb.org/3/discover/movie-discover)
+[discover/tv]: (https://developers.themoviedb.org/3/discover/movie-tv)
+[movie/latest]: (https://developers.themoviedb.org/3/movies/get-latest-movie)
+[movie/now-playing]: (https://developers.themoviedb.org/3/movies/get-now-playing)
+[movie/popular]: (https://developers.themoviedb.org/3/movies/get-popular-movies)
+[movie/top-rated]: (https://developers.themoviedb.org/3/movies/get-top-rated-movies)
+[movie/upcoming]: (https://developers.themoviedb.org/3/movies/get-upcoming)
+[tv/latest]: (https://developers.themoviedb.org/3/tv/get-latest-tv)
+[tv/airing-today]: (https://developers.themoviedb.org/3/tv/get-tv-airing-today)
+[tv/on-air]: (https://developers.themoviedb.org/3/tv/get-tv-on-the-air)
+[tv/popular]: (https://developers.themoviedb.org/3/tv/get-popular-tv-shows)
+[tv/top-rated]: (https://developers.themoviedb.org/3/tv/get-top-rated-tv)

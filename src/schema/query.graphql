@@ -1,0 +1,162 @@
+# import Company from "companies.graphql"
+# import Configuration from "configuration.graphql"
+# import DiscoverMovieOptions, DiscoverTVOptions from "discover.graphql"
+# import Movie from "movies.graphql"
+# import Person from "people.graphql"
+# import Show, Season, Episode from "shows.graphql"
+
+# Table of Contents
+# 1. Single Item Queries
+# 2. Plural Queries
+# 3. Response Types
+# 4. Input Types
+
+type Query {
+  # ===================================================================
+  # 1. Single Item Queries
+  # ===================================================================
+  """
+  Gets details information about a specific person.
+  """
+  person(id: ID!): Person
+
+  """
+  Gets a single Movie by ID.
+  """
+  movie(id: ID!): Movie
+
+  """
+  Gets a single TV show by ID
+  """
+  show(id: ID!): Show
+
+  """
+  Gets a single season of a TV show
+  """
+  season(showId: ID, seasonNumber: Int): Season
+
+  """
+  Gets a single episode of a TV show
+  """
+  episode(showId: ID, seasonNumber: Int, episodeNumber: Int): Episode
+
+  """
+  Gets the details about a production company.
+  """
+  company(id: ID!): Company
+
+  """
+  Gets the system wide configuration information for the TMDB API. This includes
+  image configuration data which is required for constructing image URLs and
+  change keys. For more information refer to
+  [the TMDB documentation](https://developers.themoviedb.org/3/configuration/get-api-configuration)
+  """
+  configuration: Configuration
+
+  # ===================================================================
+  # 2. Plural Queries
+  # ===================================================================
+  """
+  Searches the database for people that match a given search query.
+  """
+  people(query: String!, page: Int): PeopleQueryResponse
+
+  """
+  Find movies using various searching and filtering options. This query
+  encompasses multiple API endpoints that return lists of movies.
+  """
+  movies(
+    discover: DiscoverMovieOptions
+    list: MovieListName
+    query: String
+    page: Int
+  ): MoviesQueryResponse
+
+  """
+  Gets TV shows from the database. This query encompasses all of the API methods
+  designed to find and retrive multiple TV shows. The arguments are mutually
+  exclusive - each argument corresponds to a different underlying API method
+  so they cannot be used together.
+  """
+  shows(
+    discover: DiscoverTVOptions
+    list: TVListName
+    query: String
+    page: Int
+  ): ShowsQueryResponse
+
+  """
+  Searches for production companies that match the given query string.
+  """
+  companies(query: String!, page: Int): CompaniesQueryResponse
+
+  """
+  Searches all database models for results that match the given query
+  string. This query uses the "/search/multi" enpoint. The resutls will
+  be a list of mixed object types. NOTE: If you want to search for a specific
+  object type, use the plural query for the given object instead. IE to
+  search movies, use `movies(query: "Last Tango")`
+  """
+  search(query: String!, page: Int): SearchQueryResponse
+}
+
+# ===================================================================
+#  3. Response Types
+# ===================================================================
+
+type MoviesQueryResponse {
+  totalPages: Int
+  totalResults: Int
+  page: Int
+  results: [Movie]
+}
+
+type ShowsQueryResponse {
+  totalPages: Int
+  totalResults: Int
+  page: Int
+  results: [Show]
+}
+
+type PeopleQueryResponse {
+  totalPages: Int
+  totalResults: Int
+  page: Int
+  results: [Person]
+}
+
+type CompaniesQueryResponse {
+  totalPages: Int
+  totalResults: Int
+  page: Int
+  results: [Company]
+}
+
+type SearchQueryResponse {
+  totalPages: Int
+  totalResults: Int
+  page: Int
+  results: [SearchResult]
+}
+
+union SearchResult = Person | Movie | Show | Company
+
+# ===================================================================
+#  4. Input Types
+# ===================================================================
+
+enum TVListName {
+  LATEST
+  ON_AIR
+  AIRING_TODAY
+  POPULAR
+  TOP_RATED
+}
+
+enum MovieListName {
+  LATEST
+  NOW_PLAYING
+  POPULAR
+  TOP_RATED
+  UPCOMING
+}

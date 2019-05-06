@@ -1,0 +1,13 @@
+type Review {
+  id: ID
+  author: String
+  content: String
+  url: String
+}
+
+type ReviewsList {
+  totalResults: Int!
+  totalPages: Int!
+  page: Int!
+  results: [Review]!
+}

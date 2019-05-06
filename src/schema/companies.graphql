@@ -1,0 +1,6 @@
+type Company @cacheControl(maxAge: 10000) {
+  id: ID!
+  logoPath: String
+  name: String!
+  originCountry: String
+}

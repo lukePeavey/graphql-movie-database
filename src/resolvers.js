@@ -1,66 +1,129 @@
 const transforms = require('./utils/transforms')
 const capitalize = require('lodash/capitalize')
 const camelCase = require('lodash/camelCase')
-const get = require('lodash/get')
 
-async function getDetails(objectType, field, obj, dataSources) {
-  if (obj[field]) return obj[field]
-  return get(await dataSources.api[`get${objectType}`](obj), field)
-}
+/**
+ * Creates the resolvers for fields on the `Movie`, `Show`, `Season` and
+ * `Episode` objects. These objects all share a common set of fields. This
+ * function takes a typename and returns the map of resolvers for the fields on
+ * that object type.
+ *
+ * Creates resolvers for the following fields:
+ * - cast
+ * - crew
+ * - videos
+ * - posters
+ * - backdrops
+ * - reviews
+ * - genres
+ *
+ * @param {"Movie" | "Show" | "Season" | "Episode"} typename
+ */
+function createMediaObjectResolvers(typename) {
+  /**
+   * A helper function for fetching "detail fields" (aka fields that require a
+   * single-item details request (ie `GET /movie/{id}`). Depending on the type
+   * of query, the data for this field may or may not already be included in the
+   * response object. If its not, this will make the appropriate API call to get
+   * the item.
+   */
+  async function _getDetailField(field, obj, dataSources) {
+    if (obj[field]) return obj[field]
+    const data = await dataSources.api[`get${typename}`](obj)
+    return data[field]
+  }
 
-// Resolvers for `Movie`, `Show`, `Season`, and `Episode` objects
-function mediaResolvers(objectType) {
   const resolvers = {
     cast: async (obj, args, { dataSources }) => {
-      const credits = await getDetails(objectType, 'credits', obj, dataSources)
+      const credits = await _getDetailField('credits', obj, dataSources)
       if (!args.first) return credits.cast
       return credits.cast.filter(item => item.order < args.first)
     },
     crew: async (obj, args, { dataSources }) => {
-      const credits = await getDetails(objectType, 'credits', obj, dataSources)
+      const credits = await _getDetailField('credits', obj, dataSources)
       if (!args.departments) return credits.crew
       return credits.crew.filter(item => {
         return args.departments.includes(camelCase(item.department))
       })
     },
     videos: async (obj, args, { dataSources }) => {
-      const videos = await getDetails(objectType, 'videos', obj, dataSources)
+      const videos = await _getDetailField('videos', obj, dataSources)
       if (!args.type) return videos.results
       return videos.results.filter(item => camelCase(item.type) === args.type)
     },
-    images: async (obj, _, { dataSources }) => {
-      return await getDetails(objectType, 'images', obj, dataSources)
+    posters: async (obj, _, { dataSources }) => {
+      const images = await _getDetailField('images', obj, dataSources)
+      return images.posters
+    },
+    backdrops: async (obj, _, { dataSources }) => {
+      const images = await _getDetailField('images', obj, dataSources)
+      return images.backdrops
     }
   }
-  // Resolvers for `Movie` and `Show` objects
-  if (/Show|Movie/.test(objectType)) {
+  // The following resolvers only apply to `Show` and `Movie` objects
+  if (/Show|Movie/.test(typename)) {
     resolvers.reviews = async (obj, _, { dataSources }) => {
-      return await getDetails(objectType, 'reviews', obj, dataSources)
+      return await _getDetailField('reviews', obj, dataSources)
     }
-    // The `genres` property is only included in single-item endpoints
-    // (`/movie/${id}` and `/tv/${id}`). Movies and Shows returned by other
-    // endpoints (like search and discover) only have the `genre_ids` property.
-    // This resolver converts `genre_ids` to `genres` when necessary so the
-    // `genres` field is available on all instances of `Movie` and `Show`
-    // @NOTE This only requires a single API request to get the complete list
-    // of genres for each media type (movie/tv).
+    // Convert the `genres_ids` property to `genres`. This makes the genres
+    // field available on all Movie and Show objects, even when returned from
+    // search/list queries. NOTE: This only requires a single API request to
+    // get the complete list of genres for each media type (movie/tv). Once the
+    // genre list has been cached, its just a matter of mapping the ids to
+    // genres.
     resolvers.genres = async ({ genreIds, genres }, _, { dataSources }) => {
       if (genres) return genres
-      return dataSources.api.getGenres({ mediaType: objectType, ids: genreIds })
+      return dataSources.api.getGenresById({
+        mediaType: typename,
+        ids: genreIds
+      })
     }
   }
-
   return resolvers
 }
+
 module.exports = {
   Query: {
-    search: async (_, args, { dataSources }) => {
-      return dataSources.api.search('/multi', args)
+    /**
+    |--------------------------------------------------
+    | Single Item Queries
+    |--------------------------------------------------
+    */
+    person: (_, args, { dataSources }) => {
+      return dataSources.api.getPerson(args)
+    },
+    movie: (_, args, { dataSources }) => {
+      return dataSources.api.getMovie(args)
+    },
+    show: (_, args, { dataSources }) => {
+      return dataSources.api.getShow(args)
+    },
+    season: async (_, args, { dataSources }) => {
+      return { showId: args.showId, ...(await dataSources.api.getSeason(args)) }
+    },
+    episode: async (_, args, { dataSources }) => {
+      return { ...args, ...(await dataSources.api.getEpisode(args)) }
+    },
+    configuration: (_, args, { dataSources }) => {
+      return dataSources.api.getConfiguration()
+    },
+    /**
+    |--------------------------------------------------
+    | Plural Queries
+    |--------------------------------------------------
+    */
+    people: (_, args = {}, { dataSources }) => {
+      return dataSources.api.search('/person', args)
     },
     movies: (_, args = {}, { dataSources }) => {
       const { query, list, discover, ...rest } = args
+      // The movies query has three mutually exclusive arguments:
+      // A. If a `query` argument was provided, use search API to find movies
       if (query) return dataSources.api.search('/movie', { query, ...rest })
+      // B. If the `list` argument was provided, get movies from the specified
+      // movie list endpoint
       if (list) return dataSources.api.movies(list, rest)
+      // C. Otherwise, default to the discover API
       return dataSources.api.discover('/movie', { ...discover, ...rest })
     },
     shows: (_, args = {}, { dataSources }) => {
@@ -69,52 +132,38 @@ module.exports = {
       if (list) return dataSources.api.shows(list, rest)
       return dataSources.api.discover('/tv', { ...discover, ...rest })
     },
-    people: (_, args = {}, { dataSources }) => {
-      return dataSources.api.search('/person', args)
-    },
     companies: (_, args = {}, { dataSources }) => {
       return dataSources.api.search('/company', args)
     },
-    Movie: (_, args, { dataSources }) => {
-      return dataSources.api.getMovie(args)
-    },
-    Show: (_, args, { dataSources }) => {
-      return dataSources.api.getShow(args)
-    },
-    Season: async (_, args, { dataSources }) => {
-      return { showId: args.showId, ...(await dataSources.api.getSeason(args)) }
-    },
-    Episode: async (_, args, { dataSources }) => {
-      return { ...args, ...(await dataSources.api.getEpisode(args)) }
-    },
-    Person: (_, args, { dataSources }) => {
-      return dataSources.api.getPerson(args)
-    },
-    configuration: (_, args, { dataSources }) => {
-      return dataSources.api.getConfiguration()
+    search: async (_, args, { dataSources }) => {
+      return dataSources.api.search('/multi', args)
     }
   },
+  /**
+  |--------------------------------------------------
+  | Object Resolvers
+  |--------------------------------------------------
+  */
   SearchResult: {
     __resolveType({ mediaType }) {
       if (/tv/i.test(mediaType)) return 'Show'
       return capitalize(mediaType)
     }
   },
-  ImagesConfig: {
+  ImageConfiguration: {
     // Use HTTPS for the default base URL
     baseUrl: ({ secureBaseUrl }) => secureBaseUrl
   },
   Movie: {
-    ...mediaResolvers('Movie'),
+    ...createMediaObjectResolvers('Movie'),
     mediaType: () => 'movie'
   },
   Show: {
-    ...mediaResolvers('Show'),
+    ...createMediaObjectResolvers('Show'),
     mediaType: () => 'tv',
     title: ({ name }) => name, // make consistent with Movie
     originalTitle: ({ originalName }) => originalName,
     // Get all seasons of a show
-    // @todo Figure out a better way to handle querying seasons & episodes
     seasons: async ({ seasons, id }, _, { dataSources }) => {
       seasons = seasons || (await dataSources.api.getShow({ id }))['seasons']
       // Pass down the `showId` prop to the `season` field. This allows it to
@@ -132,10 +181,9 @@ module.exports = {
     }
   },
   Season: {
-    ...mediaResolvers('Season'),
+    ...createMediaObjectResolvers('Season'),
     title: ({ name }) => name, // make consistent with Movie
     // Gets all episodes of the season
-    // @todo figure out better way to handle querying episodes
     episodes: async ({ showId, seasonNumber }, _, { dataSources }) => {
       const data = await dataSources.api.getSeason({ showId, seasonNumber })
       return data.episodes
@@ -151,19 +199,19 @@ module.exports = {
     }
   },
   Episode: {
-    ...mediaResolvers('Episode'),
+    ...createMediaObjectResolvers('Episode'),
     title: ({ name }) => name // make consistent with Movie
   },
   Person: {
     mediaType: () => 'person',
     knownFor: async ({ name, id, knownFor }, _, { dataSources }) => {
+      // @TODO: find a better solution for the following issue:
+      // The "known_for" property is only included in the results from the
+      //  (`/search/person`) endpoint; its not included in a details request
+      // for single person (this might be a bug?). As a workaround, when this
+      // field is requested in a singular `person` query, we make a second API
+      // request to the search endpoint using the name/id.
       if (knownFor) return knownFor
-      // @todo find a better solution for the following issue:
-      // For some reason the  "known_for" property is only included in search
-      // results via  (`/search/person`); its not included in a details request
-      // for single person. As a workaround, when this field is requested in a
-      // `Person` query, make a second API request to the search endpoint
-      // using the name and ID obtained from the `/person/{id}` request.
       const { results } = await dataSources.api.search('/person', {
         query: name
       })
@@ -175,7 +223,7 @@ module.exports = {
       return (await dataSources.api.getPerson({ id }))['knownForDepartment']
     },
     // `filmography` is the person's combined movie and tv credits
-    // @todo needs work
+    // @TODO
     filmography: async ({ combinedCredits, id }, _, { dataSources }) => {
       // If the response doesn't already include `combined_credits`, make an
       // API request to `/person/${id}` to fetch it
@@ -191,7 +239,7 @@ module.exports = {
   },
   Media: {
     __resolveType({ mediaType }) {
-      return /tv/i.test(mediaType) ? 'Show' : 'Movie'
+      return /^(tv)$/i.test(mediaType) ? 'Show' : 'Movie'
     }
   },
   Credit: {

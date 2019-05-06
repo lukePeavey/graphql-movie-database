@@ -1,15 +1,17 @@
 const dotenv = require('dotenv').config()
 const { ApolloServer } = require('apollo-server')
 const path = require('path')
-const importSchema = require('./utils/importSchema')
+const { importSchema } = require('@lukepeavey/graphql-import')
 const MovieDataBaseAPI = require('./MovieDatabaseAPI')
 const playground = require('./config/playground')
 const resolvers = require('./resolvers')
-const schema = importSchema(path.join(__dirname, 'schema'))
+
+// import schema using graphql-import
+const typeDefs = importSchema(path.join(__dirname, 'schema/query.graphql'))
 
 // Create the Apollo Server instance
 const server = new ApolloServer({
-  typeDefs: schema,
+  typeDefs,
   resolvers,
   playground,
   mocks: false,

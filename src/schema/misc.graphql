@@ -1,0 +1,14 @@
+type Genre @cacheControl(maxAge: 10000) {
+  id: Int!
+  name: String!
+}
+
+type Country @cacheControl(maxAge: 10000) {
+  iso_3166_1: String!
+  name: String!
+}
+
+type Language @cacheControl(maxAge: 10000) {
+  iso_639_1: String!
+  name: String!
+}

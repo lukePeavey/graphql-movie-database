@@ -21,6 +21,7 @@ This is the base type for CastCredit and CrewCredits.
 """
 interface Credit @cacheControl(maxAge: 10000) {
   creditType: CreditType!
+  # The Movie | Show
   media: Media!
   creditId: ID!
   gender: Int
@@ -31,6 +32,7 @@ interface Credit @cacheControl(maxAge: 10000) {
 
 type CastCredit implements Credit {
   creditType: CreditType!
+  # The Movie | Show
   media: Media!
   castId: ID!
   creditId: ID!

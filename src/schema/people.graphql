@@ -1,6 +1,6 @@
-"""
-Details a person.
-"""
+# import Media from "media.graphql"
+# import CastCredit, CrewCredit from "credits.graphql"
+
 type Person @cacheControl(maxAge: 10000) {
   alsoKnownAs: [String]
   biography: String
@@ -19,6 +19,9 @@ type Person @cacheControl(maxAge: 10000) {
   filmography: Filmography!
 }
 
+"""
+The combined movie and TV credits for a single person.
+"""
 type Filmography @cacheControl(maxAge: 10000) {
   cast: [CastCredit]!
   crew: [CrewCredit]!

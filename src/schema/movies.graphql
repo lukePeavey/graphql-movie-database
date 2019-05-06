@@ -1,0 +1,42 @@
+# import CastCredit, CrewCredit, CrewDepartment from "credits.graphql"
+# import Genre from "misc.graphql"
+# import Media from "media.graphql"
+# import ReviewsList from "reviews.graphql"
+# import Video, VideoType from "videos.graphql"
+
+type Movie implements Media @cacheControl(maxAge: 10000) {
+  # ===================================================================
+  #  Media fields
+  # ===================================================================
+  backdropPath: String
+  backdrops: [Image]!
+  cast(first: Int): [CastCredit]!
+  crew(departments: [CrewDepartment]): [CrewCredit]!
+  genres: [Genre]
+  homepage: String
+  id: ID!
+  mediaType: String!
+  originalLanguage: String!
+  originalTitle: String!
+  overview: String
+  popularity: Float!
+  posterPath: String
+  posters: [Image]!
+  productionCompanies: [Company]!
+  reviews: ReviewsList
+  status: String!
+  title: String!
+  videos(type: VideoType): [Video]!
+  voteAverage: Float!
+  voteCount: Int!
+  # ===================================================================
+  #  Movie fields
+  # ===================================================================
+  budget: Int!
+  # FIXME: Error 'Cannot return null for non-nullable field Country.iso_3166_1.'
+  productionCountries: [Country]!
+  releaseDate: String!
+  revenue: Int!
+  runtime: Int
+  tagline: String
+}

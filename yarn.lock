@@ -44,6 +44,14 @@
     log-update "^2.3.0"
     strip-ansi "^3.0.1"
 
+"@lukepeavey/graphql-import@^0.0.0-semantic-release":
+  version "0.0.0-semantic-release"
+  resolved "https://registry.yarnpkg.com/@lukepeavey/graphql-import/-/graphql-import-0.0.0-semantic-release.tgz#dca4b55d434f104b8642fdab780407952202826f"
+  integrity sha512-VHMy/dJaYtBXb2PeK92wj5/dnLFpF8CcveyaYxuKEQBWBM57niYf9aEczjaF7GRE/Ft536n1YhXtnfG1RjZmsw==
+  dependencies:
+    lodash "^4.17.4"
+    resolve-from "^4.0.0"
+
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@protobufjs/aspromise/-/aspromise-1.1.2.tgz#9b8b0cc663d669a7d8f6f5d0893a14d348f30fbf"
@@ -4481,6 +4489,11 @@ resolve-from@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-3.0.0.tgz#b22c7af7d9d6881bc8b6e653335eebcb0a188748"
   integrity sha1-six699nWiBvItuZTM17rywoYh0g=
+
+resolve-from@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-4.0.0.tgz#4abcd852ad32dd7baabfe9b40e00a36db5f392e6"
+  integrity sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==
 
 resolve-url@^0.2.1:
   version "0.2.1"

@@ -28,6 +28,7 @@
     ]
   },
   "dependencies": {
+    "@lukepeavey/graphql-import": "^0.0.0-semantic-release",
     "apollo-datasource-rest": "^0.2.1",
     "apollo-server": "^2.2.6",
     "camelcase-keys": "^5.0.0",

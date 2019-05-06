@@ -1,0 +1,90 @@
+# import CastCredit, CrewCredit, CrewDepartment from "credits.graphql"
+# import Genre from "misc.graphql"
+# import Company from "companies.graphql"
+# import Media from "media.graphql"
+# import ReviewsList from "reviews.graphql"
+# import Video,  VideoType from "videos.graphql"
+
+type Show implements Media @cacheControl(maxAge: 10000) {
+  # ===================================================================
+  #  Media fields
+  # ===================================================================
+  backdropPath: String
+  backdrops: [Image]!
+  cast(first: Int): [CastCredit]!
+  crew(departments: [CrewDepartment]): [CrewCredit]!
+  genres: [Genre]
+  homepage: String
+  id: ID!
+  mediaType: String!
+  originalLanguage: String!
+  originalTitle: String!
+  overview: String!
+  popularity: Float!
+  posterPath: String
+  posters: [Image]!
+  productionCompanies: [Company]!
+  reviews: ReviewsList
+  status: String!
+  title: String!
+  videos(type: VideoType): [Video]!
+  voteAverage: Float!
+  voteCount: Int!
+  # ===================================================================
+  #  Show fields
+  # ===================================================================
+  episodeRunTime: [Int]!
+  firstAirDate: String
+  inProduction: Boolean!
+  lastAirDate: String
+  numberOfEpisodes: Int!
+  numberOfSeasons: Int!
+  originCountry: [String]!
+  season(seasonNumber: Int!): Season
+  seasons: [Season]
+}
+
+"""
+An individual season of a TV Show.
+"""
+type Season @cacheControl(maxAge: 10000) {
+  airDate: String!
+  episodeCount: Int!
+  id: ID!
+  showID: ID!
+  title: String!
+  overview: String!
+  posterPath: String
+  seasonNumber: Int!
+  episodes: [Episode]
+  episode(episodeNumber: Int!): Episode
+  cast(first: Int): [CastCredit]!
+  crew(departments: [CrewDepartment]): [CrewCredit]!
+  posters: [Image]!
+  backdrops: [Image]!
+  videos(type: VideoType): [Video]!
+}
+
+"""
+An individual episode of a TV show. It includes details that are specific
+to the episode, such as special guests, crew, description.
+"""
+type Episode @cacheControl(maxAge: 10000) {
+  airDate: String!
+  episodeNumber: Int!
+  id: ID!
+  title: String!
+  overview: String!
+  productionCode: Int
+  seasonNumber: Int!
+  showId: ID!
+  stillPath: String
+  voteAverage: Float!
+  voteCount: Int!
+  cast(first: Int): [CastCredit]!
+  crew(departments: [CrewDepartment]): [CrewCredit]!
+  guestStars: [CastCredit]!
+  posters: [Image]!
+  backdrops: [Image]!
+  videos: [Video]
+}

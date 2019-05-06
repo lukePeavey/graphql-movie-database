@@ -1,10 +1,12 @@
 const { RESTDataSource } = require('apollo-datasource-rest')
-const { camelCaseKeys, deCamelCaseArgs } = require('./utils/camelCase')
+const { AuthenticationError, ApolloError } = require('apollo-server')
+const { camelCaseKeys, deCamelCaseArgs } = require('../utils/camelCase')
 const snakeCase = require('lodash/snakeCase')
+
 /**
  * A data source to connect to the TMDB rest API
  */
-class MovieDatabaseAPI extends RESTDataSource {
+class MovieDatabaseV3 extends RESTDataSource {
   constructor() {
     super()
     this.baseURL = `https://api.themoviedb.org/3`
@@ -21,6 +23,10 @@ class MovieDatabaseAPI extends RESTDataSource {
       init = { cacheOptions: { ttl: 10000 } }
     }
     return camelCaseKeys(await super.get(path, params, init))
+  }
+
+  async post(path, body, init) {
+    return camelCaseKeys(await super.post(path, body, init))
   }
 
   /**
@@ -125,7 +131,8 @@ class MovieDatabaseAPI extends RESTDataSource {
    * @see https://developers.themoviedb.org/3/search/multi-search
    */
   async search(endpoint = '/multi', params) {
-    return this.get(`/search${endpoint}`, params)
+    let { results, meta } = await this.get(`/search${endpoint}`, params)
+    return { results, meta }
   }
 
   /**
@@ -164,4 +171,4 @@ class MovieDatabaseAPI extends RESTDataSource {
     return this.get(`/tv/${snakeCase(endpoint)}`, { page })
   }
 }
-module.exports = MovieDatabaseAPI
+module.exports = MovieDatabaseV3

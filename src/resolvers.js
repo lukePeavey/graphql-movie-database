@@ -1,3 +1,4 @@
+const { AuthenticationError, ApolloError } = require('apollo-server')
 const transforms = require('./utils/transforms')
 const capitalize = require('lodash/capitalize')
 const camelCase = require('lodash/camelCase')
@@ -28,8 +29,9 @@ function createMediaObjectResolvers(typename) {
    * the item.
    */
   async function _getDetailField(field, obj, dataSources) {
+    const { movieDatabaseV3 } = dataSources
     if (obj[field]) return obj[field]
-    const data = await dataSources.api[`get${typename}`](obj)
+    const data = await movieDatabaseV3[`get${typename}`](obj)
     return data[field]
   }
 
@@ -72,8 +74,9 @@ function createMediaObjectResolvers(typename) {
     // genre list has been cached, its just a matter of mapping the ids to
     // genres.
     resolvers.genres = async ({ genreIds, genres }, _, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
       if (genres) return genres
-      return dataSources.api.getGenresById({
+      return movieDatabaseV3.getGenresById({
         mediaType: typename,
         ids: genreIds
       })
@@ -90,22 +93,28 @@ module.exports = {
     |--------------------------------------------------
     */
     person: (_, args, { dataSources }) => {
-      return dataSources.api.getPerson(args)
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.getPerson(args)
     },
     movie: (_, args, { dataSources }) => {
-      return dataSources.api.getMovie(args)
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.getMovie(args)
     },
     show: (_, args, { dataSources }) => {
-      return dataSources.api.getShow(args)
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.getShow(args)
     },
     season: async (_, args, { dataSources }) => {
-      return { showId: args.showId, ...(await dataSources.api.getSeason(args)) }
+      const { movieDatabaseV3 } = dataSources
+      return { showId: args.showId, ...(await movieDatabaseV3.getSeason(args)) }
     },
     episode: async (_, args, { dataSources }) => {
-      return { ...args, ...(await dataSources.api.getEpisode(args)) }
+      const { movieDatabaseV3 } = dataSources
+      return { ...args, ...(await movieDatabaseV3.getEpisode(args)) }
     },
     configuration: (_, args, { dataSources }) => {
-      return dataSources.api.getConfiguration()
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.getConfiguration()
     },
     /**
     |--------------------------------------------------
@@ -113,30 +122,35 @@ module.exports = {
     |--------------------------------------------------
     */
     people: (_, args = {}, { dataSources }) => {
-      return dataSources.api.search('/person', args)
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.search('/person', args)
     },
     movies: (_, args = {}, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
       const { query, list, discover, ...rest } = args
       // The movies query has three mutually exclusive arguments:
       // A. If a `query` argument was provided, use search API to find movies
-      if (query) return dataSources.api.search('/movie', { query, ...rest })
+      if (query) return movieDatabaseV3.search('/movie', { query, ...rest })
       // B. If the `list` argument was provided, get movies from the specified
       // movie list endpoint
-      if (list) return dataSources.api.movies(list, rest)
+      if (list) return movieDatabaseV3.movies(list, rest)
       // C. Otherwise, default to the discover API
-      return dataSources.api.discover('/movie', { ...discover, ...rest })
+      return movieDatabaseV3.discover('/movie', { ...discover, ...rest })
     },
     shows: (_, args = {}, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
       const { query, list, discover, ...rest } = args
-      if (query) return dataSources.api.search('/tv', { query, ...rest })
-      if (list) return dataSources.api.shows(list, rest)
-      return dataSources.api.discover('/tv', { ...discover, ...rest })
+      if (query) return movieDatabaseV3.search('/tv', { query, ...rest })
+      if (list) return movieDatabaseV3.shows(list, rest)
+      return movieDatabaseV3.discover('/tv', { ...discover, ...rest })
     },
     companies: (_, args = {}, { dataSources }) => {
-      return dataSources.api.search('/company', args)
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.search('/company', args)
     },
     search: async (_, args, { dataSources }) => {
-      return dataSources.api.search('/multi', args)
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.search('/multi', args)
     }
   },
   /**
@@ -165,7 +179,8 @@ module.exports = {
     originalTitle: ({ originalName }) => originalName,
     // Get all seasons of a show
     seasons: async ({ seasons, id }, _, { dataSources }) => {
-      seasons = seasons || (await dataSources.api.getShow({ id }))['seasons']
+      const { movieDatabaseV3 } = dataSources
+      seasons = seasons || (await movieDatabaseV3.getShow({ id }))['seasons']
       // Pass down the `showId` prop to the `season` field. This allows it to
       // make an API request to `/tv/${showId}/season/${seasonNumber}` to get
       // episodes when the `episodes` field is present in the query.
@@ -173,7 +188,8 @@ module.exports = {
     },
     // Gets a single season of the show
     season: async ({ id: showId }, { seasonNumber }, { dataSources }) => {
-      const season = await dataSources.api.getSeason({ showId, seasonNumber })
+      const { movieDatabaseV3 } = dataSources
+      const season = await movieDatabaseV3.getSeason({ showId, seasonNumber })
       // Pass down the `showId` prop to the `season` field. This allows it to
       // make an API request to `/tv/${showId}/season/${seasonNumber}` to get
       // episodes when the `episodes` field is present in the query.
@@ -185,13 +201,15 @@ module.exports = {
     title: ({ name }) => name, // make consistent with Movie
     // Gets all episodes of the season
     episodes: async ({ showId, seasonNumber }, _, { dataSources }) => {
-      const data = await dataSources.api.getSeason({ showId, seasonNumber })
+      const { movieDatabaseV3 } = dataSources
+      const data = await movieDatabaseV3.getSeason({ showId, seasonNumber })
       return data.episodes
     },
     // Gets a single episode of the season
     episode: async (obj, { episodeNumber }, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
       const { showId, seasonNumber } = obj
-      return await dataSources.api.getEpisode({
+      return await movieDatabaseV3.getEpisode({
         showId,
         seasonNumber,
         episodeNumber
@@ -205,30 +223,34 @@ module.exports = {
   Person: {
     mediaType: () => 'person',
     knownFor: async ({ name, id, knownFor }, _, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
       // @TODO: find a better solution for the following issue:
       // The "known_for" property is only included in the results from the
       //  (`/search/person`) endpoint; its not included in a details request
       // for single person (this might be a bug?). As a workaround, when this
       // field is requested in a singular `person` query, we make a second API
       // request to the search endpoint using the name/id.
+
       if (knownFor) return knownFor
-      const { results } = await dataSources.api.search('/person', {
+      const { results } = await movieDatabaseV3.search('/person', {
         query: name
       })
       const match = results.find(person => String(person.id) === String(id))
       return match ? match.knownFor : []
     },
     knownForDepartment: async ({ id, ...obj }, _, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
       if (obj.knownForDepartment) return obj.knownForDepartment
-      return (await dataSources.api.getPerson({ id }))['knownForDepartment']
+      return (await movieDatabaseV3.getPerson({ id }))['knownForDepartment']
     },
     // `filmography` is the person's combined movie and tv credits
     // @TODO
     filmography: async ({ combinedCredits, id }, _, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
       // If the response doesn't already include `combined_credits`, make an
       // API request to `/person/${id}` to fetch it
       if (!combinedCredits) {
-        const data = await dataSources.api.getPerson({ id })
+        const data = await movieDatabaseV3.getPerson({ id })
         combinedCredits = data.combinedCredits
       }
       return {

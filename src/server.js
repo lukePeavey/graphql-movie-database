@@ -21,12 +21,17 @@ const server = new ApolloServer({
   engine: { apiKey: process.env.ENGINE_API_KEY },
   dataSources: () => ({ api: new MovieDataBaseAPI() }),
   formatError: error => {
-    /* eslint-disable-next-line no-console */
-    console.log(error)
-    return new Error('Internal server error')
-    // Or, you can delete the exception information
-    // delete error.extensions.exception;
-    // return error;
+    if (process.env.NODE_ENV === 'production') {
+      // In production: only return error message and code
+      return { message: error.message, code: error.extensions.code }
+    } else {
+      // In development mode:
+      // 1. log errors to the console, including the stacktrace
+      console.error(`[GraphQLError: ${error.message}]`, error.extensions)
+      // 2. Pass the complete error along to client (without stacktrace)
+      delete error.extensions.exception
+      return error
+    }
   }
 })
 

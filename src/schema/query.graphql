@@ -4,6 +4,7 @@
 # import Movie from "movies.graphql"
 # import Person from "people.graphql"
 # import Show, Season, Episode from "shows.graphql"
+# import Account from "account.graphql"
 
 # Table of Contents
 # 1. Single Item Queries
@@ -52,6 +53,13 @@ type Query {
   [the TMDB documentation](https://developers.themoviedb.org/3/configuration/get-api-configuration)
   """
   configuration: Configuration
+
+  """
+  Gets the TMDB account of the logged in user.
+  Requires user authentication. A valid V4 access token must be sent as the
+  "authorization" header.
+  """
+  myAccount: Account
 
   # ===================================================================
   # 2. Plural Queries

@@ -2,7 +2,8 @@ const dotenv = require('dotenv').config()
 const { ApolloServer } = require('apollo-server')
 const path = require('path')
 const { importSchema } = require('@lukepeavey/graphql-import')
-const MovieDataBaseAPI = require('./MovieDatabaseAPI')
+const MovieDataBaseV3 = require('./datasources/MovieDatabaseV3')
+const MovieDataBaseV4 = require('./datasources/MovieDataBaseV4')
 const playground = require('./config/playground')
 const resolvers = require('./resolvers')
 
@@ -19,7 +20,16 @@ const server = new ApolloServer({
   cacheControl: true,
   introspection: true,
   engine: { apiKey: process.env.ENGINE_API_KEY },
-  dataSources: () => ({ api: new MovieDataBaseAPI() }),
+  dataSources: () => ({
+    movieDatabaseV3: new MovieDataBaseV3(),
+    movieDatabaseV4: new MovieDataBaseV4()
+  }),
+  context: ({ req }) => {
+    // Check headers for a user authentication token.
+    if (req.headers.authorization) {
+      return { userAccessToken: req.headers.authorization }
+    }
+  },
   formatError: error => {
     if (process.env.NODE_ENV === 'production') {
       // In production: only return error message and code

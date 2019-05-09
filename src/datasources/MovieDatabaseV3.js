@@ -17,6 +17,13 @@ class MovieDatabaseV3 extends RESTDataSource {
     request.params.set('api_key', process.env.TMDB_API_KEY)
   }
 
+  /**
+   * Handles GET requests
+   * - Transforms response data to match style of schema (camelcase)
+   * - Sets the cache options for all responses. This overrides the cache
+   *   control policy on the response, ensuring all requests are cached.
+   * @uses RESTDataSource.prototype.get
+   */
   async get(path, params, init) {
     if (init === undefined) {
       // Set cache options for partial query caching.
@@ -25,6 +32,10 @@ class MovieDatabaseV3 extends RESTDataSource {
     return camelCaseKeys(await super.get(path, params, init))
   }
 
+  /**
+   * Handles POST requests
+   * @uses RESTDataSource.prototype.post
+   */
   async post(path, body, init) {
     return camelCaseKeys(await super.post(path, body, init))
   }
@@ -169,6 +180,38 @@ class MovieDatabaseV3 extends RESTDataSource {
    */
   async shows(endpoint, { page }) {
     return this.get(`/tv/${snakeCase(endpoint)}`, { page })
+  }
+
+  /**
+   * Converts a user access token (V4 authentication) to a sessionID.
+   * The session ID is used to authenticate V3 endpoints that require user
+   * authorization.
+   *
+   * @throws {AuthenticationError}
+   * @returns {string} sessionID
+   */
+  async convertV4TokenToSessionID() {
+    if (!this.context.userAccessToken) {
+      throw new AuthenticationError('No token.')
+    } else {
+      try {
+        const URL = `/authentication/session/convert/4`
+        const body = { access_token: this.context.userAccessToken }
+        const { sessionId } = await this.post(URL, body)
+        return sessionId
+      } catch (error) {
+        throw new AuthenticationError('Invalid token.')
+      }
+    }
+  }
+
+  /**
+   * Gets account details for the logged in user.
+   */
+  async getAccount() {
+    // If this returns a sessionId
+    let sessionId = await this.convertV4TokenToSessionID()
+    return this.get('/account', { session_id: sessionId })
   }
 }
 module.exports = MovieDatabaseV3

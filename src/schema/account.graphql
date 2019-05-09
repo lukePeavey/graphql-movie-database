@@ -1,0 +1,16 @@
+type Account {
+  avatar: Avatar
+  id: Int!
+  name: String
+  username: String!
+  iso6391: String
+  iso31661: String
+}
+
+type Avatar {
+  gravatar: Gravatar
+}
+
+type Gravatar {
+  hash: String
+}

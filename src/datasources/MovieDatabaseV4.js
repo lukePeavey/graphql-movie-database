@@ -18,5 +18,17 @@ class MovieDatabaseV4 extends RESTDataSource {
     }
     return camelCaseKeys(await super.get(path, params, init))
   }
+
+  willSendRequest(request) {
+    // V4 Authentication...
+    // Application based authentication
+    let token = process.env.TMDB_API_READ_ACCESS_TOKEN
+
+    // User based authentication
+    if (this.context.userAccessToken) {
+      token = this.context.userAccessToken
+    }
+    request.headers.set('authorization', `Bearer ${token}`)
+  }
 }
 module.exports = MovieDatabaseV4

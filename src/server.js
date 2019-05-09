@@ -24,6 +24,12 @@ const server = new ApolloServer({
     movieDatabaseV3: new MovieDataBaseV3(),
     movieDatabaseV4: new MovieDataBaseV4()
   }),
+  context: ({ req }) => {
+    // Check headers for a user authentication token.
+    if (req.headers.authorization) {
+      return { userAccessToken: req.headers.authorization }
+    }
+  },
   formatError: error => {
     /* eslint-disable-next-line no-console */
     console.log(error)

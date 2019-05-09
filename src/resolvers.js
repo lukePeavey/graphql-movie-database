@@ -116,6 +116,10 @@ module.exports = {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getConfiguration()
     },
+    myAccount: async (_obj, _args, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.getAccount()
+    },
     /**
     |--------------------------------------------------
     | Plural Queries

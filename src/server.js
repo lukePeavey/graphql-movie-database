@@ -3,7 +3,7 @@ const { ApolloServer } = require('apollo-server')
 const path = require('path')
 const { importSchema } = require('@lukepeavey/graphql-import')
 const MovieDataBaseV3 = require('./datasources/MovieDatabaseV3')
-const MovieDataBaseV4 = require('./datasources/MovieDataBaseV4')
+const MovieDataBaseV4 = require('./datasources/MovieDatabaseV4')
 const playground = require('./config/playground')
 const resolvers = require('./resolvers')
 

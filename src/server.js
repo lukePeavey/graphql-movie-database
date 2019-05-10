@@ -1,4 +1,4 @@
-const dotenv = require('dotenv').config()
+require('dotenv').config() // Load environment variables
 const { ApolloServer } = require('apollo-server')
 const path = require('path')
 const { importSchema } = require('@lukepeavey/graphql-import')
@@ -37,6 +37,7 @@ const server = new ApolloServer({
     } else {
       // In development mode:
       // 1. log errors to the console, including the stacktrace
+      /* eslint-disable-next-line no-console */
       console.error(`[GraphQLError: ${error.message}]`, error.extensions)
       // 2. Pass the complete error along to client (without stacktrace)
       delete error.extensions.exception
@@ -47,5 +48,6 @@ const server = new ApolloServer({
 
 // Start the web server
 server.listen({ port: process.env.PORT }).then(({ url }) => {
+  /* eslint-disable-next-line no-console */
   console.log(`🚀 Server ready at ${url}`)
 })

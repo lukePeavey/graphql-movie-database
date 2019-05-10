@@ -11,7 +11,8 @@
   "scripts": {
     "start": "node src/server.js",
     "start:dev": "nodemon src/server.js",
-    "start:debug": "nodemon --inspect src/server.js"
+    "start:debug": "nodemon --inspect src/server.js",
+    "lint": "yarn run eslint . --cache --color && echo \"eslint: no lint errors\""
   },
   "keywords": [
     "graphql",
@@ -41,6 +42,9 @@
     "lodash": "^4.17.11"
   },
   "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.2.0",
     "husky": "^2.2.0",
     "jest": "^23.6.0",
     "lint-staged": "^8.1.6",

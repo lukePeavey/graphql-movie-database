@@ -1,5 +1,5 @@
 const { RESTDataSource } = require('apollo-datasource-rest')
-const { AuthenticationError, ApolloError } = require('apollo-server')
+const { AuthenticationError } = require('apollo-server')
 const { camelCaseKeys, deCamelCaseArgs } = require('../utils/camelCase')
 const snakeCase = require('lodash/snakeCase')
 
@@ -106,9 +106,6 @@ class MovieDatabaseV3 extends RESTDataSource {
    * @param {'Movie' | 'Show'} mediaType
    */
   async getGenreList(mediaType) {
-    if (!/Movie|Show/.test(mediaType)) {
-      console.error(`[getGenreList] mediaType must be "Show" || "Movie"`)
-    }
     const endpoint = mediaType === 'Show' ? 'tv' : 'movie'
     const { genres } = await this.get(`genre/${endpoint}/list`)
     return genres
@@ -209,7 +206,6 @@ class MovieDatabaseV3 extends RESTDataSource {
    * Gets account details for the logged in user.
    */
   async getAccount() {
-    // If this returns a sessionId
     let sessionId = await this.convertV4TokenToSessionID()
     return this.get('/account', { session_id: sessionId })
   }

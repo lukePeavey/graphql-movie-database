@@ -1,5 +1,3 @@
-const uppercase = require('lodash/upperCase')
-
 // By default, each item consists of a movie or tv show combined with the
 // credit properties (ie `character`, `job`, `credit_id`, etc). TO match
 // the schema, the Movie\Show fields are moved to Credit.media

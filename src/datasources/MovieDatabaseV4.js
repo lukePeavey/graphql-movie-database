@@ -1,6 +1,5 @@
 const { RESTDataSource } = require('apollo-datasource-rest')
 const { camelCaseKeys } = require('../utils/camelCase')
-const snakeCase = require('lodash/snakeCase')
 
 /**
  * A data source for the TMDB API (V4)

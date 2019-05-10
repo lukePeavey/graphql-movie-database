@@ -5,10 +5,12 @@
     "Roadmap",
     "TMDB",
     "datasource",
+    "datasources",
     "deathday",
     "graphql",
     "imdb",
     "serverless",
     "tmdb"
-  ]
+  ],
+  "typescript.validate.enable": false
 }

@@ -1,0 +1,6 @@
+/.vscode
+/.git
+/docs
+/private
+/src/schema
+node_modules

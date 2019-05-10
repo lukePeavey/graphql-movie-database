@@ -1,4 +1,3 @@
-const { AuthenticationError, ApolloError } = require('apollo-server')
 const transforms = require('./utils/transforms')
 const capitalize = require('lodash/capitalize')
 const camelCase = require('lodash/camelCase')
@@ -19,6 +18,7 @@ const camelCase = require('lodash/camelCase')
  * - genres
  *
  * @param {"Movie" | "Show" | "Season" | "Episode"} typename
+ * @return {*} resolver map
  */
 function createMediaObjectResolvers(typename) {
   /**
@@ -27,6 +27,9 @@ function createMediaObjectResolvers(typename) {
    * of query, the data for this field may or may not already be included in the
    * response object. If its not, this will make the appropriate API call to get
    * the item.
+   * @param {string} field
+   * @param {any} obj
+   * @param {Object} dataSources
    */
   async function _getDetailField(field, obj, dataSources) {
     const { movieDatabaseV3 } = dataSources
@@ -87,11 +90,9 @@ function createMediaObjectResolvers(typename) {
 
 module.exports = {
   Query: {
-    /**
-    |--------------------------------------------------
-    | Single Item Queries
-    |--------------------------------------------------
-    */
+    // --------------------------------------------------
+    // Single Item Queries
+    // --------------------------------------------------
     person: (_, args, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getPerson(args)
@@ -120,11 +121,9 @@ module.exports = {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getAccount()
     },
-    /**
-    |--------------------------------------------------
-    | Plural Queries
-    |--------------------------------------------------
-    */
+    // --------------------------------------------------
+    //  Plural Queries
+    // --------------------------------------------------
     people: (_, args = {}, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.search('/person', args)
@@ -157,11 +156,9 @@ module.exports = {
       return movieDatabaseV3.search('/multi', args)
     }
   },
-  /**
-  |--------------------------------------------------
-  | Object Resolvers
-  |--------------------------------------------------
-  */
+  // --------------------------------------------------
+  // Object Resolvers
+  // --------------------------------------------------
   SearchResult: {
     __resolveType({ mediaType }) {
       if (/tv/i.test(mediaType)) return 'Show'

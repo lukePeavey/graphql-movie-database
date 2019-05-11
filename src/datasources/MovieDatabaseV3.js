@@ -2,6 +2,10 @@ const { RESTDataSource } = require('apollo-datasource-rest')
 const { AuthenticationError } = require('apollo-server')
 const { camelCaseKeys, deCamelCaseArgs } = require('../utils/camelCase')
 const snakeCase = require('lodash/snakeCase')
+const { InMemoryLRUCache } = require('apollo-server-caching')
+
+// Create a custom cache for storing specific key/value pairs
+const keyValueCache = new InMemoryLRUCache()
 
 /**
  * A data source to connect to the TMDB rest API
@@ -184,21 +188,30 @@ class MovieDatabaseV3 extends RESTDataSource {
    * The session ID is used to authenticate V3 endpoints that require user
    * authorization.
    *
+   * TODO: Find a secure way to cache session IDs
+   *
    * @throws {AuthenticationError}
    * @returns {string} sessionID
    */
   async convertV4TokenToSessionID() {
     if (!this.context.userAccessToken) {
       throw new AuthenticationError('No token.')
-    } else {
-      try {
+    }
+    try {
+      // See if a session ID has already been created for this token
+      let sessionId = await keyValueCache.get(this.context.userAccessToken)
+      if (!sessionId) {
+        // If not, try to create a session ID from the access token
         const URL = `/authentication/session/convert/4`
         const body = { access_token: this.context.userAccessToken }
-        const { sessionId } = await this.post(URL, body)
-        return sessionId
-      } catch (error) {
-        throw new AuthenticationError('Invalid token.')
+        const response = await this.post(URL, body)
+        sessionId = response.sessionId
+        // Cache the session ID for subsequent requests
+        await keyValueCache.set(this.context.userAccessToken, sessionId)
       }
+      return sessionId
+    } catch (error) {
+      throw new AuthenticationError('Invalid token.')
     }
   }
 

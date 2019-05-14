@@ -12,3 +12,8 @@ type Language @cacheControl(maxAge: 10000) {
   iso_639_1: String!
   name: String!
 }
+
+enum MediaType {
+  MOVIE
+  TV
+}

@@ -1,5 +1,5 @@
 # import CastCredit, CrewCredit, CrewDepartment from "credits.graphql"
-# import Genre from "misc.graphql"
+# import Genre, MediaType from "misc.graphql"
 # import Company from "companies.graphql"
 # import Media from "media.graphql"
 # import ReviewsList from "reviews.graphql"
@@ -16,7 +16,7 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   genres: [Genre]
   homepage: String
   id: ID!
-  mediaType: String!
+  mediaType: MediaType!
   originalLanguage: String!
   originalTitle: String!
   overview: String!

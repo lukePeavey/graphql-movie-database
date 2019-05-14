@@ -10,7 +10,6 @@ type Person @cacheControl(maxAge: 10000) {
   homepage: String
   id: ID!
   knownForDepartment: String
-  mediaType: String!
   name: String!
   placeOfBirth: String
   popularity: Float!

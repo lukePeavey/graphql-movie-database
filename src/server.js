@@ -8,7 +8,7 @@ const playground = require('./config/playground')
 const resolvers = require('./resolvers')
 
 // import schema using graphql-import
-const typeDefs = importSchema(path.join(__dirname, 'schema/query.graphql'))
+const typeDefs = importSchema(path.join(__dirname, 'schema/index.graphql'))
 
 // Create the Apollo Server instance
 const server = new ApolloServer({

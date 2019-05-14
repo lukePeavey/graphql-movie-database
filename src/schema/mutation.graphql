@@ -1,0 +1,122 @@
+# import List, ListSortMethod from "lists.graphql"
+# import MediaType from "misc.graphql"
+
+# Table of Contents
+# 1. Mutations
+# 2. Response Types
+# 3. Input Types
+
+# ===================================================================
+#  1. Mutations
+# ===================================================================
+type Mutation {
+  """
+  Creates a new custom List for the logged in user. This requires a valid user
+  access token.
+  """
+  createList(
+    name: String!
+    description: String
+    public: Boolean = false
+    iso_639_1: String = "en"
+    iso_3166_1: String = "US"
+  ): ListMutationResponse
+
+  """
+  Updates the details of an existing List. This requires a valid user access
+  token. The user must also have permission to edit the given list.
+  """
+  updateList(
+    id: ID!
+    name: String
+    description: String
+    sortBy: ListSortMethod
+    public: Boolean
+    iso_639_1: String
+    iso_3166_1: String
+  ): ListMutationResponse
+
+  """
+  Deletes a custom List. This action is not reversible so take care when issuing
+  it. This action can only be performed by the user who created the List. It
+  requires a valid user access token for the user.
+  """
+  deleteList(id: ID!): ListMutationResponse
+
+  """
+  Clear all of the items from an existing list in a single request.
+  This action cannot be reversed so use it with caution. This action can only
+  be performed by the user who created the List. It requires a valid user access
+  token for the user.
+  """
+  clearListItems(id: ID!): ListMutationResponse
+
+  """
+  Add any number of items to an existing list. Items can include a mix of movie
+  and TV shows.
+
+  The results of this query will return a results array. Each result includes a
+  success field. If a result is false this will usually indicate that the item
+  already exists on the list. It may also indicate that the item could not be
+  found.
+
+  This action can only be performed by the user who created the List. It
+  requires a valid user access token for the user.
+  """
+  addListItems(id: ID!, items: [ListItemInput]!): ListItemsMutationResponse
+
+  """
+  This method will let you remove items from a list. You can remove multiple
+  items at a time. This action can only be performed by the user who created
+  the List. It requires a valid user access token for the user.
+  """
+  removeListItems(id: ID!, items: [ListItemInput]!): ListItemsMutationResponse
+}
+
+# ===================================================================
+#  2. Response Types
+# ===================================================================
+interface MutationResponse {
+  success: Boolean!
+  message: String!
+}
+
+"""
+The response type for mutations that create, update, or delete a List.
+"""
+type ListMutationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  list(page: Int): List!
+}
+
+"""
+The response type for mutations that add or remove items from a List. In
+addition to the updated List object, the response includes a list of results
+that provides information about each item that was added/removed.
+"""
+type ListItemsMutationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  results: [ListItemResult!]!
+  list(page: Int): List!
+}
+
+"""
+This type represents the result of an individual item that has been added to or
+removed from a List as the result of a mutation. When adding/removing list
+items, the mutation returns an array of results
+"""
+type ListItemResult {
+  mediaType: MediaType!
+  id: ID!
+  success: Boolean!
+}
+
+# ===================================================================
+#  3. Input Types
+# ===================================================================
+input ListItemInput {
+  id: ID!
+  mediaType: MediaType!
+}

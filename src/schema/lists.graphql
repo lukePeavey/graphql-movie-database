@@ -1,0 +1,49 @@
+# import Media from 'media.graphql'
+# import Account from 'account.graphql'
+
+"""
+A custom list created by a TMDB user.
+NOTE: This feature uses the TMDB V4 Lists API
+"""
+type List @cacheControl(maxAge: 5, scope: PRIVATE) {
+  accountObjectId: ID!
+  averageRating: Float!
+  backdropPath: String
+  createdAt: String
+  createdBy: Account!
+  description: String
+  featured: Int
+  id: ID!
+  iso_3166_1: String # TODO: Needs to be excluded from camelCaseKeys
+  iso_639_1: String # TODO: Needs to be excluded from camelCaseKeys
+  items: ListItems!
+  name: String!
+  numberOfItems: Int!
+  posterPath: String
+  public: Boolean!
+  revenue: String
+  runtime: Int
+  sortBy: ListSortMethod!
+  updatedAt: String
+}
+
+type ListItems {
+  page: Int!
+  results: [Media!]!
+  totalPages: Int!
+  totalResults: Int!
+}
+
+"""
+The sorting methods available for custom lists
+"""
+enum ListSortMethod {
+  originalOrder_ASC
+  originalOrder_DESC
+  releaseDate_ASC
+  releaseDate_DESC
+  title_ASC
+  title_DESC
+  voteAverage_ASC
+  voteAverage_DESC
+}

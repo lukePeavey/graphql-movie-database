@@ -3,9 +3,10 @@ const isPlainObject = require('lodash/isPlainObject')
 const isString = require('lodash/isString')
 const snakeCase = require('lodash/snakeCase')
 
-module.exports.camelCaseKeys = function(obj, opts = {}) {
-  if (!obj) return {}
-  else return camelCaseKeys(obj, { deep: true, ...opts })
+module.exports.camelCaseKeys = function(obj) {
+  // Exclude the following keys. The cannot be converted to camelCase.
+  const exclude = ['iso_639_1', 'iso_3166_1']
+  return camelCaseKeys(obj, { deep: true, exclude })
 }
 
 /**

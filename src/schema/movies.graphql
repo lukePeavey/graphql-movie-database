@@ -33,7 +33,6 @@ type Movie implements Media @cacheControl(maxAge: 10000) {
   #  Movie fields
   # ===================================================================
   budget: Int!
-  # FIXME: Error 'Cannot return null for non-nullable field Country.iso_3166_1.'
   productionCountries: [Country]!
   releaseDate: String!
   revenue: Int!

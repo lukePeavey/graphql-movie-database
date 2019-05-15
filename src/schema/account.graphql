@@ -3,8 +3,8 @@ type Account {
   id: Int!
   name: String
   username: String!
-  iso6391: String
-  iso31661: String
+  iso_639_1: String
+  iso_3166_1: String
 }
 
 type Avatar {

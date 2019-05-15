@@ -3,6 +3,7 @@ const { AuthenticationError } = require('apollo-server')
 const { camelCaseKeys, deCamelCaseArgs } = require('../utils/camelCase')
 const snakeCase = require('lodash/snakeCase')
 const { InMemoryLRUCache } = require('apollo-server-caching')
+const { URL } = require('apollo-server-env')
 
 // Create a custom cache for storing specific key/value pairs
 const keyValueCache = new InMemoryLRUCache()
@@ -13,12 +14,19 @@ const keyValueCache = new InMemoryLRUCache()
 class MovieDatabaseV3 extends RESTDataSource {
   constructor() {
     super()
-    this.baseURL = `https://api.themoviedb.org/3`
+    this.baseURL = `https://api.themoviedb.org/3/`
   }
 
   willSendRequest(request) {
     // Attach API key to all outgoing requests
     request.params.set('api_key', process.env.TMDB_API_KEY)
+  }
+
+  resolveURL({ path = '' }) {
+    return new URL(
+      path.replace(/^\//, '').toLowerCase(),
+      this.baseURL.endsWith('/') ? this.baseURL : `${this.baseURL}/`
+    )
   }
 
   /**
@@ -97,7 +105,10 @@ class MovieDatabaseV3 extends RESTDataSource {
     })
   }
 
-  /** Takes a list list of genre IDs and returns a list of genre*/
+  /**
+   * Takes a list list of genre IDs and returns a list of genre
+   * @param {'MOVIE' | 'TV'} mediaType
+   */
   async getGenresById({ mediaType, ids }) {
     const genres = await this.getGenreList(mediaType)
     return ids
@@ -107,11 +118,10 @@ class MovieDatabaseV3 extends RESTDataSource {
 
   /**
    * Get the list of official genres for a specific Media type
-   * @param {'Movie' | 'Show'} mediaType
+   * @param {'MOVIE' | 'TV'} mediaType
    */
   async getGenreList(mediaType) {
-    const endpoint = mediaType === 'Show' ? 'tv' : 'movie'
-    const { genres } = await this.get(`genre/${endpoint}/list`)
+    const { genres } = await this.get(`genre/${mediaType}/list`)
     return genres
   }
 

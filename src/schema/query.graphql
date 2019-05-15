@@ -5,6 +5,7 @@
 # import Person from "people.graphql"
 # import Show, Season, Episode from "shows.graphql"
 # import Account from "account.graphql"
+# import List, ListSortMethod from "lists.graphql"
 
 # Table of Contents
 # 1. Single Item Queries
@@ -50,9 +51,17 @@ type Query {
   Gets the system wide configuration information for the TMDB API. This includes
   image configuration data which is required for constructing image URLs and
   change keys. For more information refer to
-  [the TMDB documentation](https://developers.themoviedb.org/3/configuration/get-api-configuration)
+  [the TMDB documentation](https://developers.themoviedb.org/3/configuration)
   """
   configuration: Configuration
+
+  """
+  Get a single List and its items by ID.
+  If the given List is private, this requires a valid user access token
+  for the user that created the given List.
+  See [V4 List Docs](https://developers.themoviedb.org/4/list/get-list)
+  """
+  list(id: ID!, sortBy: ListSortMethod, page: Int = 1): List
 
   """
   Gets the TMDB account of the logged in user.
@@ -60,6 +69,12 @@ type Query {
   "authorization" header.
   """
   myAccount: Account
+
+  """
+  Get all lists created by the logged in user.
+  Requires a valid user access token and the associated accountId.
+  """
+  myLists(accountId: ID!): MyListsResponse
 
   # ===================================================================
   # 2. Plural Queries
@@ -145,6 +160,13 @@ type SearchQueryResponse {
   totalResults: Int
   page: Int
   results: [SearchResult]
+}
+
+type MyListsResponse {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [List!]!
 }
 
 union SearchResult = Person | Movie | Show | Company

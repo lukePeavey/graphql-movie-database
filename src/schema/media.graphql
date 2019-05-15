@@ -3,6 +3,7 @@
 # import Image from "images.graphql"
 # import Review from "reviews.graphql"
 # import Video, VideoType from "videos.graphql"
+# import MediaType from "misc.graphql"
 
 """
 Media is the base type for Movie and TV Show. It defines the common set of
@@ -17,7 +18,7 @@ interface Media @cacheControl(maxAge: 10000) {
   genres: [Genre]
   homepage: String
   id: ID!
-  mediaType: String!
+  mediaType: MediaType!
   originalLanguage: String!
   originalTitle: String!
   overview: String

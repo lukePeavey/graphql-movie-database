@@ -11,6 +11,5 @@
     "imdb",
     "serverless",
     "tmdb"
-  ],
-  "typescript.validate.enable": false
+  ]
 }

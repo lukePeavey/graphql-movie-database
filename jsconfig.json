@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "checkJs": false,
+    "module": "commonjs"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "**/node_modules/*", "private"]
+}

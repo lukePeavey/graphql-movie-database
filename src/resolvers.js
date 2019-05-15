@@ -1,5 +1,6 @@
 const transforms = require('./utils/transforms')
 const capitalize = require('lodash/capitalize')
+const upperCase = require('lodash/upperCase')
 const camelCase = require('lodash/camelCase')
 
 /**
@@ -88,7 +89,7 @@ function createMediaObjectResolvers(typename) {
   return resolvers
 }
 
-module.exports = {
+const resolvers = {
   Query: {
     // --------------------------------------------------
     // Single Item Queries
@@ -113,6 +114,10 @@ module.exports = {
       const { movieDatabaseV3 } = dataSources
       return { ...args, ...(await movieDatabaseV3.getEpisode(args)) }
     },
+    list: async (_obj, { id, sortBy, page = 1 }, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.getList({ id, sortBy, page })
+    },
     configuration: (_, args, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getConfiguration()
@@ -120,6 +125,10 @@ module.exports = {
     myAccount: async (_obj, _args, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getAccount()
+    },
+    myLists: async (_obj, { accountId }, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.getMyLists({ accountId })
     },
     // --------------------------------------------------
     //  Plural Queries
@@ -157,6 +166,44 @@ module.exports = {
     }
   },
   // --------------------------------------------------
+  //  Mutations
+  // --------------------------------------------------
+  Mutation: {
+    createList: (_, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.createList(args)
+    },
+    updateList: async (_, { id, ...args }, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const response = await movieDatabaseV4.updateList({ id, ...args })
+      // Return the list `id` with the API response, this allows the
+      // `ListMutationResponse` resolver to fetch the updated list if requested
+      return { id, ...response }
+    },
+    deleteList: (_, { id }, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.deleteList({ id })
+    },
+    addListItems: async (_, { id, items }, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const data = await movieDatabaseV4.addListItems({ id, items })
+      // Return the list `id` with the API response, this allows the
+      // `ListItemsMutationResponse` resolver to fetch the updated list if
+      // requested
+      return { id, ...data }
+    },
+    removeListItems: async (_, { id, items }, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const data = await movieDatabaseV4.removeListItems({ id, items })
+
+      return { id, ...data }
+    },
+    clearListItems: (_, { id }, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.clearListItems({ id })
+    }
+  },
+  // --------------------------------------------------
   // Object Resolvers
   // --------------------------------------------------
   SearchResult: {
@@ -171,11 +218,11 @@ module.exports = {
   },
   Movie: {
     ...createMediaObjectResolvers('Movie'),
-    mediaType: () => 'movie'
+    mediaType: () => 'MOVIE'
   },
   Show: {
     ...createMediaObjectResolvers('Show'),
-    mediaType: () => 'tv',
+    mediaType: () => 'TV',
     title: ({ name }) => name, // make consistent with Movie
     originalTitle: ({ originalName }) => originalName,
     // Get all seasons of a show
@@ -222,7 +269,6 @@ module.exports = {
     title: ({ name }) => name // make consistent with Movie
   },
   Person: {
-    mediaType: () => 'person',
     knownFor: async ({ name, id, knownFor }, _, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       // @TODO: find a better solution for the following issue:
@@ -275,5 +321,33 @@ module.exports = {
   },
   CrewCredit: {
     creditType: () => 'crew'
+  },
+  MutationResponse: {
+    __resolveType: obj => {
+      if (obj.list && obj.results) return 'ListItemsMutationResponse'
+      if (obj.list) return 'ListMutationResponse'
+    }
+  },
+  ListMutationResponse: {
+    success: ({ success }) => !!success,
+    list: async ({ id }, { page = 1 }, { dataSources }) => {
+      if (id) return dataSources.movieDatabaseV4.getList({ id, page })
+    }
+  },
+  ListItemsMutationResponse: {
+    success: ({ success }) => !!success,
+    results: ({ results }) => {
+      return results.map(({ mediaType, ...rest }) => {
+        return { ...rest, mediaType: upperCase(mediaType) }
+      })
+    },
+    list: async ({ id }, { page = 1 }, { dataSources }) => {
+      if (id) return dataSources.movieDatabaseV4.getList({ id, page })
+    }
+  },
+  ListItemResult: {
+    id: ({ mediaId }) => mediaId
   }
 }
+
+module.exports = resolvers

@@ -193,8 +193,9 @@ class MovieDatabaseV3 extends MovieDatabase {
    * Gets account details for the logged in user.
    */
   async getAccount() {
-    let sessionId = await this.convertV4TokenToSessionID()
-    return this.get('/account', { session_id: sessionId })
+    const sessionId = await this.convertV4TokenToSessionID()
+    const init = { cacheOptions: { ttl: 0 } }
+    return this.get('/account', { session_id: sessionId }, init)
   }
 }
 module.exports = MovieDatabaseV3

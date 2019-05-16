@@ -29,7 +29,8 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async getList({ id, ...params }) {
     const body = deCamelCaseArgs(params)
-    const response = await this.get(`/list/${id}`, body)
+    const init = { cacheOptions: { ttl: 0 } }
+    const response = await this.get(`/list/${id}`, body, init)
     let { totalResults, totalPages, page, results, ...rest } = response
     // Move `results` and pagination info to the `items` field
     const items = { totalResults, totalPages, page, results }
@@ -165,7 +166,8 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async getMyLists({ accountId }) {
     try {
-      return this.get(`/account/${accountId}/lists`)
+      const init = { cacheOptions: { ttl: 0 } }
+      return this.get(`/account/${accountId}/lists`, null, init)
     } catch (error) {
       debug.error(error)
       return { success: false, message: error.message }

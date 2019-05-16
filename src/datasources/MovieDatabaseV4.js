@@ -1,9 +1,9 @@
-const { RESTDataSource } = require('apollo-datasource-rest')
 const camelCase = require('lodash/camelCase')
 const upperCase = require('lodash/upperCase')
 const lowerCase = require('lodash/lowerCase')
-const { camelCaseKeys, deCamelCaseArgs } = require('../utils/camelCase')
+const { deCamelCaseArgs } = require('../utils/camelCase')
 const debug = require('../utils/debug')
+const MovieDatabase = require('./MovieDatabase')
 
 function transformListItemInput(items) {
   return items.map(item => ({
@@ -15,51 +15,10 @@ function transformListItemInput(items) {
 /**
  * A data source for the TMDB API (V4)
  */
-class MovieDatabaseV4 extends RESTDataSource {
+class MovieDatabaseV4 extends MovieDatabase {
   constructor() {
     super()
     this.baseURL = `https://api.themoviedb.org/4`
-  }
-
-  /**
-   * Handles GET requests
-   * - Transforms response data to match style of schema (camelcase)
-   * - Sets the cache options for all responses. This overrides the cache
-   *   control policy on the response, ensuring all requests are cached.
-   */
-  async get(path, params, init) {
-    if (init === undefined) {
-      // Set cache options for partial query caching.
-      init = { cacheOptions: { ttl: 10000 } }
-    }
-    return camelCaseKeys(await super.get(path, params, init))
-  }
-
-  /** Handles POST requests */
-  async post(path, body, init) {
-    return camelCaseKeys(await super.post(path, body, init))
-  }
-
-  /** Handles DELETE requests */
-  async delete(path, body, init) {
-    return camelCaseKeys(await super.delete(path, body, init))
-  }
-
-  /** Handles PUT requests  */
-  async put(path, body, init) {
-    return camelCaseKeys(await super.put(path, body, init))
-  }
-
-  willSendRequest(request) {
-    // V4 Authentication...
-    // Application based authentication
-    let token = process.env.TMDB_API_READ_ACCESS_TOKEN
-
-    // User based authentication
-    if (this.context.userAccessToken) {
-      token = this.context.userAccessToken
-    }
-    request.headers.set('authorization', `Bearer ${token}`)
   }
 
   /**

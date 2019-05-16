@@ -1,9 +1,8 @@
-const { RESTDataSource } = require('apollo-datasource-rest')
 const { AuthenticationError } = require('apollo-server')
-const { camelCaseKeys, deCamelCaseArgs } = require('../utils/camelCase')
+const { deCamelCaseArgs } = require('../utils/camelCase')
 const snakeCase = require('lodash/snakeCase')
 const { InMemoryLRUCache } = require('apollo-server-caching')
-const { URL } = require('apollo-server-env')
+const MovieDatabase = require('./MovieDatabase')
 
 // Create a custom cache for storing specific key/value pairs
 const keyValueCache = new InMemoryLRUCache()
@@ -11,45 +10,10 @@ const keyValueCache = new InMemoryLRUCache()
 /**
  * A data source to connect to the TMDB rest API
  */
-class MovieDatabaseV3 extends RESTDataSource {
+class MovieDatabaseV3 extends MovieDatabase {
   constructor() {
     super()
     this.baseURL = `https://api.themoviedb.org/3/`
-  }
-
-  willSendRequest(request) {
-    // Attach API key to all outgoing requests
-    request.params.set('api_key', process.env.TMDB_API_KEY)
-  }
-
-  resolveURL({ path = '' }) {
-    return new URL(
-      path.replace(/^\//, '').toLowerCase(),
-      this.baseURL.endsWith('/') ? this.baseURL : `${this.baseURL}/`
-    )
-  }
-
-  /**
-   * Handles GET requests
-   * - Transforms response data to match style of schema (camelcase)
-   * - Sets the cache options for all responses. This overrides the cache
-   *   control policy on the response, ensuring all requests are cached.
-   * @uses RESTDataSource.prototype.get
-   */
-  async get(path, params, init) {
-    if (init === undefined) {
-      // Set cache options for partial query caching.
-      init = { cacheOptions: { ttl: 10000 } }
-    }
-    return camelCaseKeys(await super.get(path, params, init))
-  }
-
-  /**
-   * Handles POST requests
-   * @uses RESTDataSource.prototype.post
-   */
-  async post(path, body, init) {
-    return camelCaseKeys(await super.post(path, body, init))
   }
 
   /**

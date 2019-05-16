@@ -136,8 +136,8 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async removeListItems({ id, items }) {
     try {
-      const body = { items: deCamelCaseArgs(items) }
-      const response = await this.delete(`/list/${id}/items`, body)
+      const body = { items: transformListItemInput(items) }
+      const response = await this.delete(`/list/${id}/items`, null, { body })
       if (response.success) return response
     } catch (error) {
       debug.error(error)

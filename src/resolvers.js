@@ -114,9 +114,9 @@ const resolvers = {
       const { movieDatabaseV3 } = dataSources
       return { ...args, ...(await movieDatabaseV3.getEpisode(args)) }
     },
-    list: async (_parent, { id, sortBy, page = 1 }, { dataSources }) => {
+    list: async (_parent, { id, ...args }, { dataSources }) => {
       const { movieDatabaseV4 } = dataSources
-      return movieDatabaseV4.getList({ id, sortBy, page })
+      return movieDatabaseV4.getList({ id, ...args })
     },
     configuration: (_, args, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
@@ -277,7 +277,6 @@ const resolvers = {
       // for single person (this might be a bug?). As a workaround, when this
       // field is requested in a singular `person` query, we make a second API
       // request to the search endpoint using the name/id.
-
       if (knownFor) return knownFor
       const { results } = await movieDatabaseV3.search('/person', {
         query: name
@@ -291,7 +290,6 @@ const resolvers = {
       return (await movieDatabaseV3.getPerson({ id }))['knownForDepartment']
     },
     // `filmography` is the person's combined movie and tv credits
-    // @TODO
     filmography: async ({ combinedCredits, id }, _, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       // If the response doesn't already include `combined_credits`, make an
@@ -330,19 +328,28 @@ const resolvers = {
   },
   ListMutationResponse: {
     success: ({ success }) => !!success,
-    list: async ({ id }, { page = 1 }, { dataSources }) => {
-      if (id) return dataSources.movieDatabaseV4.getList({ id, page })
+    // Gets the `List` that was modified by the mutation (if successful)
+    list: async ({ id, success }, args, { dataSources }) => {
+      if (id && success) {
+        // Don't attempt to get the List if the mutation failed.
+        return dataSources.movieDatabaseV4.getList({ id, ...args })
+      }
     }
   },
   ListItemsMutationResponse: {
     success: ({ success }) => !!success,
-    results: ({ results }) => {
+    // Gets the `List` that was modified by the mutation.
+    list: async (parent, args, { dataSources }) => {
+      const { id, success } = parent
+      if (id && success !== false) {
+        return dataSources.movieDatabaseV4.getList({ id, ...args })
+      }
+    },
+    // Array of `ListItemResults`
+    results: ({ results = [] }) => {
       return results.map(({ mediaType, ...rest }) => {
         return { ...rest, mediaType: upperCase(mediaType) }
       })
-    },
-    list: async ({ id }, { page = 1 }, { dataSources }) => {
-      if (id) return dataSources.movieDatabaseV4.getList({ id, page })
     }
   },
   ListItemResult: {

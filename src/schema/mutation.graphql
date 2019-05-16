@@ -87,7 +87,7 @@ The response type for mutations that create, update, or delete a List.
 type ListMutationResponse implements MutationResponse {
   success: Boolean!
   message: String!
-  list(page: Int): List!
+  list(page: Int, sortBy: ListSortMethod): List
 }
 
 """
@@ -98,8 +98,8 @@ that provides information about each item that was added/removed.
 type ListItemsMutationResponse implements MutationResponse {
   success: Boolean!
   message: String!
-  results: [ListItemResult!]!
-  list(page: Int): List!
+  results: [ListItemResult]!
+  list(page: Int, sortBy: ListSortMethod): List
 }
 
 """

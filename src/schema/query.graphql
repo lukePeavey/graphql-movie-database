@@ -61,7 +61,7 @@ type Query {
   for the user that created the given List.
   See [V4 List Docs](https://developers.themoviedb.org/4/list/get-list)
   """
-  list(id: ID!, sortBy: ListSortMethod, page: Int = 1): List
+  list(id: ID!, sortBy: ListSortMethod, page: Int): List
 
   """
   Gets the TMDB account of the logged in user.
@@ -97,7 +97,7 @@ type Query {
 
   """
   Gets TV shows from the database. This query encompasses all of the API methods
-  designed to find and retrive multiple TV shows. The arguments are mutually
+  designed to find and retrieve multiple TV shows. The arguments are mutually
   exclusive - each argument corresponds to a different underlying API method
   so they cannot be used together.
   """

@@ -1,6 +1,7 @@
 const camelCase = require('lodash/camelCase')
 const upperCase = require('lodash/upperCase')
 const lowerCase = require('lodash/lowerCase')
+
 const { deCamelCaseArgs } = require('../utils/camelCase')
 const debug = require('../utils/debug')
 const MovieDatabase = require('./MovieDatabase')
@@ -53,7 +54,9 @@ class MovieDatabaseV4 extends MovieDatabase {
     try {
       const body = { name, description, iso_639_1 }
       const response = await this.post('/list', body)
-      if (response.success) return response
+      if (response.success) {
+        return { ...response, message: 'List was created successfully.' }
+      }
     } catch (error) {
       debug.error(error)
       return { success: false, message: error.message }
@@ -68,7 +71,9 @@ class MovieDatabaseV4 extends MovieDatabase {
   async updateList({ id, ...params }) {
     try {
       const response = await this.put(`/list/${id}`, deCamelCaseArgs(params))
-      if (response.success) return response
+      if (response.success) {
+        return { ...response, message: 'List was updated successfully.' }
+      }
     } catch (error) {
       debug.error(error)
       return { success: false, message: error.message }
@@ -82,7 +87,9 @@ class MovieDatabaseV4 extends MovieDatabase {
   async deleteList({ id }) {
     try {
       const response = await this.delete(`/list/${id}`)
-      if (response.success) return response
+      if (response.success) {
+        return { ...response, message: 'List was deleted successfully.' }
+      }
     } catch (error) {
       debug.error(error)
       return { success: false, message: error.message }
@@ -97,7 +104,9 @@ class MovieDatabaseV4 extends MovieDatabase {
   async clearList({ id }) {
     try {
       const response = await this.get(`/list/${id}/clear`)
-      if (response.success) return response
+      if (response.success) {
+        return { ...response, message: 'List items were cleared successfully.' }
+      }
     } catch (error) {
       debug.error(error)
       return { success: false, message: error.message }
@@ -122,7 +131,9 @@ class MovieDatabaseV4 extends MovieDatabase {
     try {
       const body = { items: transformListItemInput(items) }
       const response = await this.post(`/list/${id}/items`, body)
-      if (response.success) return response
+      if (response.success) {
+        return { ...response, message: 'List items added.' }
+      }
     } catch (error) {
       debug.error(error)
       return { success: false, message: error.message }
@@ -138,7 +149,9 @@ class MovieDatabaseV4 extends MovieDatabase {
     try {
       const body = { items: transformListItemInput(items) }
       const response = await this.delete(`/list/${id}/items`, null, { body })
-      if (response.success) return response
+      if (response.success) {
+        return { ...response, message: 'List items removed.' }
+      }
     } catch (error) {
       debug.error(error)
       return { success: false, message: error.message }
@@ -149,9 +162,9 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Quickly check if the item is already added to the list.
    * Can only be performed by list owner. Requires user access token.
    */
-  async checkListItemStatus({ listId, mediaType, mediaId }) {
+  async checkListItemStatus({ listId, mediaType, id: mediaId }) {
     try {
-      const params = { media_type: mediaType, mediaId: mediaId }
+      const params = deCamelCaseArgs({ mediaType, mediaId })
       const response = await this.get(`/list/${listId}/item_status`, params)
       if (response.success) return response
     } catch (error) {

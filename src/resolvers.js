@@ -29,47 +29,47 @@ function createMediaObjectResolvers(typename) {
    * response object. If its not, this will make the appropriate API call to get
    * the item.
    * @param {string} field
-   * @param {any} obj
+   * @param {any} parent
    * @param {Object} dataSources
    */
-  async function _getDetailField(field, obj, dataSources) {
+  async function _getDetailField(field, parent, dataSources) {
     const { movieDatabaseV3 } = dataSources
-    if (obj[field]) return obj[field]
-    const data = await movieDatabaseV3[`get${typename}`](obj)
+    if (parent[field]) return parent[field]
+    const data = await movieDatabaseV3[`get${typename}`](parent)
     return data[field]
   }
 
-  const resolvers = {
-    cast: async (obj, args, { dataSources }) => {
-      const credits = await _getDetailField('credits', obj, dataSources)
+  const mediaObjectResolvers = {
+    cast: async (parent, args, { dataSources }) => {
+      const credits = await _getDetailField('credits', parent, dataSources)
       if (!args.first) return credits.cast
       return credits.cast.filter(item => item.order < args.first)
     },
-    crew: async (obj, args, { dataSources }) => {
-      const credits = await _getDetailField('credits', obj, dataSources)
+    crew: async (parent, args, { dataSources }) => {
+      const credits = await _getDetailField('credits', parent, dataSources)
       if (!args.departments) return credits.crew
       return credits.crew.filter(item => {
         return args.departments.includes(camelCase(item.department))
       })
     },
-    videos: async (obj, args, { dataSources }) => {
-      const videos = await _getDetailField('videos', obj, dataSources)
+    videos: async (parent, args, { dataSources }) => {
+      const videos = await _getDetailField('videos', parent, dataSources)
       if (!args.type) return videos.results
       return videos.results.filter(item => camelCase(item.type) === args.type)
     },
-    posters: async (obj, _, { dataSources }) => {
-      const images = await _getDetailField('images', obj, dataSources)
+    posters: async (parent, _, { dataSources }) => {
+      const images = await _getDetailField('images', parent, dataSources)
       return images.posters
     },
-    backdrops: async (obj, _, { dataSources }) => {
-      const images = await _getDetailField('images', obj, dataSources)
+    backdrops: async (parent, _, { dataSources }) => {
+      const images = await _getDetailField('images', parent, dataSources)
       return images.backdrops
     }
   }
   // The following resolvers only apply to `Show` and `Movie` objects
   if (/Show|Movie/.test(typename)) {
-    resolvers.reviews = async (obj, _, { dataSources }) => {
-      return await _getDetailField('reviews', obj, dataSources)
+    mediaObjectResolvers.reviews = async (parent, _, { dataSources }) => {
+      return await _getDetailField('reviews', parent, dataSources)
     }
     // Convert the `genres_ids` property to `genres`. This makes the genres
     // field available on all Movie and Show objects, even when returned from
@@ -77,16 +77,16 @@ function createMediaObjectResolvers(typename) {
     // get the complete list of genres for each media type (movie/tv). Once the
     // genre list has been cached, its just a matter of mapping the ids to
     // genres.
-    resolvers.genres = async ({ genreIds, genres }, _, { dataSources }) => {
+    mediaObjectResolvers.genres = async (parent, _, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      if (genres) return genres
+      if (parent.genres) return parent.genres
       return movieDatabaseV3.getGenresById({
         mediaType: typename,
-        ids: genreIds
+        ids: parent.genreIds
       })
     }
   }
-  return resolvers
+  return mediaObjectResolvers
 }
 
 const resolvers = {
@@ -114,7 +114,7 @@ const resolvers = {
       const { movieDatabaseV3 } = dataSources
       return { ...args, ...(await movieDatabaseV3.getEpisode(args)) }
     },
-    list: async (_obj, { id, sortBy, page = 1 }, { dataSources }) => {
+    list: async (_parent, { id, sortBy, page = 1 }, { dataSources }) => {
       const { movieDatabaseV4 } = dataSources
       return movieDatabaseV4.getList({ id, sortBy, page })
     },
@@ -122,11 +122,11 @@ const resolvers = {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getConfiguration()
     },
-    myAccount: async (_obj, _args, { dataSources }) => {
+    myAccount: async (_parent, _args, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getAccount()
     },
-    myLists: async (_obj, { accountId }, { dataSources }) => {
+    myLists: async (_parent, { accountId }, { dataSources }) => {
       const { movieDatabaseV4 } = dataSources
       return movieDatabaseV4.getMyLists({ accountId })
     },
@@ -254,9 +254,9 @@ const resolvers = {
       return data.episodes
     },
     // Gets a single episode of the season
-    episode: async (obj, { episodeNumber }, { dataSources }) => {
+    episode: async (parent, { episodeNumber }, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      const { showId, seasonNumber } = obj
+      const { showId, seasonNumber } = parent
       return await movieDatabaseV3.getEpisode({
         showId,
         seasonNumber,
@@ -285,9 +285,9 @@ const resolvers = {
       const match = results.find(person => String(person.id) === String(id))
       return match ? match.knownFor : []
     },
-    knownForDepartment: async ({ id, ...obj }, _, { dataSources }) => {
+    knownForDepartment: async ({ id, ...parent }, _, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      if (obj.knownForDepartment) return obj.knownForDepartment
+      if (parent.knownForDepartment) return parent.knownForDepartment
       return (await movieDatabaseV3.getPerson({ id }))['knownForDepartment']
     },
     // `filmography` is the person's combined movie and tv credits
@@ -323,9 +323,9 @@ const resolvers = {
     creditType: () => 'crew'
   },
   MutationResponse: {
-    __resolveType: obj => {
-      if (obj.list && obj.results) return 'ListItemsMutationResponse'
-      if (obj.list) return 'ListMutationResponse'
+    __resolveType: parent => {
+      if (parent.list && parent.results) return 'ListItemsMutationResponse'
+      if (parent.list) return 'ListMutationResponse'
     }
   },
   ListMutationResponse: {

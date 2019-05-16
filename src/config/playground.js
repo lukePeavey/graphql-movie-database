@@ -1,8 +1,11 @@
 module.exports = {
   endpoint: `${process.env.ENDPOINT}`,
+  headers: {
+    authorization: process.env.TMDB_USER_ACCESS_TOKEN
+  },
   settings: {
-    'editor.theme': 'light',
-    'editor.fontSize': '16',
-    'editor.fontFamily': `'Fira Code', 'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace`
+    'editor.theme': 'dark',
+    'editor.reuseHeaders': true,
+    'editor.hideTracingResponse': false
   }
 }

@@ -206,6 +206,13 @@ const resolvers = {
   // --------------------------------------------------
   // Object Resolvers
   // --------------------------------------------------
+  Account: {
+    // Accounts for different formats of the avatar property
+    gravatar: ({ avatar, gravatarHash }) => {
+      const hash = avatar ? avatar.gravatar.hash : gravatarHash
+      return hash ? { hash } : null
+    }
+  },
   SearchResult: {
     __resolveType({ mediaType }) {
       if (/tv/i.test(mediaType)) return 'Show'

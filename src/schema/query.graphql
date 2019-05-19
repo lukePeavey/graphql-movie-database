@@ -74,7 +74,7 @@ type Query {
   Get all lists created by the logged in user.
   Requires a valid user access token and the associated accountId.
   """
-  myLists(accountId: ID!): MyListsResponse
+  myLists(accountId: ID!): ListsResponse
 
   # ===================================================================
   # 2. Plural Queries
@@ -82,7 +82,7 @@ type Query {
   """
   Searches the database for people that match a given search query.
   """
-  people(query: String!, page: Int): PeopleQueryResponse
+  people(query: String!, page: Int): PeopleResponse
 
   """
   Find movies using various searching and filtering options. This query
@@ -93,7 +93,7 @@ type Query {
     list: MovieListName
     query: String
     page: Int
-  ): MoviesQueryResponse
+  ): MoviesResponse
 
   """
   Gets TV shows from the database. This query encompasses all of the API methods
@@ -106,63 +106,63 @@ type Query {
     list: TVListName
     query: String
     page: Int
-  ): ShowsQueryResponse
+  ): ShowsResponse
 
   """
   Searches for production companies that match the given query string.
   """
-  companies(query: String!, page: Int): CompaniesQueryResponse
+  companies(query: String!, page: Int): CompaniesResponse
 
   """
   Searches all database models for results that match the given query
-  string. This query uses the "/search/multi" enpoint. The resutls will
+  string. This query uses the "/search/multi" endpoint. The results will
   be a list of mixed object types. NOTE: If you want to search for a specific
   object type, use the plural query for the given object instead. IE to
   search movies, use `movies(query: "Last Tango")`
   """
-  search(query: String!, page: Int): SearchQueryResponse
+  search(query: String!, page: Int): SearchResponse
 }
 
 # ===================================================================
 #  3. Response Types
 # ===================================================================
 
-type MoviesQueryResponse {
+type MoviesResponse {
   totalPages: Int
   totalResults: Int
   page: Int
-  results: [Movie]
+  results: [Movie!]!
 }
 
-type ShowsQueryResponse {
+type ShowsResponse {
   totalPages: Int
   totalResults: Int
   page: Int
-  results: [Show]
+  results: [Show!]!
 }
 
-type PeopleQueryResponse {
+type PeopleResponse {
   totalPages: Int
   totalResults: Int
   page: Int
-  results: [Person]
+  results: [Person!]!
 }
 
-type CompaniesQueryResponse {
+type CompaniesResponse {
   totalPages: Int
   totalResults: Int
   page: Int
-  results: [Company]
+  results: [Company!]!
 }
 
-type SearchQueryResponse {
+type SearchResponse {
   totalPages: Int
   totalResults: Int
   page: Int
-  results: [SearchResult]
+  results: [SearchResult!]!
 }
 
-type MyListsResponse {
+type ListsResponse {
   totalPages: Int!
   totalResults: Int!
   page: Int!

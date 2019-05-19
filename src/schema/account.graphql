@@ -1,5 +1,5 @@
 type Account {
-  avatar: Avatar
+  gravatar: Gravatar
   id: Int!
   name: String
   username: String!
@@ -7,10 +7,6 @@ type Account {
   iso_3166_1: String
 }
 
-type Avatar {
-  gravatar: Gravatar
-}
-
 type Gravatar {
-  hash: String
+  hash: String!
 }

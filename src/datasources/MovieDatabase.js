@@ -1,6 +1,11 @@
 const { RESTDataSource } = require('apollo-datasource-rest')
 const { camelCaseKeys } = require('../utils/camelCase')
 const { URL } = require('apollo-server-env')
+const { InMemoryLRUCache } = require('apollo-server-caching')
+const { AuthenticationError } = require('apollo-server')
+
+// Create a custom cache for storing specific key/value pairs
+const keyValueCache = new InMemoryLRUCache()
 
 /**
  * A dataSource for the Movie Database API.
@@ -15,6 +20,9 @@ class MovieDatabase extends RESTDataSource {
     if (API_VERSION === 3) {
       // V3 Authentication...
       request.params.set('api_key', process.env.TMDB_API_KEY)
+      if (this.sessionId) {
+        request.params.set('session_id', this.sessionId)
+      }
     } else if (API_VERSION === 4) {
       // V4 Authentication...
       // Application based authentication
@@ -61,6 +69,37 @@ class MovieDatabase extends RESTDataSource {
       return camelCaseKeys(await response.json())
     } else {
       return response.text()
+    }
+  }
+
+  /**
+   * Converts a user access token (V4 authentication) to a sessionID.
+   * The session ID is used to authenticate V3 endpoints that require user
+   * authorization.
+   *
+   * TODO: Find a secure way to cache session IDs
+   *
+   * @throws {AuthenticationError}
+   * @returns {string} sessionID
+   */
+  async convertV4TokenToSessionID() {
+    if (!this.context.userAccessToken) {
+      throw new AuthenticationError('No token.')
+    }
+    try {
+      // See if a session ID has already been created for this token
+      this.sessionId = await keyValueCache.get(this.context.userAccessToken)
+      if (!this.sessionId) {
+        // If not, try to create a session ID from the access token
+        const URL = `/authentication/session/convert/4`
+        const body = { access_token: this.context.userAccessToken }
+        const response = await this.post(URL, body)
+        this.sessionId = response.sessionId
+        // Cache the session ID for subsequent requests
+        await keyValueCache.set(this.context.userAccessToken, this.sessionId)
+      }
+    } catch (error) {
+      throw new AuthenticationError('Invalid token.')
     }
   }
 

@@ -5,7 +5,7 @@ type Review {
   url: String
 }
 
-type ReviewsList {
+type ReviewsResponse {
   totalResults: Int!
   totalPages: Int!
   page: Int!

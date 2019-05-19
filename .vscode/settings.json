@@ -8,6 +8,7 @@
     "datasources",
     "deathday",
     "graphql",
+    "gravatar",
     "imdb",
     "serverless",
     "tmdb"

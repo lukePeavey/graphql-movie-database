@@ -1,11 +1,6 @@
-const { AuthenticationError } = require('apollo-server')
 const { deCamelCaseArgs } = require('../utils/camelCase')
 const snakeCase = require('lodash/snakeCase')
-const { InMemoryLRUCache } = require('apollo-server-caching')
 const MovieDatabase = require('./MovieDatabase')
-
-// Create a custom cache for storing specific key/value pairs
-const keyValueCache = new InMemoryLRUCache()
 
 /**
  * A data source to connect to the TMDB rest API
@@ -158,44 +153,12 @@ class MovieDatabaseV3 extends MovieDatabase {
   }
 
   /**
-   * Converts a user access token (V4 authentication) to a sessionID.
-   * The session ID is used to authenticate V3 endpoints that require user
-   * authorization.
-   *
-   * TODO: Find a secure way to cache session IDs
-   *
-   * @throws {AuthenticationError}
-   * @returns {string} sessionID
-   */
-  async convertV4TokenToSessionID() {
-    if (!this.context.userAccessToken) {
-      throw new AuthenticationError('No token.')
-    }
-    try {
-      // See if a session ID has already been created for this token
-      let sessionId = await keyValueCache.get(this.context.userAccessToken)
-      if (!sessionId) {
-        // If not, try to create a session ID from the access token
-        const URL = `/authentication/session/convert/4`
-        const body = { access_token: this.context.userAccessToken }
-        const response = await this.post(URL, body)
-        sessionId = response.sessionId
-        // Cache the session ID for subsequent requests
-        await keyValueCache.set(this.context.userAccessToken, sessionId)
-      }
-      return sessionId
-    } catch (error) {
-      throw new AuthenticationError('Invalid token.')
-    }
-  }
-
-  /**
    * Gets account details for the logged in user.
    */
   async getAccount() {
-    const sessionId = await this.convertV4TokenToSessionID()
+    await this.convertV4TokenToSessionID()
     const init = { cacheOptions: { ttl: 0 } }
-    return this.get('/account', { session_id: sessionId }, init)
+    return this.get('/account', null, init)
   }
 }
 module.exports = MovieDatabaseV3

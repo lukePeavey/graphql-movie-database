@@ -1,7 +1,7 @@
 # import CastCredit, CrewCredit, CrewDepartment from "credits.graphql"
 # import Genre, MediaType from "misc.graphql"
 # import Media from "media.graphql"
-# import ReviewsList from "reviews.graphql"
+# import ReviewsResponse from "reviews.graphql"
 # import Video, VideoType from "videos.graphql"
 
 type Movie implements Media @cacheControl(maxAge: 10000) {
@@ -23,7 +23,7 @@ type Movie implements Media @cacheControl(maxAge: 10000) {
   posterPath: String
   posters: [Image]!
   productionCompanies: [Company]!
-  reviews: ReviewsList
+  reviews: ReviewsResponse
   status: String!
   title: String!
   videos(type: VideoType): [Video]!

@@ -122,13 +122,10 @@ const resolvers = {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getConfiguration()
     },
-    myAccount: async (_parent, _args, { dataSources }) => {
-      const { movieDatabaseV3 } = dataSources
-      return movieDatabaseV3.getAccount()
-    },
+    myAccount: async (_, args) => args,
     myLists: async (_parent, { accountId }, { dataSources }) => {
       const { movieDatabaseV4 } = dataSources
-      return movieDatabaseV4.getMyLists({ accountId })
+      return movieDatabaseV4.myLists({ accountId })
     },
     // --------------------------------------------------
     //  Plural Queries
@@ -207,10 +204,53 @@ const resolvers = {
   // Object Resolvers
   // --------------------------------------------------
   Account: {
+    profile: async ({ accountId }, _, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.getAccount(accountId)
+    },
+    lists: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.myLists({ accountId, ...args })
+    },
+    watchlist: parent => parent,
+    favorites: parent => parent
+  },
+  Profile: {
     // Accounts for different formats of the avatar property
     gravatar: ({ avatar, gravatarHash }) => {
       const hash = avatar ? avatar.gravatar.hash : gravatarHash
       return hash ? { hash } : null
+    }
+  },
+  // TODO: DRY
+  Watchlist: {
+    movies: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'MOVIE'
+      return movieDatabaseV4.myWatchlist({ accountId, mediaType, ...args })
+    },
+    shows: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'TV'
+      return movieDatabaseV4.myWatchlist({ accountId, mediaType, ...args })
+    }
+  },
+  // TODO: DRY
+  Favorites: {
+    movies: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'MOVIE'
+      return movieDatabaseV4.myFavorites({ accountId, mediaType, ...args })
+    },
+    shows: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'TV'
+      return movieDatabaseV4.myFavorites({ accountId, mediaType, ...args })
+    }
+  },
+  List: {
+    numberOfItems: ({ totalResults, numberOfItems }) => {
+      return Number.isFinite(numberOfItems) ? numberOfItems : totalResults
     }
   },
   SearchResult: {

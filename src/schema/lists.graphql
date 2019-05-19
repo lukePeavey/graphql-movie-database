@@ -16,7 +16,6 @@ type List @cacheControl(maxAge: 5, scope: PRIVATE) {
   id: ID!
   iso_3166_1: String # TODO: Needs to be excluded from camelCaseKeys
   iso_639_1: String # TODO: Needs to be excluded from camelCaseKeys
-  items: ListItems!
   name: String!
   numberOfItems: Int!
   posterPath: String
@@ -25,9 +24,6 @@ type List @cacheControl(maxAge: 5, scope: PRIVATE) {
   runtime: Int
   sortBy: ListSortMethod!
   updatedAt: String
-}
-
-type ListItems {
   page: Int!
   results: [Media!]!
   totalPages: Int!

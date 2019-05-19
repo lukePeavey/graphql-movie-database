@@ -1,4 +1,13 @@
+# import ListsResponse, MoviesResponse, ShowsResponse from "query.graphql"
+
 type Account {
+  profile: Profile!
+  watchlist: Watchlist!
+  favorites: Favorites!
+  lists: ListsResponse
+}
+
+type Profile {
   gravatar: Gravatar
   id: Int!
   name: String
@@ -9,4 +18,14 @@ type Account {
 
 type Gravatar {
   hash: String!
+}
+
+type Watchlist {
+  movies: MoviesResponse!
+  shows: ShowsResponse!
+}
+
+type Favorites {
+  movies: MoviesResponse!
+  shows: ShowsResponse!
 }

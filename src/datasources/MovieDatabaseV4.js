@@ -32,17 +32,12 @@ class MovieDatabaseV4 extends MovieDatabase {
     const body = deCamelCaseArgs(params)
     const init = { cacheOptions: { ttl: 0 } }
     const response = await this.get(`/list/${id}`, body, init)
-    let { totalResults, totalPages, page, results, ...rest } = response
-    // Move `results` and pagination info to the `items` field
-    const items = { totalResults, totalPages, page, results }
-    // Add `numberOfItems` field to match lists returned by myLists
-    const numberOfItems = totalResults
     // Transform sortBy values to match schema
-    const sortBy = rest.sortBy.replace(
+    const sortBy = response.sortBy.replace(
       /(\w+)\.([a-z]+)/,
       (_, m1, m2) => `${camelCase(m1)}_${upperCase(m2)}`
     )
-    return { ...rest, sortBy, numberOfItems, items }
+    return { ...response, sortBy }
   }
 
   /**
@@ -177,7 +172,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Get all lists created by the given user.
    * This requires a valid user access token.
    */
-  async getMyLists({ accountId }) {
+  async myLists({ accountId }) {
     try {
       const init = { cacheOptions: { ttl: 0 } }
       return this.get(`/account/${accountId}/lists`, null, init)
@@ -185,6 +180,23 @@ class MovieDatabaseV4 extends MovieDatabase {
       debug.error(error)
       return { success: false, message: error.message }
     }
+  }
+  /**
+   * Get all lists created by the given user.
+   * This requires a valid user access token.
+   */
+  async myWatchlist({ accountId, mediaType, ...rest }) {
+    const init = { cacheOptions: { ttl: 0 } }
+    return this.get(`/account/${accountId}/${mediaType}/watchlist`, rest, init)
+  }
+
+  /**
+   * Get all lists created by the given user.
+   * This requires a valid user access token.
+   */
+  async myFavorites({ accountId, mediaType, ...rest }) {
+    const init = { cacheOptions: { ttl: 0 } }
+    return this.get(`/account/${accountId}/${mediaType}/favorites`, rest, init)
   }
 }
 module.exports = MovieDatabaseV4

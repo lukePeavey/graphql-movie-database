@@ -68,7 +68,7 @@ type Query {
   Requires user authentication. A valid V4 access token must be sent as the
   "authorization" header.
   """
-  myAccount: Account
+  myAccount(accountId: ID!): Account
 
   """
   Get all lists created by the logged in user.

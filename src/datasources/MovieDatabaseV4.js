@@ -101,7 +101,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Requires user access token. Can only be performed by list owner.
    * @see https://developers.themoviedb.org/4/list/clear-list
    */
-  async clearList({ id }) {
+  async clearListItems({ id }) {
     try {
       const response = await this.get(`/list/${id}/clear`)
       if (response.success) {

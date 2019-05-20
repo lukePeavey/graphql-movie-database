@@ -1,17 +1,8 @@
 const camelCase = require('lodash/camelCase')
 const upperCase = require('lodash/upperCase')
-const lowerCase = require('lodash/lowerCase')
-
 const { deCamelCaseArgs } = require('../utils/camelCase')
 const debug = require('../utils/debug')
 const MovieDatabase = require('./MovieDatabase')
-
-function transformListItemInput(items) {
-  return items.map(item => ({
-    media_id: Number(item.id),
-    media_type: lowerCase(item.mediaType)
-  }))
-}
 
 /**
  * A data source for the TMDB API (V4)
@@ -32,17 +23,12 @@ class MovieDatabaseV4 extends MovieDatabase {
     const body = deCamelCaseArgs(params)
     const init = { cacheOptions: { ttl: 0 } }
     const response = await this.get(`/list/${id}`, body, init)
-    let { totalResults, totalPages, page, results, ...rest } = response
-    // Move `results` and pagination info to the `items` field
-    const items = { totalResults, totalPages, page, results }
-    // Add `numberOfItems` field to match lists returned by myLists
-    const numberOfItems = totalResults
     // Transform sortBy values to match schema
-    const sortBy = rest.sortBy.replace(
+    const sortBy = response.sortBy.replace(
       /(\w+)\.([a-z]+)/,
       (_, m1, m2) => `${camelCase(m1)}_${upperCase(m2)}`
     )
-    return { ...rest, sortBy, numberOfItems, items }
+    return { ...response, sortBy }
   }
 
   /**
@@ -129,7 +115,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async addListItems({ id, items }) {
     try {
-      const body = { items: transformListItemInput(items) }
+      const body = { items: items.map(this.transformListItemInput) }
       const response = await this.post(`/list/${id}/items`, body)
       if (response.success) {
         return { ...response, message: 'List items added.' }
@@ -147,7 +133,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async removeListItems({ id, items }) {
     try {
-      const body = { items: transformListItemInput(items) }
+      const body = { items: items.map(this.transformListItemInput) }
       const response = await this.delete(`/list/${id}/items`, null, { body })
       if (response.success) {
         return { ...response, message: 'List items removed.' }
@@ -177,7 +163,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Get all lists created by the given user.
    * This requires a valid user access token.
    */
-  async getMyLists({ accountId }) {
+  async myLists({ accountId }) {
     try {
       const init = { cacheOptions: { ttl: 0 } }
       return this.get(`/account/${accountId}/lists`, null, init)
@@ -185,6 +171,23 @@ class MovieDatabaseV4 extends MovieDatabase {
       debug.error(error)
       return { success: false, message: error.message }
     }
+  }
+  /**
+   * Get all lists created by the given user.
+   * This requires a valid user access token.
+   */
+  async myWatchlist({ accountId, mediaType, ...rest }) {
+    const init = { cacheOptions: { ttl: 0 } }
+    return this.get(`/account/${accountId}/${mediaType}/watchlist`, rest, init)
+  }
+
+  /**
+   * Get all lists created by the given user.
+   * This requires a valid user access token.
+   */
+  async myFavorites({ accountId, mediaType, ...rest }) {
+    const init = { cacheOptions: { ttl: 0 } }
+    return this.get(`/account/${accountId}/${mediaType}/favorites`, rest, init)
   }
 }
 module.exports = MovieDatabaseV4

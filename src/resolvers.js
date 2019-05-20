@@ -122,13 +122,10 @@ const resolvers = {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getConfiguration()
     },
-    myAccount: async (_parent, _args, { dataSources }) => {
-      const { movieDatabaseV3 } = dataSources
-      return movieDatabaseV3.getAccount()
-    },
+    myAccount: async (_, args) => args,
     myLists: async (_parent, { accountId }, { dataSources }) => {
       const { movieDatabaseV4 } = dataSources
-      return movieDatabaseV4.getMyLists({ accountId })
+      return movieDatabaseV4.myLists({ accountId })
     },
     // --------------------------------------------------
     //  Plural Queries
@@ -201,16 +198,75 @@ const resolvers = {
     clearListItems: (_, { id }, { dataSources }) => {
       const { movieDatabaseV4 } = dataSources
       return movieDatabaseV4.clearListItems({ id })
+    },
+    // TODO: DRY
+    addToWatchlist: async (_, args, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const response = await movieDatabaseV3.addToWatchlist(args)
+      // the `args` are passed down with the response as they are needed by
+      // field resolvers on `WatchlistMutationResponse`
+      return { ...response, ...args }
+    },
+    // TODO: DRY
+    addToFavorites: async (_, args, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const response = await movieDatabaseV3.addToFavorites(args)
+      // the `args` are passed down with the response as they are needed by
+      // field resolvers on `FavoriteMutationResponse`
+      return { ...response, ...args }
     }
   },
   // --------------------------------------------------
   // Object Resolvers
   // --------------------------------------------------
   Account: {
+    profile: async ({ accountId }, _, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.getAccount(accountId)
+    },
+    lists: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.myLists({ accountId, ...args })
+    },
+    watchlist: parent => parent,
+    favorites: parent => parent
+  },
+  Profile: {
     // Accounts for different formats of the avatar property
     gravatar: ({ avatar, gravatarHash }) => {
       const hash = avatar ? avatar.gravatar.hash : gravatarHash
       return hash ? { hash } : null
+    }
+  },
+  // TODO: DRY
+  Watchlist: {
+    movies: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'MOVIE'
+      return movieDatabaseV4.myWatchlist({ accountId, mediaType, ...args })
+    },
+    shows: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'TV'
+      return movieDatabaseV4.myWatchlist({ accountId, mediaType, ...args })
+    }
+  },
+  // TODO: DRY
+  Favorites: {
+    movies: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'MOVIE'
+      return movieDatabaseV4.myFavorites({ accountId, mediaType, ...args })
+    },
+    shows: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'TV'
+      return movieDatabaseV4.myFavorites({ accountId, mediaType, ...args })
+    }
+  },
+  List: {
+    numberOfItems: ({ totalResults, numberOfItems }) => {
+      return Number.isFinite(numberOfItems) ? numberOfItems : totalResults
     }
   },
   SearchResult: {
@@ -357,6 +413,32 @@ const resolvers = {
       return results.map(({ mediaType, ...rest }) => {
         return { ...rest, mediaType: upperCase(mediaType) }
       })
+    }
+  },
+  // TODO: DRY
+  WatchlistMutationResponse: {
+    success: ({ success }) => !!success,
+    // Gets the updated watchlist
+    watchlist: parent => (parent.success ? parent : null),
+    // Gets the updated Media object that was added/removed by mutation
+    media: (parent, _, { dataSources }) => {
+      if (!parent.success) return null
+      const { movieDatabaseV3 } = dataSources
+      const { mediaType, id } = parent.item
+      return movieDatabaseV3[`get${capitalize(mediaType)}`]({ id })
+    }
+  },
+  // TODO: DRY
+  FavoriteMutationResponse: {
+    success: ({ success }) => !!success,
+    // Gets the updated favorites list
+    favorites: parent => (parent.success ? parent : null),
+    // Gets the Media object that was added/removed by mutation
+    media: (parent, _, { dataSources }) => {
+      if (!parent.success) return null
+      const { movieDatabaseV3 } = dataSources
+      const { mediaType, id } = parent.item
+      return movieDatabaseV3[`get${capitalize(mediaType)}`]({ id })
     }
   },
   ListItemResult: {

@@ -160,5 +160,56 @@ class MovieDatabaseV3 extends MovieDatabase {
     const init = { cacheOptions: { ttl: 0 } }
     return this.get('/account', null, init)
   }
+
+  /**
+   * Adds/removes an item from watchlist or favorites.
+   *
+   * @param {'favorite' | 'watchlist'} listType
+   * @param {Object} params
+   * @see https://developers.themoviedb.org/3/account/add-to-watchlist
+   * @see https://developers.themoviedb.org/3/account/mark-as-favorite
+   */
+  async addToWatchlistOrFavorites(listType, params) {
+    try {
+      await this.convertV4TokenToSessionID()
+      const URL = `/account/${params.accountId}/${listType}`
+      const body = {
+        ...this.transformListItemInput(params.item),
+        [listType]: params[listType]
+      }
+      const { statusMessage } = await this.post(URL, body)
+      return { success: true, message: statusMessage }
+    } catch (error) {
+      return { message: error.message }
+    }
+  }
+
+  /**
+   * Adds or removes an item from the user's watchlist.
+   * Requires a valid user access token.
+   *
+   * @param {Object} params
+   * @param {string} params.accountId
+   * @param {{ id: string, mediaType: 'MOVIE' | 'TV' }} params.item
+   * @param {boolean} params.watchlist If true, the item will be added to
+   *     watchlist. Otherwise, it will be removed
+   */
+  addToWatchlist(params) {
+    return this.addToWatchlistOrFavorites('watchlist', params)
+  }
+
+  /**
+   * Adds or removes an item from the user's favorites lists.
+   * Requires a valid user access token.
+   *
+   * @param {Object} params
+   * @param {string} params.accountId The account ID for the user
+   * @param {{ id: string, mediaType: 'MOVIE' | 'TV' }} params.item
+   * @param {boolean} params.favorite If true, the item will be added to
+   *     favorites. Otherwise, it will be removed.
+   */
+  addToFavorites(params) {
+    return this.addToWatchlistOrFavorites('favorite', params)
+  }
 }
 module.exports = MovieDatabaseV3

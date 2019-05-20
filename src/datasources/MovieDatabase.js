@@ -3,6 +3,7 @@ const { camelCaseKeys } = require('../utils/camelCase')
 const { URL } = require('apollo-server-env')
 const { InMemoryLRUCache } = require('apollo-server-caching')
 const { AuthenticationError } = require('apollo-server')
+const lowerCase = require('lodash/lowerCase')
 
 // Create a custom cache for storing specific key/value pairs
 const keyValueCache = new InMemoryLRUCache()
@@ -106,6 +107,10 @@ class MovieDatabase extends RESTDataSource {
   getVersionNumber() {
     const match = this.baseURL.match(/api.themoviedb.org\/(\d)/)
     return match && Number(match[1])
+  }
+
+  transformListItemInput({ id, mediaType }) {
+    return { media_id: Number(id), media_type: lowerCase(mediaType) }
   }
 }
 

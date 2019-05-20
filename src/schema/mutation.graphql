@@ -1,5 +1,6 @@
 # import List, ListSortMethod from "lists.graphql"
 # import MediaType from "misc.graphql"
+# import Watchlist, Favorites from "account.graphql"
 
 # Table of Contents
 # 1. Mutations
@@ -71,6 +72,26 @@ type Mutation {
   the List. It requires a valid user access token for the user.
   """
   removeListItems(id: ID!, items: [ListItemInput]!): ListItemsMutationResponse
+
+  """
+  Add (or remove) a media item to the user's watchlist. The user must be logged
+  in to perform this action, thus it requires a valid user access token.
+  """
+  addToWatchlist(
+    accountId: ID!
+    item: ListItemInput!
+    watchlist: Boolean = true
+  ): WatchlistMutationResponse
+
+  """
+  Add (or remove) a media item to favorites. The user must be logged in to
+  perform this action, thus it requires a valid user access token.
+  """
+  addToFavorites(
+    accountId: ID!
+    item: ListItemInput!
+    favorite: Boolean = true
+  ): FavoriteMutationResponse
 }
 
 # ===================================================================
@@ -111,6 +132,20 @@ type ListItemResult {
   mediaType: MediaType!
   id: ID!
   success: Boolean!
+}
+
+type WatchlistMutationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  watchlist: Watchlist
+  media: Media
+}
+
+type FavoriteMutationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  favorites: Favorites
+  media: Media
 }
 
 # ===================================================================

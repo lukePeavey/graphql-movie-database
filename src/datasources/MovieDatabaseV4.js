@@ -1,17 +1,8 @@
 const camelCase = require('lodash/camelCase')
 const upperCase = require('lodash/upperCase')
-const lowerCase = require('lodash/lowerCase')
-
 const { deCamelCaseArgs } = require('../utils/camelCase')
 const debug = require('../utils/debug')
 const MovieDatabase = require('./MovieDatabase')
-
-function transformListItemInput(items) {
-  return items.map(item => ({
-    media_id: Number(item.id),
-    media_type: lowerCase(item.mediaType)
-  }))
-}
 
 /**
  * A data source for the TMDB API (V4)
@@ -124,7 +115,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async addListItems({ id, items }) {
     try {
-      const body = { items: transformListItemInput(items) }
+      const body = { items: items.map(this.transformListItemInput) }
       const response = await this.post(`/list/${id}/items`, body)
       if (response.success) {
         return { ...response, message: 'List items added.' }
@@ -142,7 +133,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async removeListItems({ id, items }) {
     try {
-      const body = { items: transformListItemInput(items) }
+      const body = { items: items.map(this.transformListItemInput) }
       const response = await this.delete(`/list/${id}/items`, null, { body })
       if (response.success) {
         return { ...response, message: 'List items removed.' }

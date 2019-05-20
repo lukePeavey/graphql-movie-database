@@ -198,6 +198,22 @@ const resolvers = {
     clearListItems: (_, { id }, { dataSources }) => {
       const { movieDatabaseV4 } = dataSources
       return movieDatabaseV4.clearListItems({ id })
+    },
+    // TODO: DRY
+    addToWatchlist: async (_, args, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const response = await movieDatabaseV3.addToWatchlist(args)
+      // the `args` are passed down with the response as they are needed by
+      // field resolvers on `WatchlistMutationResponse`
+      return { ...response, ...args }
+    },
+    // TODO: DRY
+    addToFavorites: async (_, args, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const response = await movieDatabaseV3.addToFavorites(args)
+      // the `args` are passed down with the response as they are needed by
+      // field resolvers on `FavoriteMutationResponse`
+      return { ...response, ...args }
     }
   },
   // --------------------------------------------------
@@ -397,6 +413,32 @@ const resolvers = {
       return results.map(({ mediaType, ...rest }) => {
         return { ...rest, mediaType: upperCase(mediaType) }
       })
+    }
+  },
+  // TODO: DRY
+  WatchlistMutationResponse: {
+    success: ({ success }) => !!success,
+    // Gets the updated watchlist
+    watchlist: parent => (parent.success ? parent : null),
+    // Gets the updated Media object that was added/removed by mutation
+    media: (parent, _, { dataSources }) => {
+      if (!parent.success) return null
+      const { movieDatabaseV3 } = dataSources
+      const { mediaType, id } = parent.item
+      return movieDatabaseV3[`get${capitalize(mediaType)}`]({ id })
+    }
+  },
+  // TODO: DRY
+  FavoriteMutationResponse: {
+    success: ({ success }) => !!success,
+    // Gets the updated favorites list
+    favorites: parent => (parent.success ? parent : null),
+    // Gets the Media object that was added/removed by mutation
+    media: (parent, _, { dataSources }) => {
+      if (!parent.success) return null
+      const { movieDatabaseV3 } = dataSources
+      const { mediaType, id } = parent.item
+      return movieDatabaseV3[`get${capitalize(mediaType)}`]({ id })
     }
   },
   ListItemResult: {

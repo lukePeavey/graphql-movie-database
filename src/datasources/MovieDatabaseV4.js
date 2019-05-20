@@ -173,8 +173,7 @@ class MovieDatabaseV4 extends MovieDatabase {
     }
   }
   /**
-   * Get all lists created by the given user.
-   * This requires a valid user access token.
+   * Get the user watchlist. This requires a valid user access token.
    */
   async myWatchlist({ accountId, mediaType, ...rest }) {
     const init = { cacheOptions: { ttl: 0 } }
@@ -182,8 +181,7 @@ class MovieDatabaseV4 extends MovieDatabase {
   }
 
   /**
-   * Get all lists created by the given user.
-   * This requires a valid user access token.
+   * Get the user's "favorites" list. This requires a valid user access token.
    */
   async myFavorites({ accountId, mediaType, ...rest }) {
     const init = { cacheOptions: { ttl: 0 } }

@@ -74,8 +74,8 @@ type Mutation {
   removeListItems(id: ID!, items: [ListItemInput]!): ListItemsMutationResponse
 
   """
-  Add (or remove) a media item to the user's watchlist. The user must be logged
-  in to perform this action, thus it requires a valid user access token.
+  Add or remove a media item to the user's watchlist. The user must be logged
+  in to perform this action.
   """
   addToWatchlist(
     accountId: ID!
@@ -84,8 +84,8 @@ type Mutation {
   ): WatchlistMutationResponse
 
   """
-  Add (or remove) a media item to favorites. The user must be logged in to
-  perform this action, thus it requires a valid user access token.
+  Add or remove a media item to favorites. The user must be logged in to
+  perform this action.
   """
   addToFavorites(
     accountId: ID!
@@ -103,7 +103,7 @@ interface MutationResponse {
 }
 
 """
-The response type for mutations that create, update, or delete a List.
+The response type for mutations that create/update/delete a List.
 """
 type ListMutationResponse implements MutationResponse {
   success: Boolean!
@@ -113,7 +113,7 @@ type ListMutationResponse implements MutationResponse {
 
 """
 The response type for mutations that add or remove items from a List. In
-addition to the updated List object, the response includes a list of results
+addition to the updated List object the response includes a list of results
 that provides information about each item that was added/removed.
 """
 type ListItemsMutationResponse implements MutationResponse {
@@ -125,8 +125,7 @@ type ListItemsMutationResponse implements MutationResponse {
 
 """
 This type represents the result of an individual item that has been added to or
-removed from a List as the result of a mutation. When adding/removing list
-items, the mutation returns an array of results
+removed from a List as the result of a mutation.
 """
 type ListItemResult {
   mediaType: MediaType!

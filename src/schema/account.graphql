@@ -4,7 +4,7 @@ type Account {
   profile: Profile!
   watchlist: Watchlist!
   favorites: Favorites!
-  lists: ListsResponse
+  lists(page: Int): ListsResponse
 }
 
 type Profile {
@@ -21,11 +21,11 @@ type Gravatar {
 }
 
 type Watchlist {
-  movies: MoviesResponse!
-  shows: ShowsResponse!
+  movies(page: Int): MoviesResponse!
+  shows(page: Int): ShowsResponse!
 }
 
 type Favorites {
-  movies: MoviesResponse!
-  shows: ShowsResponse!
+  movies(page: Int): MoviesResponse!
+  shows(page: Int): ShowsResponse!
 }

@@ -23,7 +23,7 @@ type Movie implements Media @cacheControl(maxAge: 10000) {
   posterPath: String
   posters: [Image]!
   productionCompanies: [Company]!
-  reviews: ReviewsResponse
+  reviews(page: Int): ReviewsResponse
   status: String!
   title: String!
   videos(type: VideoType): [Video]!

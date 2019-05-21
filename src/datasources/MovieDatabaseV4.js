@@ -187,5 +187,22 @@ class MovieDatabaseV4 extends MovieDatabase {
     const init = { cacheOptions: { ttl: 0 } }
     return this.get(`/account/${accountId}/${mediaType}/favorites`, rest, init)
   }
+
+  /**
+   * Gets the list of Movies or Shows that have been rated by the logged in
+   * user. Requires a valid user access token
+   */
+  async myRatings({ mediaType, accountId, ...params }) {
+    const typename = /tv/i.test(mediaType) ? 'show' : 'movie'
+    const URL = `/account/${accountId}/${mediaType}/rated`
+    const body = deCamelCaseArgs(params)
+    const init = { cacheOptions: { ttl: 0 } }
+    let { results, ...pageInfo } = await this.get(URL, body, init)
+    results = results.map(({ accountRating, ...media }) => ({
+      rating: accountRating,
+      [typename]: media
+    }))
+    return { results, ...pageInfo }
+  }
 }
 module.exports = MovieDatabaseV4

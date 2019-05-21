@@ -4,7 +4,8 @@ type Account {
   profile: Profile!
   watchlist: Watchlist!
   favorites: Favorites!
-  lists(page: Int): ListsResponse
+  lists(page: Int): ListsResponse!
+  ratings: Ratings!
 }
 
 type Profile {
@@ -28,4 +29,38 @@ type Watchlist {
 type Favorites {
   movies(page: Int): MoviesResponse!
   shows(page: Int): ShowsResponse!
+}
+
+type Ratings {
+  movies(page: Int): RatedMoviesResponse!
+  shows(Page: Int): RatedShowsResponse!
+}
+
+type RatedMoviesResponse {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [RatedMovie!]!
+}
+
+type RatedShowsResponse {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [RatedShow!]!
+}
+
+type UserRating {
+  createdAt: String
+  value: Float
+}
+
+type RatedMovie {
+  rating: UserRating!
+  movie: Movie!
+}
+
+type RatedShow {
+  rating: UserRating!
+  show: Show!
 }

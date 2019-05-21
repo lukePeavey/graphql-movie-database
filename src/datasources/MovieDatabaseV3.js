@@ -1,5 +1,7 @@
-const { deCamelCaseArgs } = require('../utils/camelCase')
+const get = require('lodash/get')
 const snakeCase = require('lodash/snakeCase')
+const { deCamelCaseArgs } = require('../utils/camelCase')
+const debug = require('../utils/debug')
 const MovieDatabase = require('./MovieDatabase')
 
 /**
@@ -27,9 +29,10 @@ class MovieDatabaseV3 extends MovieDatabase {
    */
   async getMovie({ id }) {
     // Includes credits, video, images, reviews
-    return this.get(`/movie/${id}`, {
+    const response = await this.get(`/movie/${id}`, {
       append_to_response: 'credits,images,videos,reviews'
     })
+    return { ...response, mediaType: 'MOVIE' }
   }
 
   /**
@@ -37,9 +40,10 @@ class MovieDatabaseV3 extends MovieDatabase {
    * @see https://developers.themoviedb.org/3/tv/get-tv-details
    */
   async getShow({ id }) {
-    return this.get(`/tv/${id}`, {
+    const response = await this.get(`/tv/${id}`, {
       append_to_response: 'credits,images,videos,reviews,seasons'
     })
+    return { ...response, mediaType: 'TV' }
   }
 
   /**
@@ -210,6 +214,37 @@ class MovieDatabaseV3 extends MovieDatabase {
    */
   addToFavorites(params) {
     return this.addToWatchlistOrFavorites('favorite', params)
+  }
+
+  /**
+   * Submit a user rating for a Movie or TV Show. Rating should be a number
+   * between 0.5 and 10.0 (must be a multiple of 0.5). Setting the rating
+   * to `null` will remove the user rating on this item (if there is one).
+   *
+   * Can only be performed by a logged in user; requires a valid user access
+   * token.
+   *
+   * @param {Object} params
+   * @param {'MOVIE' | 'TV'} params.mediaType
+   * @param {string} params.id
+   * @param {number | null} params.value number between 0.5 and 10.0 or `null`
+   * @see https://developers.themoviedb.org/3/movies/rate-movie
+   * @see https://developers.themoviedb.org/3/movies/delete-movie-rating
+   */
+  async updateRating({ mediaType, id, value }) {
+    try {
+      await this.convertV4TokenToSessionID()
+      const URL = `/${mediaType}/${id}/rating`
+      // If value is `null`, delete the rating from this item
+      const method = value === null ? 'delete' : 'post'
+      const body = method === 'post' ? { value } : null
+      const { statusMessage } = await this[method](URL, body)
+      return { success: true, message: statusMessage }
+    } catch (error) {
+      debug.error(error)
+      const message = get(error, 'extensions.response.body.statusMessage')
+      return { message: message || error.message }
+    }
   }
 }
 module.exports = MovieDatabaseV3

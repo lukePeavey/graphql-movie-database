@@ -1,20 +1,20 @@
-// By default, each item consists of a movie or tv show combined with the
-// credit properties (ie `character`, `job`, `credit_id`, etc). TO match
-// the schema, the Movie\Show fields are moved to Credit.media
-module.exports.filmographyCredit = credit => ({
-  ...credit,
-  media: Object.assign({}, credit)
-})
+const pick = require('lodash/pick')
+const capitalize = require('lodash/capitalize')
+const upperCase = require('lodash/upperCase')
 
-/**
- * Convert a list of genre IDs to a list of genres with name and ID
- * @param {'tv' | 'movie'} mediaType
- * @param {number[]} genreIds
- * @param {Object} dataSources
- * @param {MovieDataBaseAPI} dataSources.movieDataBaseAPI
- */
-module.exports.getGenres = async function(mediaType, genreIds, dataSources) {
-  return genreIds.map(async id => {
-    return await dataSources.movieDataBaseAPI.getGenre(mediaType, id)
-  })
+// Transforms the results of `person/{id}/combined_credits` to match
+// `Credit` type in schema
+module.exports.filmographyCredit = function filmographyCredit(result) {
+  const creditFields = pick(result, ['character', 'job', 'department'])
+  return { ...creditFields, media: result }
+}
+
+// Convert typename to `mediaType`
+module.exports.toMediaType = function toMediaType(typename) {
+  return /show/i.test(typename) ? 'TV' : upperCase(typename)
+}
+
+// Convert `mediaType` to typename
+module.exports.toTypename = function toTypename(mediaType) {
+  return /^(tv)$/i.test(mediaType) ? 'Show' : capitalize(mediaType)
 }

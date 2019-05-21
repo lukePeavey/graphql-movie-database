@@ -1,7 +1,6 @@
-const transforms = require('./utils/transforms')
-const capitalize = require('lodash/capitalize')
-const upperCase = require('lodash/upperCase')
 const camelCase = require('lodash/camelCase')
+const upperCase = require('lodash/upperCase')
+const transforms = require('./utils/transforms')
 
 /**
  * Creates the resolvers for fields on the `Movie`, `Show`, `Season` and
@@ -214,6 +213,24 @@ const resolvers = {
       // the `args` are passed down with the response as they are needed by
       // field resolvers on `FavoriteMutationResponse`
       return { ...response, ...args }
+    },
+    rateMovie: async (_, args, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const mediaType = 'MOVIE'
+      const response = await movieDatabaseV3.updateRating({
+        mediaType,
+        ...args
+      })
+      return { ...response, mediaType, ...args }
+    },
+    rateShow: async (_, args, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const mediaType = 'TV'
+      const response = await movieDatabaseV3.updateRating({
+        mediaType,
+        ...args
+      })
+      return { ...response, mediaType, ...args }
     }
   },
   // --------------------------------------------------
@@ -229,7 +246,8 @@ const resolvers = {
       return movieDatabaseV4.myLists({ accountId, ...args })
     },
     watchlist: parent => parent,
-    favorites: parent => parent
+    favorites: parent => parent,
+    ratings: parent => parent
   },
   Profile: {
     // Accounts for different formats of the avatar property
@@ -264,16 +282,25 @@ const resolvers = {
       return movieDatabaseV4.myFavorites({ accountId, mediaType, ...args })
     }
   },
+  Ratings: {
+    movies: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'MOVIE'
+      return movieDatabaseV4.myRatings({ accountId, mediaType, ...args })
+    },
+    shows: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'TV'
+      return movieDatabaseV4.myRatings({ accountId, mediaType, ...args })
+    }
+  },
   List: {
     numberOfItems: ({ totalResults, numberOfItems }) => {
       return Number.isFinite(numberOfItems) ? numberOfItems : totalResults
     }
   },
   SearchResult: {
-    __resolveType({ mediaType }) {
-      if (/tv/i.test(mediaType)) return 'Show'
-      return capitalize(mediaType)
-    }
+    __resolveType: ({ mediaType }) => transforms.toTypename(mediaType)
   },
   ImageConfiguration: {
     // Use HTTPS for the default base URL
@@ -368,9 +395,7 @@ const resolvers = {
     }
   },
   Media: {
-    __resolveType({ mediaType }) {
-      return /^(tv)$/i.test(mediaType) ? 'Show' : 'Movie'
-    }
+    __resolveType: ({ mediaType }) => transforms.toTypename(mediaType)
   },
   Credit: {
     __resolveType({ job, department }) {
@@ -425,7 +450,7 @@ const resolvers = {
       if (!parent.success) return null
       const { movieDatabaseV3 } = dataSources
       const { mediaType, id } = parent.item
-      return movieDatabaseV3[`get${capitalize(mediaType)}`]({ id })
+      return movieDatabaseV3[`get${transforms.toTypename(mediaType)}`]({ id })
     }
   },
   // TODO: DRY
@@ -438,7 +463,15 @@ const resolvers = {
       if (!parent.success) return null
       const { movieDatabaseV3 } = dataSources
       const { mediaType, id } = parent.item
-      return movieDatabaseV3[`get${capitalize(mediaType)}`]({ id })
+      return movieDatabaseV3[`get${mediaType}`]({ id })
+    }
+  },
+  RatingMutationResponse: {
+    success: ({ success }) => !!success,
+    media: ({ success, mediaType, id }, _, { dataSources }) => {
+      if (!success) return null
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3[`get${transforms.toTypename(mediaType)}`]({ id })
     }
   },
   ListItemResult: {

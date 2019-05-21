@@ -92,6 +92,19 @@ type Mutation {
     item: ListItemInput!
     favorite: Boolean = true
   ): FavoriteMutationResponse
+
+  """
+  Submit a user rating of a movie. The value can be number between `0.5` and
+  `10.0`. It has to be a multiple of `0.5`. Setting rating to `null` will
+  remove the user rating on this movie.
+  """
+  rateMovie(id: ID!, value: Float): RatingMutationResponse
+  """
+  Submit a user rating of a tv Show. The value can be number between `0.5` and
+  `10.0`. It has to be a multiple of `0.5`. Setting rating to `null` will
+  remove the user rating on this tv show.
+  """
+  rateShow(id: ID!, value: Float): RatingMutationResponse
 }
 
 # ===================================================================
@@ -144,6 +157,13 @@ type FavoriteMutationResponse implements MutationResponse {
   success: Boolean!
   message: String!
   favorites: Favorites
+  media: Media
+}
+
+type RatingMutationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  value: Float
   media: Media
 }
 

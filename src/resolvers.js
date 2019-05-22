@@ -84,6 +84,12 @@ function createMediaObjectResolvers(typename) {
         ids: parent.genreIds
       })
     }
+
+    mediaObjectResolvers.accountStates = async ({ id }, _, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const mediaType = transforms.toMediaType(typename)
+      return movieDatabaseV3.getAccountStates({ mediaType, id })
+    }
   }
   return mediaObjectResolvers
 }
@@ -293,6 +299,9 @@ const resolvers = {
       const mediaType = 'TV'
       return movieDatabaseV4.myRatings({ accountId, mediaType, ...args })
     }
+  },
+  AccountStates: {
+    rating: ({ rated }) => (rated ? rated.value : null)
   },
   List: {
     numberOfItems: ({ totalResults, numberOfItems }) => {

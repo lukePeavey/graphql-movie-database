@@ -94,6 +94,19 @@ class MovieDatabaseV3 extends MovieDatabase {
   }
 
   /**
+   * Gets the account states of Movie or TV Show.
+   *
+   * @see https://developers.themoviedb.org/3/tv/get-tv-account-states
+   * @see https://developers.themoviedb.org/3/movies/get-movie-account-states
+   */
+  async getAccountStates({ mediaType, id }) {
+    await this.convertV4TokenToSessionID()
+    // Don't cache response
+    const init = { cacheOptions: { ttl: 1 } }
+    return this.get(`/${mediaType}/${id}/account_states`, null, init)
+  }
+
+  /**
    * Find movies or TV shows using the Discover API. The discover api provides
    * a wide range of filtering and sorting options.
    *

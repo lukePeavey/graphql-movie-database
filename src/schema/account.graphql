@@ -52,7 +52,7 @@ type RatedShowsResponse {
 
 type UserRating {
   createdAt: String
-  value: Float
+  value: Float!
 }
 
 type RatedMovie {

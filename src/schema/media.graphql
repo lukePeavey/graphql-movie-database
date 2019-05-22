@@ -11,6 +11,7 @@ fields shared by both Movie and Show.
 TODO: Come up with a better name
 """
 interface Media @cacheControl(maxAge: 10000) {
+  accountStates: AccountStates
   backdropPath: String
   backdrops: [Image]
   cast(first: Int): [CastCredit]!
@@ -32,4 +33,10 @@ interface Media @cacheControl(maxAge: 10000) {
   videos(type: VideoType): [Video]!
   voteAverage: Float!
   voteCount: Int!
+}
+
+type AccountStates {
+  rating: Float
+  watchlist: Boolean
+  favorite: Boolean
 }

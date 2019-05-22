@@ -1,7 +1,7 @@
 # import CastCredit, CrewCredit, CrewDepartment from "credits.graphql"
 # import Genre, MediaType from "misc.graphql"
 # import Company from "companies.graphql"
-# import Media from "media.graphql"
+# import Media, AccountStates from "media.graphql"
 # import ReviewsResponse from "reviews.graphql"
 # import Video,  VideoType from "videos.graphql"
 
@@ -9,6 +9,7 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   # ===================================================================
   #  Media fields
   # ===================================================================
+  accountStates: AccountStates
   backdropPath: String
   backdrops: [Image]!
   cast(first: Int): [CastCredit]!

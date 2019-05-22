@@ -472,7 +472,7 @@ const resolvers = {
       if (!parent.success) return null
       const { movieDatabaseV3 } = dataSources
       const { mediaType, id } = parent.item
-      return movieDatabaseV3[`get${mediaType}`]({ id })
+      return movieDatabaseV3[`get${transforms.toTypename(mediaType)}}`]({ id })
     }
   },
   RatingMutationResponse: {

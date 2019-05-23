@@ -10,32 +10,41 @@ module.exports.camelCaseKeys = function(obj) {
 }
 
 /**
- * Convert a string to snake_case, with special treatment for suffixed
- * strings, see example
- * @example
- * deCamelCase("releaseDate_DESC")
- * // => "release_date.desc"
+ * Converts parameter names to from camelCase to snake_case, with special
+ * handling for suffixed values, such voteAverage_GTE.
  *
- * @param {*} input the value to transform
+ * @example
+ * deCamelCaseKey("voteAverage_GTE")
+ * // => "vote_average.gte"
  */
-function deCamelCase(input) {
-  if (!isString(input)) return input
-  return input.split('_').map(snakeCase).join('.') // prettier-ignore
+function deCamelCaseKey(key) {
+  if (!isString(key)) return key
+  return key.split('_').map(snakeCase).join('.') // prettier-ignore
 }
 
 /**
- * Recursively transform arguments to the format used by TMDB REST endpoints.
- * Transforms both keys and values.
+ * Converts enum values into the format used by the REST API.
  * @example
- * deCamelCaseArgs({ sortBy: "releaseDate_DESC" })
- * // => { sort_by: "release_date.desc" }
- *
+ * transformEnumValue('RELEASE_DATE__DESC')
+ * // => 'release_date.desc'
+ */
+function transformEnumValue(value) {
+  if (!isString(value)) return value
+  return value.split('__') .map(snakeCase).join('.') // prettier-ignore
+}
+
+/**
+ * Transforms query arguments to the format of the REST API.
  * @param {Object} args
  */
 module.exports.deCamelCaseArgs = function deCamelCaseArgs(args) {
-  return Object.keys(args).reduce((r, k) => {
-    let value = isPlainObject(args[k]) ? deCamelCaseArgs(args[k]) : args[k]
-    if (k === 'sortBy') value = deCamelCase(value)
-    return { ...r, [deCamelCase(k)]: value }
+  if (!args) return null
+  return Object.entries(args).reduce((result, [key, value]) => {
+    if (isPlainObject(value)) {
+      value = deCamelCaseArgs(value)
+    } else if (key === 'sortBy') {
+      value = transformEnumValue(value)
+    }
+    return { ...result, [deCamelCaseKey(key)]: value }
   }, {})
 }

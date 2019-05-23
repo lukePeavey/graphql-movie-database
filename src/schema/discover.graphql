@@ -103,22 +103,22 @@ The available sorting methods for the `/discover/movie` api.
 @see https://developers.themoviedb.org/3/discover/movie-discover
 """
 enum MovieSortMethod {
-  popularity_DESC
-  popularity_ASC
-  releaseDate_DESC
-  releaseDate_ASC
-  revenue_DESC
-  revenue_ASC
-  primaryReleaseDate_DESC
-  primaryReleaseDate_ASC
-  originalTitle_DESC
-  originalTitle_ASC
-  voteAverage_DESC
-  voteAverage_ASC
-  voteCount_DESC
-  voteCount_ASC
-  order_DESC
-  order_ASC
+  POPULARITY__DESC
+  POPULARITY__ASC
+  RELEASE_DATE__DESC
+  RELEASE_DATE__ASC
+  REVENUE__DESC
+  REVENUE__ASC
+  PRIMARY_RELEASE_DATE__DESC
+  PRIMARY_RELEASE_DATE__ASC
+  ORIGINAL_TITLE__DESC
+  ORIGINAL_TITLE__ASC
+  VOTE_AVERAGE__DESC
+  VOTE_AVERAGE__ASC
+  VOTE_COUNT__DESC
+  VOTE_COUNT__ASC
+  ORDER__DESC
+  ORDER__ASC
 }
 
 """
@@ -206,10 +206,10 @@ The available sorting methods for the discover argument.
 [TMDB Docs](https://developers.themoviedb.org/3/discover/movie-discover)
 """
 enum TVSortMethod {
-  voteAverage_DESC
-  voteAverage_ASC
-  firstAirDate_DESC
-  firstAirDate_ASC
-  popularity_DESC
-  popularityAsc
+  VOTE_AVERAGE__DESC
+  VOTE_AVERAGE__ASC
+  FIRST_AIR_DATE__DESC
+  FIRST_AIR_DATE__ASC
+  POPULARITY__DESC
+  POPULARITY__ASC
 }

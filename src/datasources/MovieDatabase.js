@@ -1,9 +1,9 @@
 const { RESTDataSource } = require('apollo-datasource-rest')
-const { camelCaseKeys } = require('../utils/camelCase')
 const { URL } = require('apollo-server-env')
 const { InMemoryLRUCache } = require('apollo-server-caching')
 const { AuthenticationError } = require('apollo-server')
 const lowerCase = require('lodash/lowerCase')
+const { deCamelCaseArgs, camelCaseKeys } = require('../utils/camelCase')
 
 // Create a custom cache for storing specific key/value pairs
 const keyValueCache = new InMemoryLRUCache()
@@ -71,6 +71,18 @@ class MovieDatabase extends RESTDataSource {
     } else {
       return response.text()
     }
+  }
+
+  get(path, params, init) {
+    return super.get(path, deCamelCaseArgs(params), init)
+  }
+
+  post(path, body, init) {
+    return super.post(path, deCamelCaseArgs(body), init)
+  }
+
+  put(path, body, init) {
+    return super.put(path, deCamelCaseArgs(body), init)
   }
 
   /**

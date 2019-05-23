@@ -34,12 +34,12 @@ type List @cacheControl(maxAge: 5, scope: PRIVATE) {
 The sorting methods available for custom lists
 """
 enum ListSortMethod {
-  originalOrder_ASC
-  originalOrder_DESC
-  releaseDate_ASC
-  releaseDate_DESC
-  title_ASC
-  title_DESC
-  voteAverage_ASC
-  voteAverage_DESC
+  ORIGINAL_ORDER__ASC
+  ORIGINAL_ORDER__DESC
+  RELEASE_DATE__ASC
+  RELEASE_DATE__DESC
+  TITLE__ASC
+  TITLE__DESC
+  VOTE_AVERAGE__ASC
+  VOTE_AVERAGE__DESC
 }

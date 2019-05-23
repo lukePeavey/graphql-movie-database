@@ -1,6 +1,4 @@
-const camelCase = require('lodash/camelCase')
 const upperCase = require('lodash/upperCase')
-const { deCamelCaseArgs } = require('../utils/camelCase')
 const debug = require('../utils/debug')
 const MovieDatabase = require('./MovieDatabase')
 
@@ -20,13 +18,12 @@ class MovieDatabaseV4 extends MovieDatabase {
    * @see https://developers.themoviedb.org/4/list/get-list
    */
   async getList({ id, ...params }) {
-    const body = deCamelCaseArgs(params)
     const init = { cacheOptions: { ttl: 0 } }
-    const response = await this.get(`/list/${id}`, body, init)
+    const response = await this.get(`/list/${id}`, params, init)
     // Transform sortBy values to match schema
     const sortBy = response.sortBy.replace(
       /(\w+)\.([a-z]+)/,
-      (_, m1, m2) => `${camelCase(m1)}_${upperCase(m2)}`
+      (_, m1, m2) => `${upperCase(m1)}__${upperCase(m2)}`
     )
     return { ...response, sortBy }
   }
@@ -56,7 +53,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async updateList({ id, ...params }) {
     try {
-      const response = await this.put(`/list/${id}`, deCamelCaseArgs(params))
+      const response = await this.put(`/list/${id}`, params)
       if (response.success) {
         return { ...response, message: 'List was updated successfully.' }
       }
@@ -148,9 +145,9 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Quickly check if the item is already added to the list.
    * Can only be performed by list owner. Requires user access token.
    */
-  async checkListItemStatus({ listId, mediaType, id: mediaId }) {
+  async checkListItemStatus({ listId, mediaType, id }) {
     try {
-      const params = deCamelCaseArgs({ mediaType, mediaId })
+      const params = { mediaType, mediaId: id }
       const response = await this.get(`/list/${listId}/item_status`, params)
       if (response.success) return response
     } catch (error) {
@@ -175,17 +172,19 @@ class MovieDatabaseV4 extends MovieDatabase {
   /**
    * Get the user watchlist. This requires a valid user access token.
    */
-  async myWatchlist({ accountId, mediaType, ...rest }) {
+  async myWatchlist({ accountId, mediaType, ...params }) {
+    const path = `/account/${accountId}/${mediaType}/watchlist`
     const init = { cacheOptions: { ttl: 0 } }
-    return this.get(`/account/${accountId}/${mediaType}/watchlist`, rest, init)
+    return this.get(path, params, init)
   }
 
   /**
    * Get the user's "favorites" list. This requires a valid user access token.
    */
-  async myFavorites({ accountId, mediaType, ...rest }) {
+  async myFavorites({ accountId, mediaType, ...params }) {
+    const path = `/account/${accountId}/${mediaType}/favorites`
     const init = { cacheOptions: { ttl: 0 } }
-    return this.get(`/account/${accountId}/${mediaType}/favorites`, rest, init)
+    return this.get(path, params, init)
   }
 
   /**
@@ -194,10 +193,9 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async myRatings({ mediaType, accountId, ...params }) {
     const typename = /tv/i.test(mediaType) ? 'show' : 'movie'
-    const URL = `/account/${accountId}/${mediaType}/rated`
-    const body = deCamelCaseArgs(params)
+    const path = `/account/${accountId}/${mediaType}/rated`
     const init = { cacheOptions: { ttl: 0 } }
-    let { results, ...pageInfo } = await this.get(URL, body, init)
+    let { results, ...pageInfo } = await this.get(path, params, init)
     results = results.map(({ accountRating, ...media }) => ({
       rating: accountRating,
       [typename]: media

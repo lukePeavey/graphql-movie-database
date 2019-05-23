@@ -1,6 +1,5 @@
 const get = require('lodash/get')
 const snakeCase = require('lodash/snakeCase')
-const { deCamelCaseArgs } = require('../utils/camelCase')
 const debug = require('../utils/debug')
 const MovieDatabase = require('./MovieDatabase')
 
@@ -62,8 +61,8 @@ class MovieDatabaseV3 extends MovieDatabase {
    * @see https://developers.themoviedb.org/3/tv-episodes/get-tv-episode-details
    */
   async getEpisode({ showId, seasonNumber, episodeNumber }) {
-    const URL = `/tv/${showId}/season/${seasonNumber}/episode/${episodeNumber}`
-    return this.get(URL, {
+    const path = `/tv/${showId}/season/${seasonNumber}/episode/${episodeNumber}`
+    return this.get(path, {
       append_to_response: 'credits,guest_stars,images,videos,reviews'
     })
   }
@@ -115,8 +114,8 @@ class MovieDatabaseV3 extends MovieDatabase {
    * @param {number} [params.page] Must be an Int <= 1000
    * @see https://developers.themoviedb.org/3/discover/movie-discover
    */
-  async discover(endpoint, params = {}) {
-    return this.get(`/discover${endpoint}`, deCamelCaseArgs(params))
+  async discover(endpoint, params) {
+    return this.get(`/discover${endpoint}`, params)
   }
 
   /**
@@ -189,12 +188,12 @@ class MovieDatabaseV3 extends MovieDatabase {
   async addToWatchlistOrFavorites(listType, params) {
     try {
       await this.convertV4TokenToSessionID()
-      const URL = `/account/${params.accountId}/${listType}`
+      const path = `/account/${params.accountId}/${listType}`
       const body = {
         ...this.transformListItemInput(params.item),
         [listType]: params[listType]
       }
-      const { statusMessage } = await this.post(URL, body)
+      const { statusMessage } = await this.post(path, body)
       return { success: true, message: statusMessage }
     } catch (error) {
       return { message: error.message }
@@ -247,11 +246,11 @@ class MovieDatabaseV3 extends MovieDatabase {
   async updateRating({ mediaType, id, value }) {
     try {
       await this.convertV4TokenToSessionID()
-      const URL = `/${mediaType}/${id}/rating`
+      const path = `/${mediaType}/${id}/rating`
       // If value is `null`, delete the rating from this item
       const method = value === null ? 'delete' : 'post'
       const body = method === 'post' ? { value } : null
-      const { statusMessage } = await this[method](URL, body)
+      const { statusMessage } = await this[method](path, body)
       return { success: true, message: statusMessage }
     } catch (error) {
       debug.error(error)

@@ -173,6 +173,9 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Get the user watchlist. This requires a valid user access token.
    */
   async myWatchlist({ accountId, mediaType, ...params }) {
+    if (mediaType === 'TV' && params.sortBy) {
+      params.sortBy = params.sortBy.replace('TITLE', 'NAME')
+    }
     const path = `/account/${accountId}/${mediaType}/watchlist`
     const init = { cacheOptions: { ttl: 0 } }
     return this.get(path, params, init)
@@ -182,6 +185,9 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Get the user's "favorites" list. This requires a valid user access token.
    */
   async myFavorites({ accountId, mediaType, ...params }) {
+    if (mediaType === 'TV' && params.sortBy) {
+      params.sortBy = params.sortBy.replace('TITLE', 'NAME')
+    }
     const path = `/account/${accountId}/${mediaType}/favorites`
     const init = { cacheOptions: { ttl: 0 } }
     return this.get(path, params, init)
@@ -192,10 +198,14 @@ class MovieDatabaseV4 extends MovieDatabase {
    * user. Requires a valid user access token
    */
   async myRatings({ mediaType, accountId, ...params }) {
+    if (mediaType === 'TV' && params.sortBy) {
+      params.sortBy = params.sortBy.replace('TITLE', 'NAME')
+    }
     const typename = /tv/i.test(mediaType) ? 'show' : 'movie'
     const path = `/account/${accountId}/${mediaType}/rated`
     const init = { cacheOptions: { ttl: 0 } }
-    let { results, ...pageInfo } = await this.get(path, params, init)
+    const response = await this.get(path, params, init)
+    let { results, ...pageInfo } = response
     results = results.map(({ accountRating, ...media }) => ({
       rating: accountRating,
       [typename]: media

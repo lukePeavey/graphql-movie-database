@@ -22,18 +22,18 @@ type Gravatar {
 }
 
 type Watchlist {
-  movies(page: Int): MoviesResponse!
-  shows(page: Int): ShowsResponse!
+  movies(sortBy: MovieListSortMethod, page: Int): MoviesResponse!
+  shows(sortBy: TVListSortMethod, page: Int): ShowsResponse!
 }
 
 type Favorites {
-  movies(page: Int): MoviesResponse!
-  shows(page: Int): ShowsResponse!
+  movies(sortBy: MovieListSortMethod, page: Int): MoviesResponse!
+  shows(sortBy: TVListSortMethod, page: Int): ShowsResponse!
 }
 
 type Ratings {
-  movies(page: Int): RatedMoviesResponse!
-  shows(Page: Int): RatedShowsResponse!
+  movies(sortBy: MovieListSortMethod, page: Int): RatedMoviesResponse!
+  shows(sortBy: TVListSortMethod, Page: Int): RatedShowsResponse!
 }
 
 type RatedMoviesResponse {
@@ -63,4 +63,26 @@ type RatedMovie {
 type RatedShow {
   rating: UserRating!
   show: Show!
+}
+
+enum MovieListSortMethod {
+  CREATED_AT__ASC
+  CREATED_AT__DESC
+  RELEASE_DATE__ASC
+  RELEASE_DATE__DESC
+  VOTE_AVERAGE__ASC
+  VOTE_AVERAGE__DESC
+  TITLE__ASC
+  TITLE__DESC
+}
+
+enum TVListSortMethod {
+  CREATED_AT__ASC
+  CREATED_AT__DESC
+  FIRST_AIR_DATE__ASC
+  FIRST_AIR_DATE__DESC
+  VOTE_AVERAGE__ASC
+  VOTE_AVERAGE__DESC
+  TITLE__ASC
+  TITLE__DESC
 }

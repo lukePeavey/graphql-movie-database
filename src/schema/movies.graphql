@@ -25,6 +25,7 @@ type Movie implements Media @cacheControl(maxAge: 10000) {
   posters: [Image]!
   productionCompanies: [Company]!
   reviews(page: Int): ReviewsResponse
+  releaseDate: String!
   status: String!
   title: String!
   videos(type: VideoType): [Video]!
@@ -35,7 +36,6 @@ type Movie implements Media @cacheControl(maxAge: 10000) {
   # ===================================================================
   budget: Int!
   productionCountries: [Country]!
-  releaseDate: String!
   revenue: Int!
   runtime: Int
   tagline: String

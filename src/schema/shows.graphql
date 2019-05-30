@@ -26,6 +26,8 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   posters: [Image]!
   productionCompanies: [Company]!
   reviews(page: Int): ReviewsResponse
+  "Date when the TV show first aired"
+  releaseDate: String!
   status: String!
   title: String!
   videos(type: VideoType): [Video]!

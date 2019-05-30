@@ -324,6 +324,7 @@ const resolvers = {
     mediaType: () => 'TV',
     title: ({ name }) => name, // make consistent with Movie
     originalTitle: ({ originalName }) => originalName,
+    releaseDate: ({ firstAirDate }) => firstAirDate,
     // Get all seasons of a show
     seasons: async ({ seasons, id }, _, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources

@@ -5,9 +5,8 @@ require('dotenv').config()
  */
 module.exports = {
   service: {
-    name: process.env.ENGINE_SERVICE_ID,
     endpoint: {
-      url: process.env.ENDPOINT
+      url: `http://localhost:${process.env.PORT}`
     }
   }
 }

@@ -1,0 +1,20 @@
+{
+  "name": "tmdb-graphql",
+  "schemaPath": "src/schema/schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "development": {
+        "url": "http://localhost:${env:PORT}",
+        "headers": {
+          "Authorization": "${env:TMDB_USER_ACCESS_TOKEN}"
+        }
+      },
+      "production": {
+        "url": "${env:ENDPOINT}",
+        "headers": {
+          "Authorization": "${env:TMDB_USER_ACCESS_TOKEN}"
+        }
+      }
+    }
+  }
+}

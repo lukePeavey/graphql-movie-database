@@ -31,7 +31,7 @@ const server = new ApolloServer({
     }
   },
   formatError: error => {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV !== 'development') {
       // In production: only return error message and code
       return { message: error.message, code: error.extensions.code }
     } else {

@@ -86,7 +86,8 @@ class MovieDatabaseV4 extends MovieDatabase {
    */
   async clearListItems({ id }) {
     try {
-      const response = await this.get(`/list/${id}/clear`)
+      const init = { cacheOptions: { ttl: 0 } }
+      const response = await this.get(`/list/${id}/clear`, null, init)
       if (response.success) {
         return { ...response, message: 'List items were cleared successfully.' }
       }

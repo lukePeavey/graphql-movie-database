@@ -1,9 +1,7 @@
-# import Media from 'media.graphql'
-# import Account from 'account.graphql'
+# import Media from '../media.graphql'
 
 """
 A custom list created by a TMDB user.
-NOTE: This feature uses the TMDB V4 Lists API
 """
 type List @cacheControl(maxAge: 5, scope: PRIVATE) {
   accountObjectId: ID!
@@ -22,7 +20,8 @@ type List @cacheControl(maxAge: 5, scope: PRIVATE) {
   public: Boolean!
   revenue: String
   runtime: Int
-  sortBy: ListSortMethod!
+  sortBy: ListSortBy
+  sortOrder: SortOrder
   updatedAt: String
   page: Int!
   results: [Media!]!
@@ -33,13 +32,10 @@ type List @cacheControl(maxAge: 5, scope: PRIVATE) {
 """
 The sorting methods available for custom lists
 """
-enum ListSortMethod {
-  ORIGINAL_ORDER__ASC
-  ORIGINAL_ORDER__DESC
-  RELEASE_DATE__ASC
-  RELEASE_DATE__DESC
-  TITLE__ASC
-  TITLE__DESC
-  VOTE_AVERAGE__ASC
-  VOTE_AVERAGE__DESC
+enum ListSortBy {
+  ORIGINAL_ORDER
+  POPULARITY
+  RELEASE_DATE
+  TITLE
+  VOTE_AVERAGE
 }

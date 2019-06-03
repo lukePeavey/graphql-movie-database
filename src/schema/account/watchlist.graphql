@@ -1,0 +1,33 @@
+type Watchlist {
+  movies(
+    sortBy: WatchlistSortBy = DATE_ADDED
+    sortOrder: SortOrder = DESC
+    page: Int
+  ): MoviesResponse!
+  shows(
+    sortBy: WatchlistSortBy = DATE_ADDED
+    sortOrder: SortOrder = DESC
+    page: Int
+  ): ShowsResponse!
+}
+
+type Favorites {
+  movies(
+    sortBy: WatchlistSortBy = DATE_ADDED
+    sortOrder: SortOrder = DESC
+    page: Int
+  ): MoviesResponse!
+  shows(
+    sortBy: WatchlistSortBy = DATE_ADDED
+    sortOrder: SortOrder = DESC
+    page: Int
+  ): ShowsResponse!
+}
+
+enum WatchlistSortBy {
+  DATE_ADDED
+  POPULARITY
+  RELEASE_DATE
+  TITLE
+  VOTE_AVERAGE
+}

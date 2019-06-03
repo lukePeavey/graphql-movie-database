@@ -1,7 +1,7 @@
 const camelCaseKeys = require('camelcase-keys')
 const isPlainObject = require('lodash/isPlainObject')
 const isString = require('lodash/isString')
-const snakeCase = require('lodash/snakeCase')
+const _snakeCase = require('lodash/snakeCase')
 
 module.exports.camelCaseKeys = function(obj) {
   // Exclude the following keys. The cannot be converted to camelCase.
@@ -10,41 +10,27 @@ module.exports.camelCaseKeys = function(obj) {
 }
 
 /**
- * Converts parameter names to from camelCase to snake_case, with special
- * handling for suffixed values, such voteAverage_GTE.
+ * Converts strings from camelCase to snake_case, with special handling for
+ * suffixed values like "voteAverage_GTE"
  *
- * @example
- * deCamelCaseKey("voteAverage_GTE")
+ * @examples
+ * snakeCase("voteAverage_GTE")
  * // => "vote_average.gte"
  */
-function deCamelCaseKey(key) {
-  if (!isString(key)) return key
-  return key.split('_').map(snakeCase).join('.') // prettier-ignore
+function snakeCase(str) {
+  if (!isString(str)) return str
+  return str.split('_').map(_snakeCase).join('.') // prettier-ignore
 }
 
 /**
- * Converts enum values into the format used by the REST API.
- * @example
- * transformEnumValue('RELEASE_DATE__DESC')
- * // => 'release_date.desc'
- */
-function transformEnumValue(value) {
-  if (!isString(value)) return value
-  return value.split('__') .map(snakeCase).join('.') // prettier-ignore
-}
-
-/**
- * Transforms query arguments to the format of the REST API.
+ * Converts object keys to snake_case. This is used to convert query arguments
+ * and inputs types from camelCase to snake_case.
  * @param {Object} args
  */
-module.exports.deCamelCaseArgs = function deCamelCaseArgs(args) {
+module.exports.snakeCaseKeys = function snakeCaseKeys(args) {
   if (!args) return null
   return Object.entries(args).reduce((result, [key, value]) => {
-    if (isPlainObject(value)) {
-      value = deCamelCaseArgs(value)
-    } else if (key === 'sortBy') {
-      value = transformEnumValue(value)
-    }
-    return { ...result, [deCamelCaseKey(key)]: value }
+    const newValue = isPlainObject(value) ? snakeCaseKeys(value) : value
+    return { ...result, [snakeCase(key)]: newValue }
   }, {})
 }

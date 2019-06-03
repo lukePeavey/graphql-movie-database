@@ -128,43 +128,45 @@ const resolvers = {
       return movieDatabaseV3.getConfiguration()
     },
     myAccount: async (_, args) => args,
-    myLists: async (_parent, { accountId }, { dataSources }) => {
-      const { movieDatabaseV4 } = dataSources
-      return movieDatabaseV4.myLists({ accountId })
-    },
     // --------------------------------------------------
     //  Plural Queries
     // --------------------------------------------------
     people: (_, args = {}, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      return movieDatabaseV3.search('/person', args)
+      return movieDatabaseV3.search({ mediaType: 'person', ...args })
     },
     movies: (_, args = {}, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
+      const mediaType = 'MOVIE'
       const { query, list, discover, ...rest } = args
       // The movies query has three mutually exclusive arguments:
       // A. If a `query` argument was provided, use search API to find movies
-      if (query) return movieDatabaseV3.search('/movie', { query, ...rest })
+      if (query) {
+        return movieDatabaseV3.search({ mediaType, query, ...rest })
+      }
       // B. If the `list` argument was provided, get movies from the specified
       // movie list endpoint
-      if (list) return movieDatabaseV3.movies(list, rest)
+      if (list) {
+        return movieDatabaseV3.movies(list, rest)
+      }
       // C. Otherwise, default to the discover API
-      return movieDatabaseV3.discover('/movie', { ...discover, ...rest })
+      return movieDatabaseV3.discover({ mediaType, ...discover, ...rest })
     },
     shows: (_, args = {}, { dataSources }) => {
+      const mediaType = 'TV'
       const { movieDatabaseV3 } = dataSources
       const { query, list, discover, ...rest } = args
-      if (query) return movieDatabaseV3.search('/tv', { query, ...rest })
+      if (query) return movieDatabaseV3.search({ mediaType, query, ...rest })
       if (list) return movieDatabaseV3.shows(list, rest)
-      return movieDatabaseV3.discover('/tv', { ...discover, ...rest })
+      return movieDatabaseV3.discover({ mediaType, ...discover, ...rest })
     },
     companies: (_, args = {}, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      return movieDatabaseV3.search('/company', args)
+      return movieDatabaseV3.search({ mediaType: 'COMPANY', ...args })
     },
     search: async (_, args, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      return movieDatabaseV3.search('/multi', args)
+      return movieDatabaseV3.search(args)
     }
   },
   // --------------------------------------------------
@@ -324,6 +326,7 @@ const resolvers = {
     mediaType: () => 'TV',
     title: ({ name }) => name, // make consistent with Movie
     originalTitle: ({ originalName }) => originalName,
+    releaseDate: ({ firstAirDate }) => firstAirDate,
     // Get all seasons of a show
     seasons: async ({ seasons, id }, _, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
@@ -377,7 +380,8 @@ const resolvers = {
       // field is requested in a singular `person` query, we make a second API
       // request to the search endpoint using the name/id.
       if (knownFor) return knownFor
-      const { results } = await movieDatabaseV3.search('/person', {
+      const { results } = await movieDatabaseV3.search({
+        mediaType: 'PERSON',
         query: name
       })
       const match = results.find(person => String(person.id) === String(id))
@@ -401,6 +405,17 @@ const resolvers = {
         cast: combinedCredits.cast.map(transforms.filmographyCredit),
         crew: combinedCredits.crew.map(transforms.filmographyCredit)
       }
+    }
+  },
+  RatedMedia: {
+    releaseDate: ({ releaseDate, firstAirDate }) => {
+      return releaseDate || firstAirDate || ''
+    },
+    title: ({ name, title }) => {
+      return title || name || ''
+    },
+    originalTitle: ({ originalTitle, originalName }) => {
+      return originalName || originalTitle || ''
     }
   },
   Media: {

@@ -1,0 +1,12 @@
+type Profile {
+  gravatar: Gravatar
+  id: Int!
+  name: String
+  username: String!
+  iso_639_1: String
+  iso_3166_1: String
+}
+
+type Gravatar {
+  hash: String!
+}

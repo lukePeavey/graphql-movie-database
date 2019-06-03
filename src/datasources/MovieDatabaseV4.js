@@ -1,5 +1,5 @@
-const upperCase = require('lodash/upperCase')
 const debug = require('../utils/debug')
+const toUpper = require('lodash/toUpper')
 const MovieDatabase = require('./MovieDatabase')
 
 /**
@@ -12,24 +12,26 @@ class MovieDatabaseV4 extends MovieDatabase {
   }
 
   /**
-   * Retrieve a list by ID.
+   * Retrieves a custom user-created List by ID.
    * Private lists can only be accessed by their owners and therefore require a
    * valid user access token.
    * @see https://developers.themoviedb.org/4/list/get-list
    */
   async getList({ id, ...params }) {
+    params = this.transformSortByInput(params)
     const init = { cacheOptions: { ttl: 0 } }
     const response = await this.get(`/list/${id}`, params, init)
-    // Transform sortBy values to match schema
-    const sortBy = response.sortBy.replace(
-      /(\w+)\.([a-z]+)/,
-      (_, m1, m2) => `${upperCase(m1)}__${upperCase(m2)}`
-    )
-    return { ...response, sortBy }
+    // Format the sortBy field to match schema style:
+    // REST API: `sortBy: release_date.desc"`
+    // GraphQL schema: `{ sortBy: "RELEASE_DATE, sortOrder: "DESC" }`
+    const [sortBy, sortOrder] = (params.sortBy || response.sortBy)
+      .split('.')
+      .map(toUpper)
+    return { ...response, sortBy, sortOrder }
   }
 
   /**
-   * Create a new list.
+   * Create a new custom list.
    * Requires a valid user access token.
    * @see https://developers.themoviedb.org/4/list/create-list
    */
@@ -49,11 +51,17 @@ class MovieDatabaseV4 extends MovieDatabase {
   /**
    * Update list metadata and settings.
    * Can only be performed by list owner. Requires user access token.
+   *
+   * TODO: The REST API occasionally returns a 500 error when updating the
+   * sort_by setting of a list to a supported value. This occurs even when
+   * making REST requests directly in Postman, so its not an issue w
+   * the graphQL API. If problem continues, report issue to TMDB
    * @see https://developers.themoviedb.org/4/list/update-list
    */
   async updateList({ id, ...params }) {
     try {
-      const response = await this.put(`/list/${id}`, params)
+      const body = this.transformSortByInput(params)
+      const response = await this.put(`/list/${id}`, body)
       if (response.success) {
         return { ...response, message: 'List was updated successfully.' }
       }
@@ -170,13 +178,12 @@ class MovieDatabaseV4 extends MovieDatabase {
       return { success: false, message: error.message }
     }
   }
+
   /**
    * Get the user watchlist. This requires a valid user access token.
    */
   async myWatchlist({ accountId, mediaType, ...params }) {
-    if (mediaType === 'TV' && params.sortBy) {
-      params.sortBy = params.sortBy.replace('TITLE', 'NAME')
-    }
+    params = this.transformSortByInput(params)
     const path = `/account/${accountId}/${mediaType}/watchlist`
     const init = { cacheOptions: { ttl: 0 } }
     return this.get(path, params, init)
@@ -186,9 +193,7 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Get the user's "favorites" list. This requires a valid user access token.
    */
   async myFavorites({ accountId, mediaType, ...params }) {
-    if (mediaType === 'TV' && params.sortBy) {
-      params.sortBy = params.sortBy.replace('TITLE', 'NAME')
-    }
+    params = this.transformSortByInput(params)
     const path = `/account/${accountId}/${mediaType}/favorites`
     const init = { cacheOptions: { ttl: 0 } }
     return this.get(path, params, init)
@@ -199,19 +204,10 @@ class MovieDatabaseV4 extends MovieDatabase {
    * user. Requires a valid user access token
    */
   async myRatings({ mediaType, accountId, ...params }) {
-    if (mediaType === 'TV' && params.sortBy) {
-      params.sortBy = params.sortBy.replace('TITLE', 'NAME')
-    }
-    const typename = /tv/i.test(mediaType) ? 'show' : 'movie'
+    params = this.transformSortByInput(params)
     const path = `/account/${accountId}/${mediaType}/rated`
     const init = { cacheOptions: { ttl: 0 } }
-    const response = await this.get(path, params, init)
-    let { results, ...pageInfo } = response
-    results = results.map(({ accountRating, ...media }) => ({
-      rating: accountRating,
-      [typename]: media
-    }))
-    return { results, ...pageInfo }
+    return this.get(path, params, init)
   }
 }
 module.exports = MovieDatabaseV4

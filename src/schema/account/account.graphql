@@ -1,0 +1,12 @@
+# import ListsResponse from "lists.graphql"
+# import Watchlist, Favorites from "watchlist.graphql"
+# import Ratings from "ratings.graphql"
+# import Profile from "profile.graphql"
+
+type Account {
+  profile: Profile!
+  watchlist: Watchlist!
+  favorites: Favorites!
+  ratings: Ratings!
+  lists(page: Int): ListsResponse!
+}

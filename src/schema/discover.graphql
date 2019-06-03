@@ -4,7 +4,14 @@ the `movies()` query. This corresponds to the parameters for the
 `/discover/movie` API.
 """
 input DiscoverMovieOptions {
-  sortBy: MovieSortMethod
+  """
+  The criteria on which results are sorted
+  """
+  sortBy: MovieSortBy = POPULARITY
+  """
+  The order in which results are sorted
+  """
+  sortOrder: SortOrder = DESC
   """
   A filter to limit the results to a specific primary release year.
   """
@@ -102,23 +109,16 @@ input DiscoverMovieOptions {
 The available sorting methods for the `/discover/movie` api.
 @see https://developers.themoviedb.org/3/discover/movie-discover
 """
-enum MovieSortMethod {
-  POPULARITY__DESC
-  POPULARITY__ASC
-  RELEASE_DATE__DESC
-  RELEASE_DATE__ASC
-  REVENUE__DESC
-  REVENUE__ASC
-  PRIMARY_RELEASE_DATE__DESC
-  PRIMARY_RELEASE_DATE__ASC
-  ORIGINAL_TITLE__DESC
-  ORIGINAL_TITLE__ASC
-  VOTE_AVERAGE__DESC
-  VOTE_AVERAGE__ASC
-  VOTE_COUNT__DESC
-  VOTE_COUNT__ASC
-  ORDER__DESC
-  ORDER__ASC
+enum MovieSortBy {
+  NONE
+  ORDER
+  ORIGINAL_TITLE
+  POPULARITY
+  PRIMARY_RELEASE_DATE
+  RELEASE_DATE
+  REVENUE
+  VOTE_AVERAGE
+  VOTE_COUNT
 }
 
 """
@@ -127,7 +127,14 @@ the `shows()` query. These options correspond to the parameters for the
 `/discover/tv` API.
 """
 input DiscoverTVOptions {
-  sortBy: TVSortMethod
+  """
+  The criteria on which results are sorted
+  """
+  sortBy: TVSortBy = POPULARITY
+  """
+  The order in which results are sorted
+  """
+  sortOrder: SortOrder = DESC
   """
   Filter and only include TV shows that have a air date (by looking at all
   episodes) that is greater or equal to the specified value.
@@ -205,11 +212,11 @@ input DiscoverTVOptions {
 The available sorting methods for the discover argument.
 [TMDB Docs](https://developers.themoviedb.org/3/discover/movie-discover)
 """
-enum TVSortMethod {
-  VOTE_AVERAGE__DESC
-  VOTE_AVERAGE__ASC
-  FIRST_AIR_DATE__DESC
-  FIRST_AIR_DATE__ASC
-  POPULARITY__DESC
-  POPULARITY__ASC
+enum TVSortBy {
+  FIRST_AIR_DATE
+  NONE
+  POPULARITY
+  RELEASE_DATE
+  VOTE_AVERAGE
+  VOTE_COUNT
 }

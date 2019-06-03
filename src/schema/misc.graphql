@@ -17,3 +17,8 @@ enum MediaType {
   MOVIE
   TV
 }
+
+enum SortOrder {
+  ASC
+  DESC
+}

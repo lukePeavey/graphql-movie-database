@@ -4,8 +4,8 @@
 # import Movie from "movies.graphql"
 # import Person from "people.graphql"
 # import Show, Season, Episode from "shows.graphql"
-# import Account from "account.graphql"
-# import List, ListSortMethod from "lists.graphql"
+# import Account from "account/account.graphql"
+# import List, ListSortBy from "account/lists.graphql"
 
 # Table of Contents
 # 1. Single Item Queries
@@ -61,7 +61,7 @@ type Query {
   for the user that created the given List.
   See [V4 List Docs](https://developers.themoviedb.org/4/list/get-list)
   """
-  list(id: ID!, sortBy: ListSortMethod, page: Int): List
+  list(id: ID!, sortBy: ListSortBy, sortOrder: SortOrder, page: Int): List
 
   """
   Gets the TMDB account of the logged in user.
@@ -69,12 +69,6 @@ type Query {
   "authorization" header.
   """
   myAccount(accountId: ID!): Account
-
-  """
-  Get all lists created by the logged in user.
-  Requires a valid user access token and the associated accountId.
-  """
-  myLists(accountId: ID!): ListsResponse
 
   # ===================================================================
   # 2. Plural Queries

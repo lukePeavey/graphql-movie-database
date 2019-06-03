@@ -1,0 +1,56 @@
+type Ratings {
+  movies(
+    sortBy: RatingsSortBy = CREATED_AT
+    sortOrder: SortOrder = DESC
+    page: Int
+  ): RatedMediaResponse!
+  shows(
+    sortBy: RatingsSortBy = CREATED_AT
+    sortOrder: SortOrder = DESC
+    Page: Int
+  ): RatedMediaResponse!
+}
+
+# Rated media items are similar to regular Movie and TV Show objects,
+# accept have an additional accountRating field with info about the users
+# rating.
+
+"A Movie or TV Show that the user has rated"
+type RatedMedia {
+  originalTitle: String!
+  genres: [Genre!]!
+  accountRating: AccountRating!
+  title: String!
+  popularity: Float!
+  originCountry: String
+  voteCount: Int!
+  releaseDate: String
+  backdropPath: String
+  originalLanguage: String
+  id: ID!
+  voteAverage: Float!
+  overview: String
+  posterPath: String
+}
+
+type AccountRating {
+  createdAt: String
+  value: Float!
+}
+
+"A paginated list of media items that user has rated"
+type RatedMediaResponse {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [RatedMedia!]!
+}
+
+enum RatingsSortBy {
+  ACCOUNT_RATING
+  CREATED_AT
+  POPULARITY
+  RELEASE_DATE
+  TITLE
+  VOTE_AVERAGE
+}

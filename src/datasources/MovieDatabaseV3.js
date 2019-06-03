@@ -18,7 +18,7 @@ class MovieDatabaseV3 extends MovieDatabase {
    */
   async getPerson({ id }) {
     return this.get(`/person/${id}`, {
-      append_to_response: 'combined_credits,images'
+      appendToResponse: 'combined_credits,images'
     })
   }
 
@@ -29,7 +29,7 @@ class MovieDatabaseV3 extends MovieDatabase {
   async getMovie({ id }) {
     // Includes credits, video, images, reviews
     const response = await this.get(`/movie/${id}`, {
-      append_to_response: 'credits,images,videos,reviews'
+      appendToResponse: 'credits'
     })
     return { ...response, mediaType: 'MOVIE' }
   }
@@ -40,7 +40,7 @@ class MovieDatabaseV3 extends MovieDatabase {
    */
   async getShow({ id }) {
     const response = await this.get(`/tv/${id}`, {
-      append_to_response: 'credits,images,videos,reviews,seasons'
+      appendToResponse: 'credits,images,videos,reviews,seasons'
     })
     return { ...response, mediaType: 'TV' }
   }
@@ -52,7 +52,7 @@ class MovieDatabaseV3 extends MovieDatabase {
    */
   async getSeason({ showId, seasonNumber }) {
     return this.get(`/tv/${showId}/season/${seasonNumber}`, {
-      append_to_response: 'credits,images,videos,reviews'
+      appendToResponse: 'credits,images,videos,reviews'
     })
   }
 
@@ -63,7 +63,7 @@ class MovieDatabaseV3 extends MovieDatabase {
   async getEpisode({ showId, seasonNumber, episodeNumber }) {
     const path = `/tv/${showId}/season/${seasonNumber}/episode/${episodeNumber}`
     return this.get(path, {
-      append_to_response: 'credits,guest_stars,images,videos,reviews'
+      appendToResponse: 'credits,guest_stars,images,videos,reviews'
     })
   }
 
@@ -109,27 +109,27 @@ class MovieDatabaseV3 extends MovieDatabase {
    * Find movies or TV shows using the Discover API. The discover api provides
    * a wide range of filtering and sorting options.
    *
-   * @param {'/movie' | '/tv'} endpoint
+   * @param {'MOVIE' | 'TV'} mediaType
    * @param {Object} [params] - query parameters for the `discover` endpoints
    * @param {number} [params.page] Must be an Int <= 1000
    * @see https://developers.themoviedb.org/3/discover/movie-discover
    */
-  async discover(endpoint, params) {
-    return this.get(`/discover${endpoint}`, params)
+  async discover({ mediaType, ...params }) {
+    params = this.transformSortByInput(params, mediaType)
+    return this.get(`/discover/${mediaType}`, params)
   }
 
   /**
    * Search for items matching the provided query.
    *
-   * @param {'/movie' | '/tv' | '/person' | '/company' | '/multi'} endpoint
+   * @param {'MOVIE' | 'TV' | 'PERSON' | 'COMPANY' | 'MULTI'} type
    * @param {Object} params
    * @param {String} params.query the query string to search for
    * @param {number} [params.page] the pagination offset. Must be Int <= 1000
    * @see https://developers.themoviedb.org/3/search/multi-search
    */
-  async search(endpoint = '/multi', params) {
-    let { results, meta } = await this.get(`/search${endpoint}`, params)
-    return { results, meta }
+  async search({ mediaType = 'MULTI', ...params }) {
+    return this.get(`/search/${mediaType}`, params)
   }
 
   /**
@@ -196,6 +196,7 @@ class MovieDatabaseV3 extends MovieDatabase {
       const { statusMessage } = await this.post(path, body)
       return { success: true, message: statusMessage }
     } catch (error) {
+      debug.error(error)
       return { message: error.message }
     }
   }

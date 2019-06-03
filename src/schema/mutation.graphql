@@ -1,6 +1,6 @@
-# import List, ListSortMethod from "lists.graphql"
 # import MediaType from "misc.graphql"
-# import Watchlist, Favorites from "account.graphql"
+# import List, ListSortBy from "account/lists.graphql"
+# import Watchlist, Favorites from "account/watchlist.graphql"
 
 # Table of Contents
 # 1. Mutations
@@ -31,7 +31,8 @@ type Mutation {
     id: ID!
     name: String
     description: String
-    sortBy: ListSortMethod
+    sortBy: ListSortBy
+    sortOrder: SortOrder
     public: Boolean
     iso_639_1: String
     iso_3166_1: String
@@ -121,7 +122,7 @@ The response type for mutations that create/update/delete a List.
 type ListMutationResponse implements MutationResponse {
   success: Boolean!
   message: String!
-  list(page: Int, sortBy: ListSortMethod): List
+  list(page: Int, sortBy: ListSortBy, sortOrder: SortOrder): List
 }
 
 """
@@ -133,7 +134,7 @@ type ListItemsMutationResponse implements MutationResponse {
   success: Boolean!
   message: String!
   results: [ListItemResult]!
-  list(page: Int, sortBy: ListSortMethod): List
+  list(page: Int, sortBy: ListSortBy, sortOrder: SortOrder): List
 }
 
 """
@@ -156,7 +157,7 @@ type WatchlistMutationResponse implements MutationResponse {
 type FavoriteMutationResponse implements MutationResponse {
   success: Boolean!
   message: String!
-  favorites: Favorites
+  favorites: Watchlist
   media: Media
 }
 
@@ -171,6 +172,14 @@ type RatingMutationResponse implements MutationResponse {
 #  3. Input Types
 # ===================================================================
 input ListItemInput {
+  title: String
   id: ID!
   mediaType: MediaType!
+}
+
+input UserRatingInput {
+  title: String
+  id: ID!
+  mediaType: MediaType!
+  value: Float
 }

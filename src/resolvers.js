@@ -255,7 +255,8 @@ const resolvers = {
     },
     watchlist: parent => parent,
     favorites: parent => parent,
-    ratings: parent => parent
+    ratings: parent => parent,
+    recommendations: parent => parent
   },
   Profile: {
     // Accounts for different formats of the avatar property
@@ -300,6 +301,26 @@ const resolvers = {
       const { movieDatabaseV4 } = dataSources
       const mediaType = 'TV'
       return movieDatabaseV4.myRatings({ accountId, mediaType, ...args })
+    }
+  },
+  Recommendations: {
+    movies: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'MOVIE'
+      return movieDatabaseV4.myRecommendations({
+        accountId,
+        mediaType,
+        ...args
+      })
+    },
+    shows: async ({ accountId }, args, { dataSources }) => {
+      const { movieDatabaseV4 } = dataSources
+      const mediaType = 'TV'
+      return movieDatabaseV4.myRecommendations({
+        accountId,
+        mediaType,
+        ...args
+      })
     }
   },
   AccountStates: {

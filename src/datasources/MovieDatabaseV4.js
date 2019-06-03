@@ -209,5 +209,16 @@ class MovieDatabaseV4 extends MovieDatabase {
     const init = { cacheOptions: { ttl: 0 } }
     return this.get(path, params, init)
   }
+
+  /**
+   * Get movie and tv recommendations based on the user's ratings and
+   * favorites. Requires a valid user access token & accountId
+   */
+  async myRecommendations({ mediaType, accountId, ...params }) {
+    params = this.transformSortByInput(params)
+    const path = `/account/${accountId}/${mediaType}/recommendations`
+    const init = { cacheOptions: { ttl: 0 } }
+    return this.get(path, params, init)
+  }
 }
 module.exports = MovieDatabaseV4

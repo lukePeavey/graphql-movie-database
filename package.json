@@ -1,6 +1,6 @@
 {
   "name": "tmdb-graphql",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A graphQL layer for the TMDB API.",
   "main": " src/server.js",
   "repository": {

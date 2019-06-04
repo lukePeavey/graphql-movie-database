@@ -3,7 +3,8 @@ const { URL } = require('apollo-server-env')
 const { InMemoryLRUCache } = require('apollo-server-caching')
 const { AuthenticationError } = require('apollo-server')
 const lowerCase = require('lodash/lowerCase')
-const { snakeCaseKeys, camelCaseKeys } = require('../utils/camelCase')
+const { camelCaseKeys } = require('../utils/camelCase')
+const { snakeCaseKeys } = require('../utils/snakeCase')
 
 // Create a custom cache for storing specific key/value pairs
 const keyValueCache = new InMemoryLRUCache()
@@ -122,7 +123,7 @@ class MovieDatabase extends RESTDataSource {
   }
 
   transformListItemInput({ id, mediaType }) {
-    return { media_id: Number(id), media_type: lowerCase(mediaType) }
+    return { mediaId: Number(id), mediaType: lowerCase(mediaType) }
   }
 
   /**

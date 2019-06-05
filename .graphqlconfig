@@ -1,6 +1,6 @@
 {
   "name": "tmdb-graphql",
-  "schemaPath": "src/schema/schema.graphql",
+  "schemaPath": "src/schema/index.graphql",
   "extensions": {
     "endpoints": {
       "development": {

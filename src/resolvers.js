@@ -223,23 +223,10 @@ const resolvers = {
       // field resolvers on `FavoriteMutationResponse`
       return { ...response, ...args }
     },
-    rateMovie: async (_, args, { dataSources }) => {
+    submitUserRating: async (_, { input }, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      const mediaType = 'MOVIE'
-      const response = await movieDatabaseV3.updateRating({
-        mediaType,
-        ...args
-      })
-      return { ...response, mediaType, ...args }
-    },
-    rateShow: async (_, args, { dataSources }) => {
-      const { movieDatabaseV3 } = dataSources
-      const mediaType = 'TV'
-      const response = await movieDatabaseV3.updateRating({
-        mediaType,
-        ...args
-      })
-      return { ...response, mediaType, ...args }
+      const response = await movieDatabaseV3.updateRating(input)
+      return { ...response, input }
     }
   },
   // --------------------------------------------------
@@ -514,9 +501,10 @@ const resolvers = {
   },
   RatingMutationResponse: {
     success: ({ success }) => !!success,
-    media: ({ success, mediaType, id }, _, { dataSources }) => {
+    media: ({ success, input }, _, { dataSources }) => {
       if (!success) return null
       const { movieDatabaseV3 } = dataSources
+      const { mediaType, id } = input
       return movieDatabaseV3[`get${transforms.toTypename(mediaType)}`]({ id })
     }
   },

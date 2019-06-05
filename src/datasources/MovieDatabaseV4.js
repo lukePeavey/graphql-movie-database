@@ -35,10 +35,9 @@ class MovieDatabaseV4 extends MovieDatabase {
    * Requires a valid user access token.
    * @see https://developers.themoviedb.org/4/list/create-list
    */
-  async createList({ name, description, iso_639_1 = 'en' }) {
+  async createList({ input }) {
     try {
-      const body = { name, description, iso_639_1 }
-      const response = await this.post('/list', body)
+      const response = await this.post('/list', input)
       if (response.success) {
         return { ...response, message: 'List was created successfully.' }
       }
@@ -58,9 +57,9 @@ class MovieDatabaseV4 extends MovieDatabase {
    * the graphQL API. If problem continues, report issue to TMDB
    * @see https://developers.themoviedb.org/4/list/update-list
    */
-  async updateList({ id, ...params }) {
+  async updateList({ id, input }) {
     try {
-      const body = this.transformSortByInput(params)
+      const body = this.transformSortByInput(input)
       const response = await this.put(`/list/${id}`, body)
       if (response.success) {
         return { ...response, message: 'List was updated successfully.' }

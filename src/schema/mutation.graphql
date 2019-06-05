@@ -14,28 +14,13 @@ type Mutation {
   Creates a new custom List for the logged in user. This requires a valid user
   access token.
   """
-  createList(
-    name: String!
-    description: String
-    public: Boolean = false
-    iso_639_1: String = "en"
-    iso_3166_1: String = "US"
-  ): ListMutationResponse
+  createList(input: CreateListInput): ListMutationResponse
 
   """
   Updates the details of an existing List. This requires a valid user access
   token. The user must also have permission to edit the given list.
   """
-  updateList(
-    id: ID!
-    name: String
-    description: String
-    sortBy: ListSortBy
-    sortOrder: SortOrder
-    public: Boolean
-    iso_639_1: String
-    iso_3166_1: String
-  ): ListMutationResponse
+  updateList(id: ID!, input: UpdateListInput): ListMutationResponse
 
   """
   Deletes a custom List. This action is not reversible so take care when issuing
@@ -79,8 +64,7 @@ type Mutation {
   """
   addToWatchlist(
     accountId: ID!
-    item: ListItemInput!
-    watchlist: Boolean = true
+    input: AddToWatchlistInput
   ): WatchlistMutationResponse
 
   """
@@ -89,22 +73,16 @@ type Mutation {
   """
   addToFavorites(
     accountId: ID!
-    item: ListItemInput!
-    favorite: Boolean = true
+    input: AddToFavoritesInput
   ): FavoriteMutationResponse
 
   """
-  Submit a user rating of a movie. The value can be number between `0.5` and
-  `10.0`. It has to be a multiple of `0.5`. Setting rating to `null` will
-  remove the user rating on this movie.
+  Submit a user rating for a Movie or TV show.  The value can be number between
+  `0.5` and `10.0`. It has to be a multiple of `0.5`. Setting rating to `null`
+  will remove the user rating on this movie. Note: this can only be performed by
+  logged in user.
   """
-  rateMovie(id: ID!, value: Float): RatingMutationResponse
-  """
-  Submit a user rating of a tv Show. The value can be number between `0.5` and
-  `10.0`. It has to be a multiple of `0.5`. Setting rating to `null` will
-  remove the user rating on this tv show.
-  """
-  rateShow(id: ID!, value: Float): RatingMutationResponse
+  submitUserRating(input: UserRatingInput): RatingMutationResponse
 }
 
 # ===================================================================
@@ -165,19 +143,48 @@ type RatingMutationResponse implements MutationResponse {
   message: String!
   value: Float
   media: Media
+  ratings: Ratings
 }
 
 # ===================================================================
 #  3. Input Types
 # ===================================================================
 input ListItemInput {
-  title: String
+  title: String # TODO remove
   id: ID!
   mediaType: MediaType!
 }
 
+input CreateListInput {
+  name: String!
+  description: String
+  public: Boolean = false
+  iso_639_1: String
+  iso_3166_1: String
+}
+
+input UpdateListInput {
+  name: String
+  description: String
+  sortBy: ListSortBy
+  sortOrder: SortOrder
+  public: Boolean
+  iso_639_1: String
+  iso_3166_1: String
+}
+input AddToWatchlistInput {
+  id: ID!
+  mediaType: MediaType!
+  watchlist: Boolean = true
+}
+
+input AddToFavoritesInput {
+  id: ID!
+  mediaType: MediaType!
+  favorite: Boolean = true
+}
+
 input UserRatingInput {
-  title: String
   id: ID!
   mediaType: MediaType!
   value: Float

@@ -75,15 +75,18 @@ class MovieDatabase extends RESTDataSource {
   }
 
   get(path, params, init) {
-    return super.get(path, snakeCaseKeys(params), init)
+    const formattedParams = snakeCaseKeys(params)
+    return super.get(path, formattedParams, init)
   }
 
   post(path, body, init) {
-    return super.post(path, snakeCaseKeys(body), init)
+    const formattedBody = snakeCaseKeys(body)
+    return super.post(path, formattedBody, init)
   }
 
   put(path, body, init) {
-    return super.put(path, snakeCaseKeys(body), init)
+    const formattedBody = snakeCaseKeys(body)
+    return super.put(path, formattedBody, init)
   }
 
   /**

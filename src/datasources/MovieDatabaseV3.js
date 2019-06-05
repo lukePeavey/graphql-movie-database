@@ -150,14 +150,11 @@ class MovieDatabaseV3 extends MovieDatabase {
    * @see https://developers.themoviedb.org/3/account/add-to-watchlist
    * @see https://developers.themoviedb.org/3/account/mark-as-favorite
    */
-  async addToWatchlistOrFavorites(listType, params) {
+  async addToWatchlistOrFavorites(listType, { accountId, input }) {
     try {
       await this.convertV4TokenToSessionID()
-      const path = `/account/${params.accountId}/${listType}`
-      const body = {
-        ...this.transformListItemInput(params.item),
-        [listType]: params[listType]
-      }
+      const path = `/account/${accountId}/${listType}`
+      const body = this.transformListItemInput(input)
       const { statusMessage } = await this.post(path, body)
       return { success: true, message: statusMessage }
     } catch (error) {

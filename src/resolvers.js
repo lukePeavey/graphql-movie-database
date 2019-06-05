@@ -131,42 +131,43 @@ const resolvers = {
     // --------------------------------------------------
     //  Plural Queries
     // --------------------------------------------------
-    people: (_, args = {}, { dataSources }) => {
+    allMovies: (_, args = {}, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
-      return movieDatabaseV3.search({ mediaType: 'person', ...args })
-    },
-    movies: (_, args = {}, { dataSources }) => {
-      const { movieDatabaseV3 } = dataSources
-      const mediaType = 'MOVIE'
-      const { query, list, discover, ...rest } = args
-      // The movies query has three mutually exclusive arguments:
-      // A. If a `query` argument was provided, use search API to find movies
-      if (query) {
-        return movieDatabaseV3.search({ mediaType, query, ...rest })
+      const { search, page, ...discoverArgs } = args
+      if (search) {
+        // If a `search` argument was provided, use the search/movie
+        return movieDatabaseV3.search({ type: 'MOVIE', query: search, page })
+      } else {
+        // Otherwise, use the discover API
+        return movieDatabaseV3.discover({
+          mediaType: 'MOVIE',
+          page,
+          ...discoverArgs
+        })
       }
-      // B. If the `list` argument was provided, get movies from the specified
-      // movie list endpoint
-      if (list) {
-        return movieDatabaseV3.movies(list, rest)
+    },
+    allShows: (_, args = {}, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      const { search, page, ...discoverArgs } = args
+      if (search) {
+        // If a `search` argument was provided, use the search/tv API
+        return movieDatabaseV3.search({ query: search, type: 'SHOW', page })
+      } else {
+        // Otherwise, use the discover API
+        return movieDatabaseV3.discover({
+          mediaType: 'TV',
+          page,
+          ...discoverArgs
+        })
       }
-      // C. Otherwise, default to the discover API
-      return movieDatabaseV3.discover({ mediaType, ...discover, ...rest })
-    },
-    shows: (_, args = {}, { dataSources }) => {
-      const mediaType = 'TV'
-      const { movieDatabaseV3 } = dataSources
-      const { query, list, discover, ...rest } = args
-      if (query) return movieDatabaseV3.search({ mediaType, query, ...rest })
-      if (list) return movieDatabaseV3.shows(list, rest)
-      return movieDatabaseV3.discover({ mediaType, ...discover, ...rest })
-    },
-    companies: (_, args = {}, { dataSources }) => {
-      const { movieDatabaseV3 } = dataSources
-      return movieDatabaseV3.search({ mediaType: 'COMPANY', ...args })
     },
     search: async (_, args, { dataSources }) => {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.search(args)
+    },
+    allPeople: async (_, { search, page = 1 }, { dataSources }) => {
+      const { movieDatabaseV3 } = dataSources
+      return movieDatabaseV3.search({ query: search, type: 'PERSON', page })
     }
   },
   // --------------------------------------------------
@@ -402,7 +403,7 @@ const resolvers = {
       // request to the search endpoint using the name/id.
       if (knownFor) return knownFor
       const { results } = await movieDatabaseV3.search({
-        mediaType: 'PERSON',
+        type: 'PERSON',
         query: name
       })
       const match = results.find(person => String(person.id) === String(id))

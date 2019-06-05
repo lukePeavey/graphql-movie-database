@@ -1,7 +1,7 @@
 const get = require('lodash/get')
-const snakeCase = require('lodash/snakeCase')
 const debug = require('../utils/debug')
 const MovieDatabase = require('./MovieDatabase')
+const transforms = require('../utils/transforms')
 
 /**
  * A data source to connect to the TMDB rest API
@@ -114,58 +114,23 @@ class MovieDatabaseV3 extends MovieDatabase {
    * @param {number} [params.page] Must be an Int <= 1000
    * @see https://developers.themoviedb.org/3/discover/movie-discover
    */
-  async discover({ mediaType, ...params }) {
+  async discover({ mediaType, page = 1, ...params }) {
     params = this.transformSortByInput(params, mediaType)
-    return this.get(`/discover/${mediaType}`, params)
+    return this.get(`/discover/${mediaType}`, { page, ...params })
   }
 
   /**
    * Search for items matching the provided query.
    *
-   * @param {'MOVIE' | 'TV' | 'PERSON' | 'COMPANY' | 'MULTI'} type
+   * @param {'MOVIE' | 'SHOW' | 'PERSON' | 'COMPANY' | 'ALL'} type
    * @param {Object} params
    * @param {String} params.query the query string to search for
    * @param {number} [params.page] the pagination offset. Must be Int <= 1000
    * @see https://developers.themoviedb.org/3/search/multi-search
    */
-  async search({ mediaType = 'MULTI', ...params }) {
+  async search({ type, ...params }) {
+    const mediaType = transforms.toMediaType(type || 'multi')
     return this.get(`/search/${mediaType}`, params)
-  }
-
-  /**
-   * This method gets movies using the various `/movie/<endpoint>` methods that
-   * return specific lists of movies. This includes the following API endpoints:
-   * - `/movie/latest`
-   * - `/movie/now_playing`
-   * - `/movie/now_playing`
-   * - `/movie/popular`
-   * - `/movie/top_rated`
-   * - `/movie/upcoming`
-   *
-   * @param {String} endpoint
-   * @param {Object} params
-   * @param {number} params.page
-   */
-  async movies(endpoint, { page }) {
-    return this.get(`/movie/${snakeCase(endpoint)}`, { page })
-  }
-
-  /**
-   * Gets TV shows using the various `/tv/{endpoint}` methods. These return
-   * specific lists of TV shows. It includes the following endpoints:
-   *
-   * - `/tv/latest`
-   * - `/tv/airing_today`
-   * - `/tv/on_the_air`
-   * - `/tv/popular`
-   * - `/tv/top_rated`
-   *
-   * @param {String} endpoint
-   * @param {Object} params
-   * @param {number} params.page
-   */
-  async shows(endpoint, { page }) {
-    return this.get(`/tv/${snakeCase(endpoint)}`, { page })
   }
 
   /**

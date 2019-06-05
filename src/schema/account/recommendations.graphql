@@ -3,12 +3,12 @@ type Recommendations {
     sortBy: RecommendationsSortBy = SCORE
     sortOrder: SortOrder = DESC
     page: Int
-  ): MoviesResponse!
+  ): MoviesConnection!
   shows(
     sortBy: RecommendationsSortBy = SCORE
     sortOrder: SortOrder = DESC
     page: Int
-  ): ShowsResponse!
+  ): ShowsConnection!
 }
 
 enum RecommendationsSortBy {

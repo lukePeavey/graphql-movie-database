@@ -1,2 +1,8 @@
+# import * from 'misc.graphql'
+# import * from 'connections.graphql'
+# import Query.*, * from 'allMovies.graphql'
+# import Query.*, * from 'allShows.graphql'
+# import Query.*, * from 'allPeople.graphql'
+# import Query.*, * from 'search.graphql'
 # import Query from 'query.graphql'
 # import Mutation from 'mutation.graphql'

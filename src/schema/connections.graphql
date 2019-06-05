@@ -1,0 +1,42 @@
+# TODO
+# Connection is a paginated response
+interface Connection {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+}
+
+type MoviesConnection implements Connection {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [Movie!]!
+}
+
+type ShowsConnection implements Connection {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [Show!]!
+}
+
+type ListsConnection implements Connection {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [List!]!
+}
+
+type PeopleConnection implements Connection {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [Person!]!
+}
+
+type ReviewsConnection implements Connection {
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
+  results: [Review!]!
+}

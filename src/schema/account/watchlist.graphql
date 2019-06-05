@@ -3,12 +3,12 @@ type Watchlist {
     sortBy: WatchlistSortBy = DATE_ADDED
     sortOrder: SortOrder = DESC
     page: Int
-  ): MoviesResponse!
+  ): MoviesConnection!
   shows(
     sortBy: WatchlistSortBy = DATE_ADDED
     sortOrder: SortOrder = DESC
     page: Int
-  ): ShowsResponse!
+  ): ShowsConnection!
 }
 
 type Favorites {
@@ -16,12 +16,12 @@ type Favorites {
     sortBy: WatchlistSortBy = DATE_ADDED
     sortOrder: SortOrder = DESC
     page: Int
-  ): MoviesResponse!
+  ): MoviesConnection!
   shows(
     sortBy: WatchlistSortBy = DATE_ADDED
     sortOrder: SortOrder = DESC
     page: Int
-  ): ShowsResponse!
+  ): ShowsConnection!
 }
 
 enum WatchlistSortBy {

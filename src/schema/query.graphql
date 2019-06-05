@@ -1,21 +1,21 @@
 # import Company from "companies.graphql"
 # import Configuration from "configuration.graphql"
-# import DiscoverMovieOptions, DiscoverTVOptions from "discover.graphql"
 # import Movie from "movies.graphql"
 # import Person from "people.graphql"
 # import Show, Season, Episode from "shows.graphql"
 # import Account from "account/account.graphql"
 # import List, ListSortBy from "account/lists.graphql"
 
-# Table of Contents
-# 1. Single Item Queries
-# 2. Plural Queries
-# 3. Response Types
-# 4. Input Types
-
 type Query {
+  """
+  Gets the TMDB account of the logged in user.
+  Requires user authentication. A valid V4 access token must be sent as the
+  "authorization" header.
+  """
+  myAccount(accountId: ID!): Account
+
   # ===================================================================
-  # 1. Single Item Queries
+  # 1. Queries
   # ===================================================================
   """
   Gets details information about a specific person.
@@ -62,125 +62,4 @@ type Query {
   See [V4 List Docs](https://developers.themoviedb.org/4/list/get-list)
   """
   list(id: ID!, sortBy: ListSortBy, sortOrder: SortOrder, page: Int): List
-
-  """
-  Gets the TMDB account of the logged in user.
-  Requires user authentication. A valid V4 access token must be sent as the
-  "authorization" header.
-  """
-  myAccount(accountId: ID!): Account
-
-  # ===================================================================
-  # 2. Plural Queries
-  # ===================================================================
-  """
-  Searches the database for people that match a given search query.
-  """
-  people(query: String!, page: Int): PeopleResponse
-
-  """
-  Find movies using various searching and filtering options. This query
-  encompasses multiple API endpoints that return lists of movies.
-  """
-  movies(
-    discover: DiscoverMovieOptions
-    list: MovieListName
-    query: String
-    page: Int
-  ): MoviesResponse
-
-  """
-  Gets TV shows from the database. This query encompasses all of the API methods
-  designed to find and retrieve multiple TV shows. The arguments are mutually
-  exclusive - each argument corresponds to a different underlying API method
-  so they cannot be used together.
-  """
-  shows(
-    discover: DiscoverTVOptions
-    list: TVListName
-    query: String
-    page: Int
-  ): ShowsResponse
-
-  """
-  Searches for production companies that match the given query string.
-  """
-  companies(query: String!, page: Int): CompaniesResponse
-
-  """
-  Searches all database models for results that match the given query
-  string. This query uses the "/search/multi" endpoint. The results will
-  be a list of mixed object types. NOTE: If you want to search for a specific
-  object type, use the plural query for the given object instead. IE to
-  search movies, use `movies(query: "Last Tango")`
-  """
-  search(query: String!, page: Int): SearchResponse
-}
-
-# ===================================================================
-#  3. Response Types
-# ===================================================================
-
-type MoviesResponse {
-  totalPages: Int
-  totalResults: Int
-  page: Int
-  results: [Movie!]!
-}
-
-type ShowsResponse {
-  totalPages: Int
-  totalResults: Int
-  page: Int
-  results: [Show!]!
-}
-
-type PeopleResponse {
-  totalPages: Int
-  totalResults: Int
-  page: Int
-  results: [Person!]!
-}
-
-type CompaniesResponse {
-  totalPages: Int
-  totalResults: Int
-  page: Int
-  results: [Company!]!
-}
-
-type SearchResponse {
-  totalPages: Int
-  totalResults: Int
-  page: Int
-  results: [SearchResult!]!
-}
-
-type ListsResponse {
-  totalPages: Int!
-  totalResults: Int!
-  page: Int!
-  results: [List!]!
-}
-
-union SearchResult = Person | Movie | Show | Company
-
-# ===================================================================
-#  4. Input Types
-# ===================================================================
-
-enum TVListName {
-  LATEST
-  ON_AIR
-  AIRING_TODAY
-  POPULAR
-  TOP_RATED
-}
-
-enum MovieListName {
-  LATEST
-  NOW_PLAYING
-  POPULAR
-  TOP_RATED
-  UPCOMING
 }

@@ -1,0 +1,101 @@
+type Query {
+  """
+  Get TV shows from the database. This query uses the discover api, which
+  supports a wide range of filters and sorting options.
+  """
+  allShows(
+    """
+    Find movies that match given search query. Note: using `search` in conjunction with other filters or sorting options is not currently supported.
+    """
+    search: String
+    """
+    The criteria on which results are sorted
+    """
+    sortBy: TVSortBy = POPULARITY
+    """
+    The order in which results are sorted
+    """
+    sortOrder: SortOrder = DESC
+    """
+    Filter and only include TV shows that have a air date (by looking at all
+    episodes) that is greater or equal to the specified value.
+    """
+    airDate_GTE: String
+    """
+    Filter and only include TV shows that have a air date (by looking at all
+    episodes) that is less than or equal to the specified value.
+    """
+    airDate_LTE: String
+    """
+    Filter and only include TV shows that have a original air date that is
+    greater or equal to the specified value. Can be used in conjunction with the
+    "include_null_first_air_dates" filter if you want to include items with no
+    air date.
+    """
+    firstAirDate_GTE: String
+    """
+    Filter and only include TV shows that have a original air date that is less
+    than or equal to the specified value. Can be used in conjunction with the
+    "include_null_first_air_dates" filter if you want to include items with no
+    air date
+    """
+    firstAirDate_LTE: String
+    """
+    Used in conjunction with the air_date.gte/lte filter to calculate the proper
+    UTC offset. default "America/New_York"
+    """
+    timezone: String
+    """
+    Filter and only include shows that have a rating that is greater or equal
+    to the specified value.
+    """
+    voteAverage_GTE: Float
+    """
+    Filter and only include shows that have a rating that is less than or equal
+    to the specified value.
+    """
+    voteCount_GTE: Int
+    """
+    Filter and only include shows that include the given genres. This should be a list of genre_ids
+    """
+    withGenres: String
+    """
+    Filter the results to exclude include shows with the specified genres. The value should be a list of genre_ids.
+    """
+    withoutGenres: String
+    """
+    Comma separated value of network ids that you want to include in the results.
+    """
+    withNetworks: String
+    """
+    Filter and only include shows that have a runtime that is greater or equal
+    to a value.
+    """
+    withRuntime_GTE: Int
+    """
+    Filter and only include shows that have a runtime that is less than or
+    equal to a value.
+    """
+    withRuntime_LTE: Int
+    """
+    Specify an ISO 639-1 string to filter results by their original language
+    value.
+    """
+    withOriginalLanguage: String
+    """
+    Use this filter to include TV shows that don't have an air date while using
+    any of the "first_air_date" filters.
+    """
+    includeNullFirstAirDates: Boolean
+    page: Int = 1
+  ): ShowsConnection
+}
+
+"The available sorting methods for the allshows query."
+enum TVSortBy {
+  FIRST_AIR_DATE
+  POPULARITY
+  RELEASE_DATE
+  VOTE_AVERAGE
+  VOTE_COUNT
+}

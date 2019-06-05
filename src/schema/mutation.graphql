@@ -1,4 +1,3 @@
-# import MediaType from "misc.graphql"
 # import List, ListSortBy from "account/lists.graphql"
 # import Watchlist, Favorites from "account/watchlist.graphql"
 

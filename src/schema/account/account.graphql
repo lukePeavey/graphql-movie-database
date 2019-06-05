@@ -1,4 +1,4 @@
-# import ListsResponse from "lists.graphql"
+# import ListsConnection from "lists.graphql"
 # import Watchlist, Favorites from "watchlist.graphql"
 # import Ratings from "ratings.graphql"
 # import Recommendations from "recommendations.graphql"
@@ -10,5 +10,5 @@ type Account {
   favorites: Favorites!
   ratings: Ratings!
   recommendations: Recommendations!
-  lists(page: Int): ListsResponse!
+  lists(page: Int): ListsConnection!
 }

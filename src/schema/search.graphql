@@ -1,12 +1,11 @@
 type Query {
   """
-  Searches all database models for results that match the given query
-  string. This query uses the "/search/multi" endpoint. The results will
-  be a list of mixed object types. NOTE: If you want to search for a specific
-  object type, use the plural query for the given object instead. IE to
-  search movies, use `movies(query: "Last Tango")`
+  Searches the database for objects matchings the given search query. By
+  default, this will use the multi search api, which search movies, tv shows
+  and people simultaneously. It has an optional `type` argument which can be
+  used to search for a specific object type.
   """
-  search(query: String!, page: Int): SearchResponse
+  search(query: String!, type: SearchForType = MULTI, page: Int): SearchResponse
 }
 
 type SearchResponse {
@@ -14,6 +13,14 @@ type SearchResponse {
   totalResults: Int
   page: Int
   results: [SearchResult!]!
+}
+
+enum SearchForType {
+  MULTI
+  MOVIE
+  SHOW
+  PERSON
+  COMPANY
 }
 
 union SearchResult = Person | Movie | Show | Company

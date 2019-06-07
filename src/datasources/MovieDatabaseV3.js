@@ -129,8 +129,16 @@ class MovieDatabaseV3 extends MovieDatabase {
    * @see https://developers.themoviedb.org/3/search/multi-search
    */
   async search({ type, ...params }) {
-    const mediaType = transforms.toMediaType(type || 'multi')
-    return this.get(`/search/${mediaType}`, params)
+    const mediaType = transforms.toMediaType(type)
+    let { results, ...rest } = await this.get(`/search/${mediaType}`, params)
+    if (mediaType !== 'MULTI') {
+      // The  `__resolveType` function for `SearchResult` uses the mediaType
+      // property, which only exists on results returned by the multi search
+      // api. So when searching a single object type, we add a mediaType prop
+      // to results
+      results = results.map(result => ({ mediaType, ...result }))
+    }
+    return { results, ...rest }
   }
 
   /**

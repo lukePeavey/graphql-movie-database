@@ -29,7 +29,7 @@ class MovieDatabaseV3 extends MovieDatabase {
   async getMovie({ id }) {
     // Includes credits, video, images, reviews
     const response = await this.get(`/movie/${id}`, {
-      appendToResponse: 'credits'
+      appendToResponse: 'credits,images,videos,reviews'
     })
     return { ...response, mediaType: 'MOVIE' }
   }

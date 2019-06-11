@@ -4,10 +4,3 @@ type Review {
   content: String
   url: String
 }
-
-type ReviewsResponse {
-  totalResults: Int!
-  totalPages: Int!
-  page: Int!
-  results: [Review]!
-}

@@ -1,7 +1,6 @@
 # import CastCredit, CrewCredit, CrewDepartment from "credits.graphql"
 # import Company from "companies.graphql"
 # import Media, AccountStates from "media.graphql"
-# import ReviewsResponse from "reviews.graphql"
 # import Video,  VideoType from "videos.graphql"
 
 type Show implements Media @cacheControl(maxAge: 10000) {
@@ -24,7 +23,7 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   posterPath: String
   posters: [Image]!
   productionCompanies: [Company]!
-  reviews(page: Int): ReviewsResponse
+  reviews(page: Int): ReviewsConnection
   "Date when the TV show first aired"
   releaseDate: String!
   status: String!

@@ -26,7 +26,7 @@ interface Media @cacheControl(maxAge: 10000) {
   posterPath: String
   posters: [Image]
   productionCompanies: [Company]!
-  reviews(page: Int): ReviewsResponse
+  reviews(page: Int): ReviewsConnection
   releaseDate: String!
   status: String!
   title: String!

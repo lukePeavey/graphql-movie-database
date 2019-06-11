@@ -1,5 +1,7 @@
 const camelCase = require('lodash/camelCase')
 const upperCase = require('lodash/upperCase')
+const isNumber = require('lodash/isNumber')
+const isString = require('lodash/isString')
 const transforms = require('./utils/transforms')
 
 /**
@@ -510,6 +512,20 @@ const resolvers = {
   },
   ListItemResult: {
     id: ({ mediaId }) => mediaId
+  },
+  // Connection is a paginated response
+  Connection: {
+    __resolveType: ({ results }) => {
+      // Use the first item in results to determine the concrete type of the
+      // connection. TODO: this might not be the right way to go about this?
+      const node = results && results[0]
+      if (!node) return null
+      if (node.mediaType === 'MOVIE') return 'MoviesConnection'
+      if (node.mediaType === 'TV') return 'ShowsConnection'
+      if (isString(node.biography)) return 'PeopleConnection'
+      if (isString(node.author)) return 'ReviewsConnection'
+      if (isNumber(node.numberOfItems)) return 'ListsConnection'
+    }
   }
 }
 

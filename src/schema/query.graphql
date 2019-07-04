@@ -8,15 +8,11 @@
 
 type Query {
   """
-  Gets the TMDB account of the logged in user.
-  Requires user authentication. A valid V4 access token must be sent as the
-  "authorization" header.
+  This query provides access to the account data of a specific user. It
+  encompasses all of the account-level queries such as watchlist, favorites,
+  custom lists, etc. It requires a valid user access token for the specified user.
   """
-  myAccount(accountId: ID!): Account
-
-  # ===================================================================
-  # 1. Queries
-  # ===================================================================
+  account(accountId: ID!): Account
   """
   Gets details information about a specific person.
   """

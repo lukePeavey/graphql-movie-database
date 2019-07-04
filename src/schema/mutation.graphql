@@ -83,6 +83,27 @@ type Mutation {
   logged in user.
   """
   submitUserRating(input: UserRatingInput): RatingMutationResponse
+
+  """
+  This mutation generates a new request token that you can ask a user to
+  approve. This is the first step in user authentication flow. This takes an
+  optional `redirectTo` argument which can be used to specify a redirect URL or
+  callback that will be executed once the user logs in and approves the request
+  token.
+  """
+  createRequestToken(redirectTo: String): CreateRequestTokenResponse
+  """
+  This mutation creates a new user access token. This is the final step in the
+  user authentication flow. It takes a request token that has been authorized by
+  the user and creates an access token.
+  """
+  createAccessToken(requestToken: String!): CreateAccessTokenResponse
+  """
+  This mutation logs the user out and deletes the access token so it cannot be
+  used again in the future. Note. due to a bug in the TMDB API, this method is
+  not currently working. See this [ticket](https://trello.com/c/Q1ceDQ8e)
+  """
+  deleteAccessToken: DeleteAccessTokenResponse
 }
 
 # ===================================================================
@@ -146,6 +167,24 @@ type RatingMutationResponse implements MutationResponse {
   ratings: Ratings
 }
 
+type CreateRequestTokenResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  requestToken: String
+}
+
+type CreateAccessTokenResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  token: String
+  accountId: ID
+}
+
+type DeleteAccessTokenResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+}
+
 # ===================================================================
 #  3. Input Types
 # ===================================================================
@@ -172,6 +211,7 @@ input UpdateListInput {
   iso_639_1: String
   iso_3166_1: String
 }
+
 input AddToWatchlistInput {
   id: ID!
   mediaType: MediaType!

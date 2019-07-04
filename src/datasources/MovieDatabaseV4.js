@@ -10,6 +10,17 @@ class MovieDatabaseV4 extends MovieDatabase {
     super()
     this.baseURL = `https://api.themoviedb.org/4`
   }
+  /**
+   * Adds authentication to V4 requests
+   * @override
+   */
+  willSendRequest(request) {
+    // V4 requires a single authentication token which can either be a
+    // user access token (from context) or a application token
+    const { accessToken } = this.context
+    const token = accessToken || process.env.TMDB_API_READ_ACCESS_TOKEN
+    request.headers.set('authorization', `Bearer ${token}`)
+  }
 
   /**
    * Retrieves a custom user-created List by ID.
@@ -218,6 +229,63 @@ class MovieDatabaseV4 extends MovieDatabase {
     const path = `/account/${accountId}/${mediaType}/recommendations`
     const init = { cacheOptions: { ttl: 0 } }
     return this.get(path, params, init)
+  }
+
+  /**
+   * This method generates a new request token that you can ask a user to
+   * approve. This is the first step in getting permission from a user to read
+   * and write data on their behalf. You can read more about this system .
+   * Note that there is an optional body you can post alongside this request to
+   * set a redirect URL or callback that will be executed once a request token
+   * has been approved on TMDb.
+   *
+   * @see https://developers.themoviedb.org/4/auth/create-request-token
+   */
+  async createRequestToken({ redirectTo }) {
+    try {
+      const path = '/auth/request_token'
+      const body = redirectTo ? { redirectTo } : null
+      const response = await this.post(path, body)
+      return response
+    } catch (error) {
+      return { success: false, error }
+    }
+  }
+
+  /**
+   * This method will finish the user authentication flow and issue an official
+   * user access token. The request token in this request is sent along as part
+   * of the POST body. You should still use your standard API read access token
+   * for authenticating this request.
+   *
+   * @see https://developers.themoviedb.org/4/auth/create-access-token
+   */
+  async createAccessToken({ requestToken }) {
+    try {
+      const response = await this.post('/auth/access_token', { requestToken })
+      return response
+    } catch (error) {
+      return { success: false, error }
+    }
+  }
+
+  /**
+   * Deletes the user access token, logging the user out
+   *
+   * TODO:
+   * The `DELETE /auth/access_token` method is not currently working: it always
+   * returns 404 error even with correct the input. There is an open ticket for
+   * this issue on TMDB: https://trello.com/c/Q1ceDQ8e
+   */
+  async deleteAccessToken() {
+    try {
+      const path = '/auth/access_token'
+      const body = { access_token: this.context.accessToken }
+      const response = await this.delete(path, null, { body })
+      return response
+    } catch (error) {
+      return { success: false, error }
+    }
   }
 }
 module.exports = MovieDatabaseV4

@@ -2,6 +2,8 @@ require('dotenv').config() // Load environment variables
 const { ApolloServer } = require('apollo-server')
 const path = require('path')
 const { importSchema } = require('@lukepeavey/graphql-import')
+const jwt = require('jsonwebtoken')
+const debug = require('./utils/debug')
 const MovieDataBaseV3 = require('./datasources/MovieDatabaseV3')
 const MovieDataBaseV4 = require('./datasources/MovieDatabaseV4')
 const playground = require('./config/playground')
@@ -27,7 +29,11 @@ const server = new ApolloServer({
   context: ({ req }) => {
     // Check headers for a user authentication token.
     if (req.headers.authorization) {
-      return { userAccessToken: req.headers.authorization }
+      try {
+        return jwt.decode(req.headers.authorization, process.env.SECRET)
+      } catch (error) {
+        debug.error(error)
+      }
     }
   },
   formatError: error => {

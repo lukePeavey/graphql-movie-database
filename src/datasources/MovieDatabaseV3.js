@@ -13,6 +13,19 @@ class MovieDatabaseV3 extends MovieDatabase {
   }
 
   /**
+   * Add authentication params to V3 requests
+   * @override
+   */
+  willSendRequest(request) {
+    // api_key (application authentication )
+    request.params.set('api_key', process.env.TMDB_API_KEY)
+    // session_id (user authentication)
+    if (this.context.sessionId) {
+      request.params.set('session_id', this.context.sessionId)
+    }
+  }
+
+  /**
    * Get details about a single person by ID
    * @see https://developers.themoviedb.org/3/people/get-person-details
    */
@@ -99,7 +112,6 @@ class MovieDatabaseV3 extends MovieDatabase {
    * @see https://developers.themoviedb.org/3/movies/get-movie-account-states
    */
   async getAccountStates({ mediaType, id }) {
-    await this.convertV4TokenToSessionID()
     // Don't cache response
     const init = { cacheOptions: { ttl: 1 } }
     return this.get(`/${mediaType}/${id}/account_states`, null, init)
@@ -145,7 +157,6 @@ class MovieDatabaseV3 extends MovieDatabase {
    * Gets account details for the logged in user.
    */
   async getAccount() {
-    await this.convertV4TokenToSessionID()
     const init = { cacheOptions: { ttl: 0 } }
     return this.get('/account', null, init)
   }
@@ -160,7 +171,6 @@ class MovieDatabaseV3 extends MovieDatabase {
    */
   async addToWatchlistOrFavorites(listType, { accountId, input }) {
     try {
-      await this.convertV4TokenToSessionID()
       const path = `/account/${accountId}/${listType}`
       const body = this.transformListItemInput(input)
       const { statusMessage } = await this.post(path, body)
@@ -176,9 +186,10 @@ class MovieDatabaseV3 extends MovieDatabase {
    * Requires a valid user access token.
    *
    * @param {Object} params
-   * @param {string} params.accountId
-   * @param {{ id: string, mediaType: 'MOVIE' | 'TV' }} params.item
-   * @param {boolean} params.watchlist If true, the item will be added to
+   * @param {Object} params.input
+   * @param {string} params.input.id
+   * @param {'MOVIE' | 'TV' } params.input.mediaType
+   * @param {boolean} params.input.watchlist  If true, the item will be added to
    *     watchlist. Otherwise, it will be removed
    */
   addToWatchlist(params) {
@@ -190,10 +201,11 @@ class MovieDatabaseV3 extends MovieDatabase {
    * Requires a valid user access token.
    *
    * @param {Object} params
-   * @param {string} params.accountId The account ID for the user
-   * @param {{ id: string, mediaType: 'MOVIE' | 'TV' }} params.item
-   * @param {boolean} params.favorite If true, the item will be added to
-   *     favorites. Otherwise, it will be removed.
+   * @param {Object} params.input
+   * @param {string} params.input.id
+   * @param {'MOVIE' | 'TV' } params.input.mediaType
+   * @param {boolean} params.input.watchlist  If true, the item will be added to
+   *     watchlist. Otherwise, it will be removed
    */
   addToFavorites(params) {
     return this.addToWatchlistOrFavorites('favorite', params)
@@ -216,7 +228,6 @@ class MovieDatabaseV3 extends MovieDatabase {
    */
   async updateRating({ mediaType, id, value }) {
     try {
-      await this.convertV4TokenToSessionID()
       const path = `/${mediaType}/${id}/rating`
       // If value is `null`, delete the rating from this item
       const method = value === null ? 'delete' : 'post'
@@ -227,6 +238,30 @@ class MovieDatabaseV3 extends MovieDatabase {
       debug.error(error)
       const message = get(error, 'extensions.response.body.statusMessage')
       return { message: message || error.message }
+    }
+  }
+
+  /**
+   * Converts a user access token (V4 authentication) to a session ID.
+   */
+  async convertTokenToSessionID({ accessToken }) {
+    try {
+      const path = `/authentication/session/convert/4`
+      const response = await this.post(path, { accessToken })
+      return response
+    } catch (error) {
+      debug.error(error)
+      return { success: false, error }
+    }
+  }
+
+  async deleteSessionID() {
+    try {
+      const path = '/authentication/session'
+      const body = { session_id: this.context.sessionId }
+      return this.delete(path, null, { body })
+    } catch (error) {
+      return { success: false, error }
     }
   }
 }

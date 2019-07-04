@@ -1,8 +1,10 @@
 const camelCase = require('lodash/camelCase')
 const upperCase = require('lodash/upperCase')
+const get = require('lodash/get')
 const isNumber = require('lodash/isNumber')
 const isString = require('lodash/isString')
 const transforms = require('./utils/transforms')
+const jwt = require('jsonwebtoken')
 
 /**
  * Creates the resolvers for fields on the `Movie`, `Show`, `Season` and
@@ -96,6 +98,16 @@ function createMediaObjectResolvers(typename) {
   return mediaObjectResolvers
 }
 
+// Resolver for auth mutation response types
+const AuthMutationResponse = {
+  success: ({ success }) => !!success,
+  message: ({ success, error }) => {
+    if (success) return 'Success.'
+    const message = get(error, 'extensions.response.body.statusMessage')
+    return message || 'Internal server error'
+  }
+}
+
 const resolvers = {
   Query: {
     // --------------------------------------------------
@@ -129,7 +141,7 @@ const resolvers = {
       const { movieDatabaseV3 } = dataSources
       return movieDatabaseV3.getConfiguration()
     },
-    myAccount: async (_, args) => args,
+    account: async (_, args) => args,
     // --------------------------------------------------
     //  Plural Queries
     // --------------------------------------------------
@@ -229,6 +241,35 @@ const resolvers = {
       const { movieDatabaseV3 } = dataSources
       const response = await movieDatabaseV3.updateRating(input)
       return { ...response, input }
+    },
+    // Creates a request token
+    createRequestToken(_, args, { dataSources }) {
+      const { movieDatabaseV4 } = dataSources
+      return movieDatabaseV4.createRequestToken(args)
+    },
+    // Creates a user access token
+    createAccessToken: async (_, { requestToken }, { dataSources }) => {
+      const { movieDatabaseV4, movieDatabaseV3 } = dataSources
+      // 1. Create a user access token (V4 auth)
+      const response = await movieDatabaseV4.createAccessToken({ requestToken })
+      if (!response.success) return response
+      // 2. Convert the access token to a session ID (V3 auth)
+      const { accessToken, accountId } = response
+      const { sessionId } = await movieDatabaseV3.convertTokenToSessionID({
+        accessToken
+      })
+      // 3. Combine both credentials into a single token
+      const tokenPayload = { accessToken, sessionId }
+      const token = jwt.sign(tokenPayload, process.env.SECRET)
+      return { token, accountId, success: true }
+    },
+    // Delete a user access token
+    // Note: not working due to bug in TMDB API
+    deleteAccessToken: async (_parent, _args, { dataSources }) => {
+      const { movieDatabaseV4, movieDatabaseV3 } = dataSources
+      const response = await movieDatabaseV4.deleteAccessToken()
+      if (!response.success) return response
+      return movieDatabaseV3.deleteSessionID()
     }
   },
   // --------------------------------------------------
@@ -526,7 +567,10 @@ const resolvers = {
       if (isString(node.author)) return 'ReviewsConnection'
       if (isNumber(node.numberOfItems)) return 'ListsConnection'
     }
-  }
+  },
+  CreateRequestTokenResponse: AuthMutationResponse,
+  CreateAccessTokenResponse: AuthMutationResponse,
+  DeleteAccessTokenResponse: AuthMutationResponse
 }
 
 module.exports = resolvers

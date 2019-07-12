@@ -9,10 +9,10 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   # ===================================================================
   accountStates: AccountStates
   backdropPath: String
-  backdrops: [Image]!
-  cast(first: Int): [CastCredit]!
-  crew(departments: [CrewDepartment]): [CrewCredit]!
-  genres: [Genre]
+  backdrops: [Image!]!
+  cast(first: Int): [CastCredit!]!
+  crew(departments: [CrewDepartment!]): [CrewCredit!]!
+  genres: [Genre!]!
   homepage: String
   id: ID!
   mediaType: MediaType!
@@ -21,28 +21,28 @@ type Show implements Media @cacheControl(maxAge: 10000) {
   overview: String!
   popularity: Float!
   posterPath: String
-  posters: [Image]!
-  productionCompanies: [Company]!
+  posters: [Image!]!
+  productionCompanies: [Company!]!
   reviews(page: Int): ReviewsConnection
   "Date when the TV show first aired"
   releaseDate: String!
   status: String!
   title: String!
-  videos(type: VideoType): [Video]!
+  videos(type: VideoType): [Video!]!
   voteAverage: Float!
   voteCount: Int!
   # ===================================================================
   #  Show fields
   # ===================================================================
-  episodeRunTime: [Int]!
+  episodeRunTime: [Int!]!
   firstAirDate: String
   inProduction: Boolean!
   lastAirDate: String
   numberOfEpisodes: Int!
   numberOfSeasons: Int!
-  originCountry: [String]!
+  originCountry: [String!]!
   season(seasonNumber: Int!): Season
-  seasons: [Season]
+  seasons: [Season!]!
 }
 
 """
@@ -57,13 +57,13 @@ type Season @cacheControl(maxAge: 10000) {
   overview: String!
   posterPath: String
   seasonNumber: Int!
-  episodes: [Episode]
+  episodes: [Episode!]!
   episode(episodeNumber: Int!): Episode
-  cast(first: Int): [CastCredit]!
-  crew(departments: [CrewDepartment]): [CrewCredit]!
-  posters: [Image]!
-  backdrops: [Image]!
-  videos(type: VideoType): [Video]!
+  cast(first: Int): [CastCredit!]!
+  crew(departments: [CrewDepartment!]): [CrewCredit!]!
+  posters: [Image!]!
+  backdrops: [Image!]!
+  videos(type: VideoType): [Video!]!
 }
 
 """

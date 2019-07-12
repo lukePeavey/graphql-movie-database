@@ -9,9 +9,9 @@ type Query {
 }
 
 type SearchResponse {
-  totalPages: Int
-  totalResults: Int
-  page: Int
+  totalPages: Int!
+  totalResults: Int!
+  page: Int!
   results: [SearchResult!]!
 }
 

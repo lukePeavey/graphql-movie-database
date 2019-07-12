@@ -1,9 +1,9 @@
 type Image {
-  filePath: String
+  filePath: String!
   aspectRatio: Float
   width: Int
   height: Int
   iso_639_1: String
-  voteAverage: Float
-  voteCount: Int
+  voteAverage: Float!
+  voteCount: Int!
 }

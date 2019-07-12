@@ -1,4 +1,4 @@
 "Get people from the database."
 type Query {
-  allPeople(search: String!, page: Int): PeopleConnection
+  allPeople(search: String!, page: Int): PeopleConnection!
 }

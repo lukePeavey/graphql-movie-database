@@ -2,7 +2,7 @@
 # import CastCredit, CrewCredit from "credits.graphql"
 
 type Person @cacheControl(maxAge: 10000) {
-  alsoKnownAs: [String]
+  alsoKnownAs: [String!]
   biography: String
   birthday: String!
   deathday: String
@@ -14,7 +14,7 @@ type Person @cacheControl(maxAge: 10000) {
   placeOfBirth: String
   popularity: Float!
   profilePath: String
-  knownFor: [Media]!
+  knownFor: [Media!]!
   filmography: Filmography!
 }
 
@@ -22,6 +22,6 @@ type Person @cacheControl(maxAge: 10000) {
 The combined movie and TV credits for a single person.
 """
 type Filmography @cacheControl(maxAge: 10000) {
-  cast: [CastCredit]!
-  crew: [CrewCredit]!
+  cast: [CastCredit!]!
+  crew: [CrewCredit!]!
 }

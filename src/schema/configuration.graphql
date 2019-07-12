@@ -3,7 +3,7 @@ System wide configuration information for the TMDB API.
 """
 type Configuration {
   images: ImageConfiguration!
-  changeKeys: [String]
+  changeKeys: [String!]!
 }
 
 """

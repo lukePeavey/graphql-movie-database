@@ -16,42 +16,59 @@ enum CrewDepartment {
   costumeAndMakeUp
 }
 
-"""
-This is the base type for CastCredit and CrewCredits.
-"""
+# TODO: revise type definitions for credits.
+# Currently there is single Credit type which is used for the credits on a
+# movie/show as well the credits on a person. It makes sense to define separate
+# types for person's credits and media item's credits.
+
+"This is the base type for CastCredit and CrewCredit."
 interface Credit @cacheControl(maxAge: 10000) {
   creditType: CreditType!
-  # The Movie | Show
+  "The movie or tv show"
   media: Media!
-  creditId: ID!
+  "The gender of the person"
   gender: Int
+  "The person ID"
   id: ID!
+  "The name of the person"
   name: String!
+  "The profile path of the person"
   profilePath: String
 }
 
+"Represents a cast credit in a movie or tv show."
 type CastCredit implements Credit {
   creditType: CreditType!
-  # The Movie | Show
+  "The movie or tv show"
   media: Media!
-  castId: ID!
-  creditId: ID!
+  "The gender of the person"
   gender: Int
+  "The person ID"
   id: ID!
+  "The name of the person"
   name: String!
+  "The profile path of the person"
   profilePath: String
-  character: String
-  order: Int
+  "The name of the character the person played"
+  character: String!
+  order: Int!
 }
 
+"Represents a crew credit in a movie or tv show."
 type CrewCredit implements Credit {
   creditType: CreditType!
+  "The movie or tv show"
   media: Media!
-  creditId: ID!
-  gender: Int!
+  "The gender of the person"
+  gender: Int
+  "The person ID"
   id: ID!
+  "The name of the person"
   name: String!
+  "The profile path of the person"
   profilePath: String
+  "The department in which the person worked"
   department: String!
+  "The specific job performed by the person"
   job: String!
 }

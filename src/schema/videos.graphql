@@ -1,18 +1,20 @@
 enum VideoType {
-  trailer
-  teaser
-  clip
-  featurette
-  openingCredits
+  TRAILER
+  TEASER
+  CLIP
+  FEATURETTE
+  OPENING_CREDITS
+  BEHIND_THE_SCENES
+  BLOOPERS
 }
 
 type Video {
-  id: String
-  language: String
-  country: String
-  key: String
-  name: String
-  site: String
-  size: Int
-  type: String
+  id: ID!
+  language: String!
+  country: String!
+  key: String!
+  name: String!
+  site: String!
+  size: Int!
+  type: VideoType!
 }

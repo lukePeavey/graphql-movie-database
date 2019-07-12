@@ -3,8 +3,9 @@ const upperCase = require('lodash/upperCase')
 const get = require('lodash/get')
 const isNumber = require('lodash/isNumber')
 const isString = require('lodash/isString')
-const transforms = require('./utils/transforms')
 const jwt = require('jsonwebtoken')
+const transforms = require('./utils/transforms')
+const constantCase = require('./utils/constantCase')
 
 /**
  * Creates the resolvers for fields on the `Movie`, `Show`, `Season` and
@@ -58,15 +59,17 @@ function createMediaObjectResolvers(typename) {
     videos: async (parent, args, { dataSources }) => {
       const videos = await _getDetailField('videos', parent, dataSources)
       if (!args.type) return videos.results
-      return videos.results.filter(item => camelCase(item.type) === args.type)
+      return videos.results.filter(item => {
+        return constantCase(item.type) === args.type
+      })
     },
     posters: async (parent, _, { dataSources }) => {
       const images = await _getDetailField('images', parent, dataSources)
-      return images.posters
+      return images.posters || []
     },
     backdrops: async (parent, _, { dataSources }) => {
       const images = await _getDetailField('images', parent, dataSources)
-      return images.backdrops
+      return images.backdrops || []
     }
   }
   // The following resolvers only apply to `Show` and `Movie` objects
@@ -458,6 +461,11 @@ const resolvers = {
         crew: combinedCredits.crew.map(transforms.filmographyCredit)
       }
     }
+  },
+  Video: {
+    type: ({ type }) => constantCase(type),
+    language: ({ iso_639_1 }) => iso_639_1,
+    country: ({ iso_3166_1 }) => iso_3166_1
   },
   RatedMedia: {
     releaseDate: ({ releaseDate, firstAirDate }) => {

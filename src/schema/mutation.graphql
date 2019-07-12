@@ -14,20 +14,20 @@ type Mutation {
   Creates a new custom List for the logged in user. This requires a valid user
   access token.
   """
-  createList(input: CreateListInput): ListMutationResponse
+  createList(input: CreateListInput): ListMutationResponse!
 
   """
   Updates the details of an existing List. This requires a valid user access
   token. The user must also have permission to edit the given list.
   """
-  updateList(id: ID!, input: UpdateListInput): ListMutationResponse
+  updateList(id: ID!, input: UpdateListInput): ListMutationResponse!
 
   """
   Deletes a custom List. This action is not reversible so take care when issuing
   it. This action can only be performed by the user who created the List. It
   requires a valid user access token for the user.
   """
-  deleteList(id: ID!): ListMutationResponse
+  deleteList(id: ID!): ListMutationResponse!
 
   """
   Clear all of the items from an existing list in a single request.
@@ -35,7 +35,7 @@ type Mutation {
   be performed by the user who created the List. It requires a valid user access
   token for the user.
   """
-  clearListItems(id: ID!): ListMutationResponse
+  clearListItems(id: ID!): ListMutationResponse!
 
   """
   Add any number of items to an existing list. Items can include a mix of movie
@@ -49,14 +49,14 @@ type Mutation {
   This action can only be performed by the user who created the List. It
   requires a valid user access token for the user.
   """
-  addListItems(id: ID!, items: [ListItemInput]!): ListItemsMutationResponse
+  addListItems(id: ID!, items: [ListItemInput!]!): ListItemsMutationResponse!
 
   """
   This method will let you remove items from a list. You can remove multiple
   items at a time. This action can only be performed by the user who created
   the List. It requires a valid user access token for the user.
   """
-  removeListItems(id: ID!, items: [ListItemInput]!): ListItemsMutationResponse
+  removeListItems(id: ID!, items: [ListItemInput!]!): ListItemsMutationResponse!
 
   """
   Add or remove a media item to the user's watchlist. The user must be logged
@@ -65,7 +65,7 @@ type Mutation {
   addToWatchlist(
     accountId: ID!
     input: AddToWatchlistInput
-  ): WatchlistMutationResponse
+  ): WatchlistMutationResponse!
 
   """
   Add or remove a media item to favorites. The user must be logged in to
@@ -74,7 +74,7 @@ type Mutation {
   addToFavorites(
     accountId: ID!
     input: AddToFavoritesInput
-  ): FavoriteMutationResponse
+  ): FavoriteMutationResponse!
 
   """
   Submit a user rating for a Movie or TV show.  The value can be number between
@@ -82,7 +82,7 @@ type Mutation {
   will remove the user rating on this movie. Note: this can only be performed by
   logged in user.
   """
-  submitUserRating(input: UserRatingInput): RatingMutationResponse
+  submitUserRating(input: UserRatingInput): RatingMutationResponse!
 
   """
   This mutation generates a new request token that you can ask a user to
@@ -91,19 +91,19 @@ type Mutation {
   callback that will be executed once the user logs in and approves the request
   token.
   """
-  createRequestToken(redirectTo: String): CreateRequestTokenResponse
+  createRequestToken(redirectTo: String): CreateRequestTokenResponse!
   """
   This mutation creates a new user access token. This is the final step in the
   user authentication flow. It takes a request token that has been authorized by
   the user and creates an access token.
   """
-  createAccessToken(requestToken: String!): CreateAccessTokenResponse
+  createAccessToken(requestToken: String!): CreateAccessTokenResponse!
   """
   This mutation logs the user out and deletes the access token so it cannot be
   used again in the future. Note. due to a bug in the TMDB API, this method is
   not currently working. See this [ticket](https://trello.com/c/Q1ceDQ8e)
   """
-  deleteAccessToken: DeleteAccessTokenResponse
+  deleteAccessToken: DeleteAccessTokenResponse!
 }
 
 # ===================================================================
@@ -131,7 +131,7 @@ that provides information about each item that was added/removed.
 type ListItemsMutationResponse implements MutationResponse {
   success: Boolean!
   message: String!
-  results: [ListItemResult]!
+  results: [ListItemResult!]!
   list(page: Int, sortBy: ListSortBy, sortOrder: SortOrder): List
 }
 

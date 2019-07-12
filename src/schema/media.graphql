@@ -12,10 +12,10 @@ TODO: Come up with a better name
 interface Media @cacheControl(maxAge: 10000) {
   accountStates: AccountStates
   backdropPath: String
-  backdrops: [Image]
-  cast(first: Int): [CastCredit]!
-  crew(departments: [CrewDepartment]): [CrewCredit]!
-  genres: [Genre]
+  backdrops: [Image!]!
+  cast(first: Int): [CastCredit!]!
+  crew(departments: [CrewDepartment!]): [CrewCredit!]!
+  genres: [Genre!]!
   homepage: String
   id: ID!
   mediaType: MediaType!
@@ -24,19 +24,19 @@ interface Media @cacheControl(maxAge: 10000) {
   overview: String
   popularity: Float!
   posterPath: String
-  posters: [Image]
-  productionCompanies: [Company]!
+  posters: [Image!]!
+  productionCompanies: [Company!]!
   reviews(page: Int): ReviewsConnection
   releaseDate: String!
   status: String!
   title: String!
-  videos(type: VideoType): [Video]!
+  videos(type: VideoType): [Video!]!
   voteAverage: Float!
   voteCount: Int!
 }
 
 type AccountStates {
-  rating: Float
-  watchlist: Boolean
-  favorite: Boolean
+  rating: Float!
+  watchlist: Boolean!
+  favorite: Boolean!
 }

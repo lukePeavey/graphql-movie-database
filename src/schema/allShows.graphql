@@ -88,10 +88,10 @@ type Query {
     """
     includeNullFirstAirDates: Boolean
     page: Int = 1
-  ): ShowsConnection
+  ): ShowsConnection!
 }
 
-"The available sorting methods for the allshows query."
+"The available sorting methods for the allShows query."
 enum TVSortBy {
   FIRST_AIR_DATE
   POPULARITY

@@ -4,7 +4,7 @@
 type Person @cacheControl(maxAge: 10000) {
   alsoKnownAs: [String!]
   biography: String
-  birthday: String!
+  birthday: String
   deathday: String
   gender: Int!
   homepage: String

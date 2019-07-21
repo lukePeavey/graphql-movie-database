@@ -1,26 +1,26 @@
 {
-  "name": "tmdb-graphql",
+  "name": "graphql-movie-database",
   "version": "0.6.0",
-  "description": "A graphQL layer for the TMDB API.",
-  "main": "src/server.js",
+  "description": "A complete GraphQL API for the Movie Database",
+  "keywords": [
+    "graphql",
+    "apollo",
+    "tmdb",
+    "api"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/lukePeavey/tmdb-graphql"
+    "url": "https://github.com/lukePeavey/graphql-movie-database"
   },
-  "homepage": "https://www.tmdb-graphql.com",
+  "license": "MIT",
+  "author": "Luke Peavey <lwpeavey@gmail.com> (http://lukepeavey.com)",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "start:dev": "NODE_ENV=development nodemon --ext js,json,graphql -d 150ms",
     "start:debug": "NODE_ENV=development nodemon --inspect --ext js,json,graphql -d 150ms",
     "lint": "yarn run eslint . --cache --color && echo \"eslint: no lint errors\""
   },
-  "keywords": [
-    "graphql",
-    "apollo",
-    "tbdb"
-  ],
-  "author": "Luke Peavey <lwpeavey@gmail.com> (http://lukepeavey.com)",
-  "license": "MIT",
   "lint-staged": {
     "src/**/*.{js,css,json}": [
       "prettier --write",
